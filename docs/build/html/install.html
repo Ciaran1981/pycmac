@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pycmac &mdash; pycmac 0.1 documentation</title>
+  <title>Pycmac &mdash; pycmac 0.1 documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pycmac package" href="pycmac.html" />
-    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
+    <link rel="next" title="Quickstart" href="quickstart.html" />
+    <link rel="prev" title="Welcome to pycmacs’s documentation!" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -85,14 +85,11 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="install.html">Pycmac</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html#installation">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html#dependency-installation">Dependency installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Pycmac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#dependency-installation">Dependency installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">pycmac</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pycmac.html">pycmac package</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pycmac</a></li>
 </ul>
 
             
@@ -138,13 +135,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>pycmac</li>
+      <li>Pycmac</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/install.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -158,18 +155,47 @@
            <div itemprop="articleBody">
             
   <div class="section" id="pycmac">
-<h1>pycmac<a class="headerlink" href="#pycmac" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="pycmac.html">pycmac package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pycmac.html#module-contents">Module contents</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pycmac.html#module-orientation">pycmac.orientation module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pycmac.html#module-dense_match">pycmac.dense_match module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pycmac.html#module-utilities">pycmac.utilities module</a></li>
-</ul>
-</li>
-</ul>
+<h1>Pycmac<a class="headerlink" href="#pycmac" title="Permalink to this headline">¶</a></h1>
 </div>
+<div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>A python lib for Micmac and associated geospatial functionality with enhancements and adaptations.</p>
+<p>The lib also facilitates the processing of Micasense multi-spectral imagery to surface reflectance ready for use with MicMac (or indeed others)</p>
+<p>All the functionallity of the material in the scripts site (<a class="reference external" href="https://github.com/Ciaran1981/Sfm/">https://github.com/Ciaran1981/Sfm/</a>) is covered here in a more</p>
+<p>compact form via python.</p>
+<p>Documentation is found here, including a quick start.</p>
+<p><a class="reference external" href="https://ciaran1981.github.io/pycmac/build/html/index.html">https://ciaran1981.github.io/pycmac/build/html/index.html</a></p>
+<p>cd into the pycmac folder and type</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p>This will install pycmac and dependencies into a conda environment. Remember to activate it when you use it.</p>
+</div>
+<div class="section" id="dependency-installation">
+<h1>Dependency installation<a class="headerlink" href="#dependency-installation" title="Permalink to this headline">¶</a></h1>
+<p><strong>MicMac</strong></p>
+<p><a class="reference external" href="https://micmac.ensg.eu/index.php/Accueil">https://micmac.ensg.eu/index.php/Accueil</a></p>
+<p>See MicMac install instructions here:</p>
+<p><a class="reference external" href="https://micmac.ensg.eu/index.php/Install">https://micmac.ensg.eu/index.php/Install</a></p>
+<p>This will usually work.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt-get install make imagemagick libimage-exiftool-perl exiv2 proj-bin qt5-default
+
+git clone https://github.com/micmacIGN/micmac.git
+
+<span class="nb">cd</span> micmac
+
+cmake ..
+
+make install -j k
+</pre></div>
+</div>
+<p>Remember to add the micmac bin dir to your path (.bashrc or .bash_profile)</p>
+<p><strong>OSSIM</strong></p>
+<p>Install OSSIM via tha ubuntu GIS or equivalent repo</p>
+<ul class="simple">
+<li><p>Ensure the OSSIM preferences file is on you path, otherwise it will not recognise different projections</p></li>
+<li><p>see here <a class="reference external" href="https://trac.osgeo.org/ossim/wiki/ossimPreferenceFile">https://trac.osgeo.org/ossim/wiki/ossimPreferenceFile</a></p></li>
+</ul>
 </div>
 
 
@@ -180,10 +206,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="pycmac.html" class="btn btn-neutral float-right" title="pycmac package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quickstart" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to pycmacs’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

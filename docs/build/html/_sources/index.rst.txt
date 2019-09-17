@@ -18,6 +18,8 @@ Contents
 .. toctree::
    :maxdepth: 3
    
+   install
+
    quickstart
 
    modules

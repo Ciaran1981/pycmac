@@ -29,7 +29,7 @@ This will install pycmac and dependencies into a conda environment. Remember to 
 
 
 Dependency installation
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 
 **MicMac**

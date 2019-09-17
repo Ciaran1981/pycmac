@@ -1,10 +1,9 @@
-# pycmac
+Pycmac
+~~~~~~~~
 
 Installation
 ~~~~~~~~~~~~~~~~~
 
-Pycmac
-~~~~~~~~
 
 A python lib for Micmac and associated geospatial functionality with some enhancements.
 

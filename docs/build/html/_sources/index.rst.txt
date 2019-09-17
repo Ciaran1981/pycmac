@@ -6,9 +6,15 @@
 Welcome to pycmacs's documentation!
 ============================================
 
-pycmac is a Python module for using the Micmac Structure from Motion (SfM) library within a python environment.
+A python lib for Micmac and associated geospatial functionality with enhancements and adaptations. 
 
-The module also contains various fuctionality for manipulating data associated with the SfM process as well as some enhancements to the basic micmac routines, such as processing Micasense multi-spectral data.  
+The lib also facilitates the processing of Micasense multi-spectral imagery to surface reflectance ready for use with MicMac (or indeed others)
+
+All the functionallity of the material in the scripts site (https://github.com/Ciaran1981/Sfm/) is covered here in a more compact form via python.
+
+Documentation is found here, including a quick start. 
+
+https://ciaran1981.github.io/pycmac/build/html/index.html
 
 The aim is to produce convenient, minimal commands for putting together SfM workflows using python and the excellent MicMac lib.
 

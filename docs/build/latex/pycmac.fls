@@ -1,4 +1,4 @@
-PWD /home/ciaran/Sfm/pycmac/docs/_build/latex
+PWD /home/ciaran/pycmac/docs/build/latex
 INPUT /etc/texmf/web2c/texmf.cnf
 INPUT /usr/share/texmf/web2c/texmf.cnf
 INPUT /usr/share/texlive/texmf-dist/web2c/texmf.cnf

@@ -5,7 +5,7 @@
 SPHINXOPTS    =
 SPHINXBUILD   = python -msphinx
 PAPER         =
-BUILDDIR      = _build
+BUILDDIR      = build
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_elements.papersize=a4

@@ -7,7 +7,11 @@ Installation
 
 A python lib for Micmac and associated geospatial functionality with some enhancements.
 
-All the functionallity of the above scripts is covered here.  
+All the functionallity of the material in the link below is covered here in a more 
+
+compact form via python.
+  
+https://github.com/Ciaran1981/Sfm/
 
 Documentation is found here, including a quick start. 
 

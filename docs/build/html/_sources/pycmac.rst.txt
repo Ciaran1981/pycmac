@@ -29,6 +29,7 @@ pycmac.utilities module
     :undoc-members:
     :show-inheritance:
 
+pycmac.mspec module
 --------------------------------
 
 .. automodule:: mspec

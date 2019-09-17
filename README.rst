@@ -15,7 +15,7 @@ https://github.com/Ciaran1981/Sfm/
 
 Documentation is found here, including a quick start. 
 
-https://ciaran1981.github.io/pycmac/docs/html/index.html
+https://ciaran1981.github.io/pycmac/docs/build/html/index.html
 
 cd into the pycmac folder and type 
 

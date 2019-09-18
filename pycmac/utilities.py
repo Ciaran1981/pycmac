@@ -201,7 +201,7 @@ def mv_subset(csv, inFolder, outfolder):
     Parallel(n_jobs=-1,verbose=5)(delayed(copy)(file, 
             outfolder) for file in dfList)
     
-def make_xml(csvFile, folder, yaw=None):
+def make_xml(csvFile, folder, sep=" "):
     
     """
     Make an xml  for the rtl system in micmac
@@ -221,36 +221,21 @@ def make_xml(csvFile, folder, yaw=None):
     f1 = E.TypeCoord
     f2 = E.AuxR
     f3 = E.AuxRUnite
-
     
-    csv = pd.read_table(csvFile)#, delimiter=" ")
-#    if len(csv.columns) == 1:
-#        csv = pd.read_table(csvFile, delimiter=" ")
-        
+    csv = pd.read_csv(csvFile, sep=sep)
+                
     x = str(csv.X[0])
     y = str(csv.Y[0])
     z = str(csv.Z[0])
-    
-    # if we are including yaw pitch and roll (k,w,p)
-    if yaw != None:            
-        k = str(csv.K[0])
-        w = str(csv.W[0])
-        p = str(csv.Z[0])          
-    # Bloody hell this is better than etree at least       
-        xmlDoc = (root(doc(f1('eTC_RTL'),f2(x),
-                           f2(y),
-                           f2(z), 
-                           f2(k),
-                           f2(w),
-                           f2(p),),
-                doc(f1('eTC_WGS84'),
-                               f3('eUniteAngleDegre'))))
-    else:
-        xmlDoc = (root(doc(f1('eTC_RTL'),f2(x),
-                       f2(y),
-                       f2(z),), 
-            doc(f1('eTC_WGS84'),
-                           f3('eUniteAngleDegre'))))
+    #csv = pd.read_csv(csvFile, sep=sep)#, delimiter=" ")
+#    if len(csv.columns) == 1:
+#        csv = pd.read_table(csvFile, delimiter=" ")
+
+    xmlDoc = (root(doc(f1('eTC_RTL'),f2(x),
+                   f2(y),
+                   f2(z),), 
+        doc(f1('eTC_WGS84'),
+                       f3('eUniteAngleDegre'))))
     
     et = lxml.etree.ElementTree(xmlDoc)
     ootXml = path.join(folder, 'SysCoRTL.xml')

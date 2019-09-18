@@ -205,7 +205,7 @@ If previous steps always used a csv for img coords ignore this</p></li>
 
 <dl class="function">
 <dt id="orientation.feature_match">
-<code class="sig-prename descclassname">orientation.</code><code class="sig-name descname">feature_match</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">csv=None</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">resize=None</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">schnaps=True</em><span class="sig-paren">)</span><a class="headerlink" href="#orientation.feature_match" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">orientation.</code><code class="sig-name descname">feature_match</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">csv=None</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">resize=None</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">delim=' '</em>, <em class="sig-param">schnaps=True</em><span class="sig-paren">)</span><a class="headerlink" href="#orientation.feature_match" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function running the feature detection and matching with micmac</p>
 <p class="rubric">Notes</p>
 <p>Underlying cmds include</p>
@@ -225,39 +225,21 @@ If previous steps always used a csv for img coords ignore this</p></li>
 </div>
 <div class="section" id="module-dense_match">
 <span id="pycmac-dense-match-module"></span><h2>pycmac.dense_match module<a class="headerlink" href="#module-dense_match" title="Permalink to this headline">¶</a></h2>
-<p>Ciaran Robb, 2019</p>
-<p>A module which calls Micmac dense matching commands and mosaicking operations,
-whilst a providing dditional file parsing, sorting, image masking and multi-band
-functionallity.</p>
-<p><a class="reference external" href="https://github.com/Ciaran1981/Sfm/pycmac/">https://github.com/Ciaran1981/Sfm/pycmac/</a></p>
+<p>Created on Mon Jun 10 10:52:56 2019</p>
+<p>&#64;author: Ciaran Robb</p>
+<p>A module which calls Micmac dense matching commands</p>
+<p>This is just for convenince  to keep everything in python - MicMac has an
+excellent command line</p>
+<p>It does also georef the files</p>
+<p><a class="reference external" href="https://github.com/Ciaran1981/Sfm">https://github.com/Ciaran1981/Sfm</a></p>
+<p>&#64;author: ciaran</p>
 <dl class="function">
-<dt id="dense_match.feather">
-<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">feather</code><span class="sig-paren">(</span><em class="sig-param">folder, proj='ESPG:32360', mode='PIMs', ApplyRE='1', ComputeRE='1', ms=['r', 'g', 'b'], mp=True, subset=None, SzBox='5000'</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.feather" title="Permalink to this definition">¶</a></dt>
-<dd><p>A function calling the TestLib SeamlineFeathering command for use in python</p>
-<p class="rubric">Notes</p>
-<p>The native micmac function only processes single band - this function provides
-a multi band capability (3 at present)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>folder</strong> (<em>string</em>) – working directory</p></li>
-<li><p><strong>proj</strong> (<em>string</em>) – a proj4/gdal like projection information e.g “ESPG:32360”</p></li>
-<li><p><strong>mode</strong> (<em>string</em>) – Ortho folder use either PIMs or Malt here</p></li>
-<li><p><strong>ms</strong> (<em>list</em>) – if a multi band image the band names in a list</p></li>
-<li><p><strong>mp</strong> (<em>bool</em>) – if true, process bands in parallel - with large datasets in sequence
-is recommended as there appears to be little merit to parallel.</p></li>
-<li><p><strong>subset</strong> (<em>string</em>) – the absolute path to a csv defining a subset list of images to process
-if left as None, all the images will be mosiacked.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="dense_match.malt">
-<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">malt</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">mode='Ortho'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">orientation='Ground_UTM'</em>, <em class="sig-param">DoOrtho='1'</em>, <em class="sig-param">DefCor='0'</em>, <em class="sig-param">sub=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.malt" title="Permalink to this definition">¶</a></dt>
+<dt id="dense_match.Malt">
+<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">Malt</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">mode='Ortho'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">orientation='Ground_UTM'</em>, <em class="sig-param">DoOrtho='1'</em>, <em class="sig-param">DefCor='0'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.Malt" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function calling the Malt command for use in python</p>
 <p class="rubric">Notes</p>
+<p>Purely for convenience within python - not  necessary - the mm3d cmd line
+is perfectly good</p>
 <p>see MicMac tools link for further possible kwargs - just put the module cmd as a kwarg
 The kwargs must be exactly the same case as the mm3d cmd options
 e.g = UseGpu=’1’</p>
@@ -266,7 +248,7 @@ e.g = UseGpu=’1’</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>folder</strong> (<em>string</em>) – working directory</p></li>
 <li><p><strong>proj</strong> (<em>string</em>) – a UTM zone eg “30 +north”</p></li>
-<li><p><strong>alIm</strong> (<em>string</em>) – Correlation mode - Ortho, UrbanMNE, GeomImage</p></li>
+<li><p><strong>mode</strong> (<em>string</em>) – Correlation mode - Ortho, UrbanMNE, GeomImage</p></li>
 <li><p><strong>ext</strong> (<em>string</em>) – image extention e.g JPG, tif</p></li>
 <li><p><strong>orientation</strong> (<em>string</em>) – orientation folder to use (generated by previous tools/cmds)
 default is “Ground_UTM”</p></li>
@@ -276,48 +258,12 @@ default is “Ground_UTM”</p></li>
 </dd></dl>
 
 <dl class="function">
-<dt id="dense_match.malt_batch">
-<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">malt_batch</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">mode='Ortho'</em>, <em class="sig-param">mp=-1</em>, <em class="sig-param">gp=0</em>, <em class="sig-param">window=2</em>, <em class="sig-param">mx=None</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">tiles='3</em>, <em class="sig-param">3'</em>, <em class="sig-param">overlap=10</em>, <em class="sig-param">bb=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.malt_batch" title="Permalink to this definition">¶</a></dt>
-<dd><p>A function for passing a subset to Malt or PIMS</p>
-<p class="rubric">Notes</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>folder</strong> (<em>string</em>) – working directory</p></li>
-<li><p><strong>gp</strong> (<em>string (optional)</em>) – path to gpu suppoted micmac bin folder</p></li>
-<li><p><strong>mp</strong> (<em>string</em>) – Correlation mode - Ortho, UrbanMNE, GeomImage</p></li>
-<li><p><strong>ext</strong> (<em>string</em>) – image extention e.g JPG, tif</p></li>
-<li><p><strong>orientation</strong> (<em>string</em>) – orientation folder to use (generated by previous tools/cmds)
-default is “Ground_UTM”</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="dense_match.ossimmosaic">
-<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">ossimmosaic</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">mode='ossimFeatherMosaic'</em>, <em class="sig-param">nt=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.ossimmosaic" title="Permalink to this definition">¶</a></dt>
-<dd><p>A function mosaicing using the ossim library</p>
-<p class="rubric">Notes</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>folder</strong> (<em>string</em>) – working directory - likely a malt-ortho or pims equiv</p></li>
-<li><p><strong>proj</strong> (<em>string</em>) – a proj4/gdal like projection information</p></li>
-<li><p><strong>mode</strong> (<em>string</em>) – ossim mosaic type of the options below:
-ossimBlendMosaic ossimMaxMosaic ossimImageMosaic
-ossimClosestToCenterCombiner ossimBandMergeSource
-ossimFeatherMosaic</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="dense_match.pims">
-<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">pims</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">mode='BigMac'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">orientation='Ground_UTM'</em>, <em class="sig-param">DefCor='0'</em>, <em class="sig-param">sub=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.pims" title="Permalink to this definition">¶</a></dt>
+<dt id="dense_match.PIMs">
+<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">PIMs</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">mode='BigMac'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">orientation='Ground_UTM'</em>, <em class="sig-param">DefCor='0'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.PIMs" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function calling the PIMs command for use in python</p>
 <p class="rubric">Notes</p>
+<p>Purely for convenience within python - not  necessary - the mm3d cmd line
+is perfectly good</p>
 <p>see MicMac tools link for further possible args - just put the module cmd as a kwarg
 The kwargs must be exactly the same case as the mm3d cmd options</p>
 <dl class="field-list simple">
@@ -337,10 +283,12 @@ default is “Ground_UTM”</p></li>
 </dd></dl>
 
 <dl class="function">
-<dt id="dense_match.pims2mnt">
-<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">pims2mnt</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">mode='BigMac'</em>, <em class="sig-param">DoOrtho='1'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.pims2mnt" title="Permalink to this definition">¶</a></dt>
+<dt id="dense_match.PIMs2MNT">
+<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">PIMs2MNT</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">mode='BigMac'</em>, <em class="sig-param">DoOrtho='1'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.PIMs2MNT" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function calling the PIMs2MNT command for use in python</p>
 <p class="rubric">Notes</p>
+<p>Purely for convenience within python - not  necessary - the mm3d cmd line
+is perfectly good</p>
 <p>see MicMac tools link for further possible args - just put the module cmd as a kwarg
 The kwargs must be exactly the same case as the mm3d cmd options</p>
 <dl class="field-list simple">
@@ -356,10 +304,12 @@ Default is BigMac</p></li>
 </dd></dl>
 
 <dl class="function">
-<dt id="dense_match.tawny">
-<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">tawny</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">mode='PIMs'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.tawny" title="Permalink to this definition">¶</a></dt>
+<dt id="dense_match.Tawny">
+<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">Tawny</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">mode='PIMs'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.Tawny" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function calling the PIMs2MNT command for use in python</p>
 <p class="rubric">Notes</p>
+<p>Purely for convenience within python - not  necessary - the mm3d cmd line
+is perfectly good</p>
 <p>see MicMac tools link for further possible args - just put the module cmd as a kwarg
 The kwargs must be exactly the same case as the mm3d cmd options</p>
 <dl class="field-list simple">
@@ -436,7 +386,7 @@ default is “Ground_UTM”</p></li>
 
 <dl class="function">
 <dt id="utilities.make_xml">
-<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">make_xml</code><span class="sig-paren">(</span><em class="sig-param">csvFile</em>, <em class="sig-param">folder</em>, <em class="sig-param">yaw=None</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.make_xml" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">make_xml</code><span class="sig-paren">(</span><em class="sig-param">csvFile</em>, <em class="sig-param">folder</em>, <em class="sig-param">sep=' '</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.make_xml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make an xml  for the rtl system in micmac</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

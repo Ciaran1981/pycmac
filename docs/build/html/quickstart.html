@@ -166,7 +166,7 @@
 </div>
 <div class="section" id="a-workflow-using-the-malt-algorithm">
 <h2>A workflow using the Malt algorithm<a class="headerlink" href="#a-workflow-using-the-malt-algorithm" title="Permalink to this headline">¶</a></h2>
-<p>The following simple example uses the pycmac modules</p>
+<p>The following simple example uses the pycmac modules, culminating in the use of the Malt dense matching algorithm to produce a DSM. Micmac has two dense matching implementations (Malt and PIMs), each with various modes and parameters.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pycmac</span> <span class="kn">import</span> <span class="n">orientation</span><span class="p">,</span> <span class="n">dense_match</span>
 </pre></div>
 </div>
@@ -181,18 +181,19 @@
                   <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;JPG&quot;</span><span class="p">,</span> <span class="n">calib</span><span class="o">=</span><span class="s2">&quot;pathtocsv.csv&quot;</span><span class="p">,</span> <span class="n">gpsAcc</span><span class="o">=</span><span class="s1">&#39;1&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Perform the dense matching using the malt algorithm. The args for the dense matching algorithms are largely identical to the MicMac commands (Malt &amp; PIMs), but carry out additional masking, georeferencing and subsetting.</p>
+<p>Perform the dense matching using the malt algorithm. The args for the dense matching algorithms are largely identical to the MicMac commands (Malt &amp; PIMs), but additional masking, georeferencing and subsetting is carried out.</p>
+<p>The final DSM will be copied to a folder named OUTPUT in your working directory for ease of access. This is also the case for the other dense_match functions that produce either DSMs or Orthomosaics.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dense_match</span><span class="o">.</span><span class="n">malt</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">proj</span><span class="o">=</span><span class="s2">&quot;30 +north&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;Ortho&#39;</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;JPG&quot;</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;Ground_UTM&quot;</span><span class="p">,</span>
          <span class="n">DoOrtho</span><span class="o">=</span><span class="s1">&#39;1&#39;</span><span class="p">,</span>  <span class="n">DefCor</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Mosaicing can be performed using Tawny or seamline-feathering (enhanced to process multi-band) and ossim.</p>
+<p>Mosaicing can be performed using Tawny or seamline-feathering (enhanced to process multi-band) algorithms native to MicMac or ossim.</p>
 <p>The examples below are Tawny and seamline-feathering.</p>
 <p>Please note that seamline-feathering for multi-band imagery (including RGB) the “ms” variable must be specified below. If not, it will return a greyscale mosaic.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dense_match</span><span class="o">.</span><span class="n">tawny</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">proj</span><span class="o">=</span><span class="s2">&quot;30 +north&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;Malt&#39;</span><span class="p">)</span>
 
 
-<span class="n">dense_match</span><span class="o">.</span><span class="n">feather</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">proj</span><span class="o">=</span><span class="s2">&quot;ESPG:32360&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;Malt&#39;</span><span class="p">,</span> <span class="n">ApplyRE</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">])</span>
+<span class="n">dense_match</span><span class="o">.</span><span class="n">feather</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">proj</span><span class="o">=</span><span class="s2">&quot;ESPG:32360&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;Malt&#39;</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>

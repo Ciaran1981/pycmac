@@ -27,7 +27,7 @@ import ogr
 from sklearn import metrics
 
 
-def calib_subset(folder, csv, ext="JPG",  algo="Fraser"):
+def calib_subset(folder, csv, ext="JPG",  algo="Fraser", delim=","):
     
     """
     
@@ -62,12 +62,29 @@ def calib_subset(folder, csv, ext="JPG",  algo="Fraser"):
     
        
     """
+    
+    # Use simple file reading and string manipulation to get what we need
+    
+    os.chdir(folder)
+    
+    with open(csv, 'r') as f:
+        header = f.readline().strip('\n').split(delim)
+        nm = header.index("#F=N")
+        x_col = header.index('X') 
+        y_col = header.index('Y')
+        z_col = header.index('Z')
+        imList = []
+        x = []
+        y = []
+        z = []
+        
+        for line in f:
+                l = line.strip('\n').split(delim)
+                imList.append(l[nm])
+                x.append(l[x_col])
+                y.append(l[y_col])
+                z.append(l[z_col])
 
-    
-    
-    dF = pd.read_table(csv)
-    
-    imList = list(dF['#F=N'])
     imList.sort()
     
     
@@ -80,10 +97,10 @@ def calib_subset(folder, csv, ext="JPG",  algo="Fraser"):
     sub2 = sub2.replace("'", "") 
     sub2 = sub2.replace(", ", "|")                 
     
-    mm3d = ["mm3d", "Tapas", algo, sub2,  "Out=Calib", "SH=_mini"]
+    mm3d = ["mm3d", "Tapas", algo, sub2,  "Out=Calib"]
     
     mm3dFinal = ["mm3d", "Tapas", algo, ".*"+ext, "Out=Arbitrary", 
-                 "InCal=Calib", "SH=_mini"]
+                 "InCal=Calib"]
     
     call(mm3d)
     
@@ -194,7 +211,7 @@ def mv_subset(csv, inFolder, outfolder):
     
     os.chdir(inFolder)
     
-    dF = pd.read_table(csv)
+    dF = pd.read_csv(csv)
     
     dfList = list(dF['#F=N'])
     

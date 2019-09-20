@@ -129,7 +129,7 @@ def feature_match(folder, csv=None, proj="30 +north", resize=None, ext="JPG",
      
        
 
-def bundle_adjust(folder, algo="Fraser", csv=None, proj="30 +north",
+def bundle_adjust(folder, algo="Fraser", proj="30 +north",
                   ext="JPG", calib=None,  gpsAcc='1', exif=False):
     """
     
@@ -152,9 +152,6 @@ def bundle_adjust(folder, algo="Fraser", csv=None, proj="30 +north",
            working directory
     proj : string
            a UTM zone eg "30 +north" 
-    csv : string
-            a csv file of image coordinates in micmac format for a calibration subset
-            needed regardless of whether or not the exif has GPS embedded
     calib : string
             a calibration subset (optional)
     ext : string
@@ -181,7 +178,7 @@ def bundle_adjust(folder, algo="Fraser", csv=None, proj="30 +north",
     chdir(folder)
     
     if calib != None:
-        calib_subset(folder, csv, ext="JPG",  algo="Fraser")
+        calib_subset(folder, calib, ext=extFin,  algo="Fraser")
     else: 
         #['mm3d', 'Tapas', 'Fraser', '.*tif', 'Out=Arbitrary', 'SH=_mini']
         tlog = open(path.join(folder, algo+'log.txt'), "w")
@@ -213,7 +210,7 @@ def bundle_adjust(folder, algo="Fraser", csv=None, proj="30 +north",
                  "CameraPositionsUTM.txt", "AddF=1"]
         _callit(oriex)
     else:
-        campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_RTL",
+        campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
               "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
         _callit(campari, glog)
     

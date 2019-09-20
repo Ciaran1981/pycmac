@@ -2,6 +2,7 @@ name: pycmac
 
 dependencies:
   - python=3
+  - pip
   - opencv
   - numpy
   - jupyter

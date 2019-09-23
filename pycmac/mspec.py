@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 
 import pycmac.micasense.imageutils as imageutils
 import pycmac.micasense.capture as capture
+from pycmac.utilities import _copy_dataset_config
 
 import numpy as np
 import pycmac.micasense.imageset as imageset
@@ -27,6 +28,7 @@ import cv2
 from skimage import exposure, util
 from subprocess import call#, check_call
 from joblib import Parallel, delayed
+from tqdm import tqdm
 import gdal#, gdal_array
 
 
@@ -423,7 +425,86 @@ def _proc_stack(i, warp_matrices, bndFolders, panel_irradiance, reflFolder):
 
          
 
+def stack_rasters(inRas1, inRas2, outRas, blocksize=256):
+    rasterList1 = [3,2,1]
+    rasterList2 = [2, 3]
     
+    inDataset1 = gdal.Open(inRas1)
+    inDataset2 = gdal.Open(inRas2)
+    
+    outDataset = _copy_dataset_config(inDataset1, FMT = 'Gtiff', outMap = outRas,
+                         dtype = gdal.GDT_Int32, bands = 5)
+    
+    bnnd = inDataset1.GetRasterBand(1)
+    cols = outDataset.RasterXSize
+    rows = outDataset.RasterYSize
+
+    # So with most datasets blocksize is a row scanline
+    if blocksize == None:
+        blocksize = bnnd.GetBlockSize()
+        blocksizeX = blocksize[0]
+        blocksizeY = blocksize[1]
+    else:
+        blocksizeX = blocksize
+        blocksizeY = blocksize
+    del bnnd
+    
+    
+    
+    for band in rasterList1:
+        bnd1 = inDataset1.GetRasterBand(band)
+        ootBnd = outDataset.GetRasterBand(band)
+        
+        for i in tqdm(range(0, rows, blocksizeY)):
+                if i + blocksizeY < rows:
+                    numRows = blocksizeY
+                else:
+                    numRows = rows -i
+            
+                for j in range(0, cols, blocksizeX):
+                    if j + blocksizeX < cols:
+                        numCols = blocksizeX
+                    else:
+                        numCols = cols - j
+#                    for band in range(1, bands+1):
+                    
+                    array = bnd1.ReadAsArray(j, i, numCols, numRows)
+    
+                    if array is None:
+                        continue
+                    else:
+    
+                        ootBnd.WriteArray(array, j, i)
+                    
+    for k,band in enumerate(rasterList2):
+        
+        bnd2 = inDataset2.GetRasterBand(band)
+        ootBnd = outDataset.GetRasterBand(k+4)
+        
+        for i in tqdm(range(0, rows, blocksizeY)):
+                if i + blocksizeY < rows:
+                    numRows = blocksizeY
+                else:
+                    numRows = rows -i
+            
+                for j in range(0, cols, blocksizeX):
+                    if j + blocksizeX < cols:
+                        numCols = blocksizeX
+                    else:
+                        numCols = cols - j
+    #                for band in range(1, bands+1):
+                    
+                    array = bnd2.ReadAsArray(j, i, numCols, numRows)
+                    
+                    if array is None:
+                        continue
+                    else:
+    
+                        ootBnd.WriteArray(array, j, i)
+                        
+    outDataset.FlushCache()
+    outDataset = None
+
     
 
     

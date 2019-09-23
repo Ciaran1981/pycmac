@@ -281,7 +281,7 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, **kwargs):
     Notes
     -----------
     
-    see MicMac tools link for further possible args - just put the module cmd as a kwarg
+    see MicMac tools link for further possible args - just put the module arg as a keyword arg
     The kwargs must be exactly the same case as the mm3d cmd options
     
     
@@ -328,8 +328,16 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, **kwargs):
         sys.exit()
     
     
-    orthF = path.join(folder, ootFolder, "Orthophotomosaic.tif") 
+    orthF = path.join(folder, ootFolder, "Orthophotomosaic_Out.tif") 
     orthMeta = path.join(folder, ootFolder, "Orthophotomosaic.tfw") 
+    
+    cnvIm = ["mm3d", "ConvertIm", "Ortho-MEC-Malt/Orthophotomosaic.tif"] 
+    
+    ret = call(cnvIm, stdout=mlog)
+
+    if ret !=0:
+        print('A micmac error has occured - check the log file')
+        sys.exit()
     
     _set_dataset_config(orthF, proj, FMT = 'Gtiff')
     
@@ -337,6 +345,7 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, **kwargs):
     
     if path.isdir(finDir) == False:
         mkdir(finDir)
+        
     if Out == None:
         copy(orthF, path.join(finDir, "MosaicOut.tif"))
         copy(orthMeta, path.join(finDir, "MosaicOut.tfw"))

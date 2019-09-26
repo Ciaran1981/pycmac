@@ -25,7 +25,7 @@ from tqdm import tqdm
 import ogr
 
 from sklearn import metrics
-
+from PIL import Image
 
 def calib_subset(folder, csv, ext="JPG",  algo="Fraser", delim=","):
     
@@ -549,7 +549,95 @@ def rmse_vector_lyr(inShape, attributes):
     return error
     
         
+def hist_match(inputImage, templateImage):
     
+    
+    
+    # TODO optimise with either cython or numba
+    
+    """
+    Adjust the pixel values of an image such that its histogram
+    matches that of a target image. 
+    
+    Writes to the inputImage dataset so that it matches
+    
+    Notes: 
+    -----------
+        
+    As the entire band histogram is required this can become memory
+    intensive with very big images
+    
+    Inspire by/adapted from something on stack on image processing - credit to
+    that author
+
+    Parameters
+    -----------
+    
+    inputImage : string
+                 image to transform; the histogram is computed over the flattened array
+            
+    templateImage : string
+                    template image can have different dimensions to source    
+    
+    """
+    # TODO - cythinis or numba this one
+    
+    imgSource = Image.open(inputImage)
+    
+    sArr = np.array(imgSource)
+        
+    imgTemp = Image.open(templateImage)
+    
+    tArr = np.array(imgTemp)
+    
+    # "sArr" is a height x width x 3 numpy array
+
+    
+    #outArrs = []
+    
+    for band in tqdm(range(0, 3)):
+        #print(band)
+        # seems to be issue with combining properties as with templateRas hence
+        # separate lines
+        source = np.asarray(sArr[:,:, band])
+        
+        oldshape = source.shape
+        
+        template = np.asarray(tArr[:,:, band])
+        
+        
+        #source = source.ravel()
+        #template = template.ravel()
+                
+        
+        # get the set of unique pixel values and their corresponding indices and
+        # counts
+        s_values, bin_idx, s_counts = np.unique(source.ravel(), return_inverse=True,
+                                                return_counts=True)
+        t_values, t_counts = np.unique(template.ravel(), return_counts=True)
+    
+        # take the cumsum of the counts and normalize by the number of pixels to
+        # get the empirical cumulative distribution functions for the source and
+        # template images (maps pixel value --> quantile)
+        s_quantiles = np.cumsum(s_counts).astype(np.float64)
+        s_quantiles /= s_quantiles[-1]
+        t_quantiles = np.cumsum(t_counts).astype(np.float64)
+        t_quantiles /= t_quantiles[-1]
+    
+        # interpolate linearly to find the pixel values in the template image
+        # that correspond most closely to the quantiles in the source image
+        interp_t_values = np.interp(s_quantiles, t_quantiles, t_values)
+    
+        out_array = interp_t_values[bin_idx].reshape(oldshape)
+        
+        # reuse the var from earlier
+        sArr[:,:, band] = out_array
+        
+    # This seems rather ugly - but going on the docs   
+    imOut = Image.fromarray(np.uint8(sArr))
+    
+    imOut.save(inputImage)
+
     
 
 

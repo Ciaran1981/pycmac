@@ -335,31 +335,30 @@ def __proc_imgs_comp(i, warp_matrices, bndFolders, panel_irradiance):
     im_display = np.zeros((im_aligned.shape[0],im_aligned.shape[1],5), dtype=np.float32 )
     
     for iM in range(0,im_aligned.shape[2]):
-        im_display[:,:,iM] =  imageutils.normalize(im_aligned[:,:,iM])
-    
-    rgb = im_display[:,:,[2,1,0]] 
-    #cir = im_display[:,:,[3,2,1]] 
-    RRENir = im_display[:,:,[4,3,2]] 
-    
-    imoot = [rgb, RRENir]
-    imtags = ["RGB.tif", "RRENir.tif"]
-    im = i.images[1]
-    hd, nm = os.path.split(im.path[:-5])
-    
-    for ind, k in enumerate(bndFolders):
-         
-         #img8 = bytescale(imoot[ind])
-         imgre = exposure.rescale_intensity(imoot[ind])
-         img8 = util.img_as_ubyte(imgre)
-         outfile = os.path.join(k, nm+imtags[ind])
-         
-         imageio.imwrite(outfile, img8)
+            im_display[:,:,iM] =  np.int32(imageutils.normalize(im_aligned[:,:,iM]))*65535
         
-         cmd = ["exiftool", "-tagsFromFile", im.path,  "-file:all", "-iptc:all",
-               "-exif:all",  "-xmp", "-Composite:all", outfile, 
-               "-overwrite_original"]
-         call(cmd)
-# for ref
+            rgb = im_display[:,:,[2,1,0]] 
+            #cir = im_display[:,:,[3,2,1]] 
+            RRENir = im_display[:,:,[4,3,2]] 
+            
+            imoot = [rgb, RRENir]
+            imtags = ["RGB.tif", "RRENir.tif"]
+            im = i.images[1]
+            hd, nm = os.path.split(im.path[:-5])
+            
+            for ind, k in enumerate(bndFolders):
+                 
+                 imgre = exposure.rescale_intensity(imoot[ind])
+                 img8 = util.img_as_ubyte(imgre)
+                 outfile = os.path.join(k, nm+imtags[ind])
+                 
+                 imageio.imwrite(outfile, img8)
+                
+                 cmd = ["exiftool", "-tagsFromFile", im.path,  "-file:all", "-iptc:all",
+                       "-exif:all",  "-xmp", "-Composite:all", outfile, 
+                       "-overwrite_original"]
+                 call(cmd)
+    # for ref
 #[_proc_imgs(imCap, warp_matrices, reflFolder) for imCap in imgset]
 def _proc_stack(i, warp_matrices, bndFolders, panel_irradiance, reflFolder):
     
@@ -378,7 +377,7 @@ def _proc_stack(i, warp_matrices, bndFolders, panel_irradiance, reflFolder):
                           dtype=np.float32)
     
     rows, cols, bands = im_display.shape
-    driver = gdal.GetDriverByName('GTiff')
+#    driver = gdal.GetDriverByName('GTiff')
     
     im = i.images[1].path
     hd, nm = os.path.split(im[:-6])
@@ -386,8 +385,8 @@ def _proc_stack(i, warp_matrices, bndFolders, panel_irradiance, reflFolder):
     filename = os.path.join(reflFolder, nm+'.tif') #blue,green,red,nir,redEdge
     #
     
-    outRaster = driver.Create(filename, cols, rows, 5, gdal.GDT_Byte)
-    normalize = False
+#    outRaster = driver.Create(filename, cols, rows, 5, gdal.GDT_Byte)
+#    normalize = False
     
     # Output a 'stack' in the same band order as RedEdge/Alutm
     # Blue,Green,Red,NIR,RedEdge[,Thermal]
@@ -396,26 +395,28 @@ def _proc_stack(i, warp_matrices, bndFolders, panel_irradiance, reflFolder):
     
     i.compute_reflectance(panel_irradiance+[0])
     
-    for i in range(0,5):
-        outband = outRaster.GetRasterBand(i+1)
-        if normalize:
-            outband.WriteArray(imageutils.normalize(im_aligned[:,:,i])*65535)
-        else:
-            outdata = im_aligned[:,:,i]
-            outdata[outdata<0] = 0
-            outdata[outdata>1] = 1
-            
-            outband.WriteArray(outdata*65535)
-        outband.FlushCache()
+    i.save_capture_as_reflectance_stack(filename, normalize = True)
     
-    if im_aligned.shape[2] == 6:
-        outband = outRaster.GetRasterBand(6)
-        outdata = im_aligned[:,:,5] * 100 # scale to centi-C to fit into uint16
-        outdata[outdata<0] = 0
-        outdata[outdata>65535] = 65535
-        outband.WriteArray(outdata)
-        outband.FlushCache()
-    outRaster = None
+#    for i in range(0,5):
+#        outband = outRaster.GetRasterBand(i+1)
+#        if normalize:
+#            outband.WriteArray(imageutils.normalize(im_aligned[:,:,i])*65535)
+#        else:
+#            outdata = im_aligned[:,:,i]
+#            outdata[outdata<0] = 0
+#            outdata[outdata>1] = 1
+#            
+#            outband.WriteArray(outdata*65535)
+#        outband.FlushCache()
+#    
+#    if im_aligned.shape[2] == 6:
+#        outband = outRaster.GetRasterBand(6)
+#        outdata = im_aligned[:,:,5] * 100 # scale to centi-C to fit into uint16
+#        outdata[outdata<0] = 0
+#        outdata[outdata>65535] = 65535
+#        outband.WriteArray(outdata)
+#        outband.FlushCache()
+#    outRaster = None
     
     cmd = ["exiftool", "-tagsFromFile", im,  "-file:all", "-iptc:all",
                "-exif:all",  "-xmp", "-Composite:all", filename, 
@@ -426,7 +427,7 @@ def _proc_stack(i, warp_matrices, bndFolders, panel_irradiance, reflFolder):
          
 
 def stack_rasters(inRas1, inRas2, outRas, blocksize=256):
-    rasterList1 = [3,2,1]
+    rasterList1 = [1,2,3]
     rasterList2 = [2, 3]
     
     inDataset1 = gdal.Open(inRas1)

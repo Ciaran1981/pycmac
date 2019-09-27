@@ -86,7 +86,6 @@ def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=1,
     stk : int
                 The various multi-band stacking options
                 1 = A set of RGB & RReNir images (best for MicMac)
-                2 = A 5 band stack 
                 None = Single band images in separate folders are returned
     plots : bool
     
@@ -167,34 +166,20 @@ def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=1,
 
     
     if stk != None:
-    
-        if stk == 1:
-            print("Producing pairs of 3-band composites single thread")
-            bndNames = ['RGB', 'RRENir']
-            bndFolders = [os.path.join(reflFolder, b) for b in bndNames]
-            [os.mkdir(bf) for bf in bndFolders]
-            [__proc_imgs_comp(imCap, warp_matrices, bndFolders, panel_irradiance) for imCap in imgset.captures]
         
-        if stk == 2:
-            print("Producing 5-band composites")
-            bndNames = ['B', 'G', 'R', 'NIR', 'RE' ]
-            bndFolders = [os.path.join(reflFolder, b) for b in bndNames]
-            [os.mkdir(bf) for bf in bndFolders]
         
-            [_proc_stack(imCap ,warp_matrices,
-                        panel_irradiance, reflFolder) for imCap in imgset.captures]
-            
-        elif stk == 3:
-            print("Producing pairs of 3-band composites muti core")
-            #prep the dir
-            bndNames = ['RGB', 'RRENir']
-            bndFolders = [os.path.join(reflFolder, b) for b in bndNames]
-            [os.mkdir(bf) for bf in bndFolders]
-            
-            Parallel(n_jobs=nt,
-                     verbose=2)(delayed(__proc_imgs_comp)(imCap, warp_matrices,
-                               bndFolders,
-                               panel_irradiance) for imCap in imgset.captures)
+
+        print("Producing pairs of 3-band composites muti core")
+        #prep the dir
+        bndNames = ['RGB', 'RRENir']
+        bndFolders = [os.path.join(reflFolder, b) for b in bndNames]
+        [os.mkdir(bf) for bf in bndFolders]
+        
+        Parallel(n_jobs=nt,
+                 verbose=2)(delayed(__proc_imgs_comp)(imCap, warp_matrices,
+                           bndFolders,
+                           panel_irradiance) for imCap in imgset.captures)
+
         
 
     else:

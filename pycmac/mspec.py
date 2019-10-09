@@ -329,9 +329,10 @@ def __proc_imgs_comp(i, warp_matrices, bndFolders, panel_irradiance, warp_md, rf
     cropped_dimensions, edges = imageutils.find_crop_bounds(i, warp_matrices)
     
     im_aligned = imageutils.aligned_capture(i, warp_matrices,
-                                            cropped_dimensions,
                                             warp_md,
+                                            cropped_dimensions,
                                             match_index=rf, img_type="reflectance")
+    
     
     im_display = np.zeros((im_aligned.shape[0],im_aligned.shape[1],5), dtype=np.float32)
     

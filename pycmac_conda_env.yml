@@ -32,3 +32,4 @@ dependencies:
     - mapboxgl
     - git+https://github.com/smarnach/pyexiftool.git#egg=pyexiftoolpy
     - imageio-ffmpeg
+    - open3d

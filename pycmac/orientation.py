@@ -20,6 +20,7 @@ from glob2 import glob
 from PIL import Image
 from pycmac.utilities import calib_subset, make_sys_utm, make_xml
 from joblib import Parallel, delayed
+import open3d as o3d
 
 
 
@@ -214,5 +215,14 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
               "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
         _callit(campari, glog)
     
+    aperi = ["mm3d", "AperiCloud", extFin,  "Ground_UTM"]
+    
+    aplog = open(path.join(folder, 'aperilog.txt'), "w")
+    _callit(aperi, aplog)
+    
+    pntPth = path.join(folder, "AperiCloud_Ground_UTM.ply")
+    pcd = o3d.io.read_point_cloud(pntPth)
+    
+    o3d.visualization.draw_geometries([pcd])
     
     

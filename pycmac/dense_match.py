@@ -72,7 +72,7 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
             e.g. [480644.0,5752033.4,481029.4,5752251.6]
     
     mask : string
-            path to a polygon file (shape, geojson) that will yield a bounding box to constrain processing
+            path to a polygon file (eg shape, geojson) that will yield a bounding box to constrain processing
        
     """
     
@@ -97,6 +97,7 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
         inShp = ogr.Open(mask)
         lyr = inShp.GetLayer()
         extent = list(lyr.GetExtent())
+        extent = [extent[0], extent[2], extent[1], extent[3]]
         extStr = str(extent)
         finalExt = extStr.replace(" ", "")
         maskParam = 'BoxTerrain='+finalExt

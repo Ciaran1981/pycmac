@@ -18,6 +18,7 @@ from os import path, chdir, mkdir, remove
 import gdal
 import re
 import sys
+import ogr
 from glob2 import glob
 import osr
 from pycmac.utilities import mask_raster_multi
@@ -32,7 +33,7 @@ from tqdm import tqdm
 from PIL import Image
 
 def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_UTM",
-         DoOrtho='1',  DefCor='0', sub=None, delim=",", BoxTerrain=None, **kwargs):
+         DoOrtho='1',  DefCor='0', sub=None, delim=",", BoxTerrain=None, mask=None, **kwargs):
     
     """
     
@@ -54,7 +55,7 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
     proj : string
            a UTM zone eg "30 +north" 
         
-    alIm : string
+    mode : string
              Correlation mode - Ortho, UrbanMNE, GeomImage
         
     ext : string
@@ -70,6 +71,8 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
             The bottom left and top right coordinates of a bounding box to constrain processing
             e.g. [480644.0,5752033.4,481029.4,5752251.6]
     
+    mask : string
+            path to a polygon file (shape, geojson) that will yield a bounding box to constrain processing
        
     """
     
@@ -89,7 +92,18 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
             oot = re.findall(r'\w+',str(k))
             anArg = oot[0]+'='+oot[1]
             cmd.append(anArg)
-           
+    
+    if mask != None:
+        inShp = ogr.Open(mask)
+        lyr = inShp.GetLayer()
+        extent = list(lyr.GetExtent())
+        extStr = str(extent)
+        finalExt = extStr.replace(" ", "")
+        maskParam = 'BoxTerrain='+finalExt
+        
+        cmd.append(maskParam)
+        
+     
     if BoxTerrain != None:
         bt = 'BoxTerrain='+str(BoxTerrain)
         bt2 = bt.replace(" ", "")

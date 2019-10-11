@@ -65,6 +65,7 @@ def calib_subset(folder, csv, ext="JPG",  algo="Fraser", delim=","):
     
     # Use simple file reading and string manipulation to get what we need
     
+    
     os.chdir(folder)
     
     with open(csv, 'r') as f:

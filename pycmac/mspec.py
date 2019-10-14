@@ -30,8 +30,8 @@ from subprocess import call#, check_call
 from joblib import Parallel, delayed
 from tqdm import tqdm
 import gdal#, gdal_array
-from PIL import Image
-import warnings
+#from PIL import Image
+#import warnings
 
 
 exiftoolPath=None
@@ -193,7 +193,7 @@ def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=1,
         [os.mkdir(bf) for bf in bndFolders]
         
         Parallel(n_jobs=nt,
-                 verbose=2)(delayed(__proc_imgs_comp)(imCap, warp_matrices,
+                 verbose=2)(delayed(_proc_imgs_comp)(imCap, warp_matrices,
                            bndFolders,
                            panel_irradiance, rf) for imCap in imgset.captures)
 
@@ -318,7 +318,7 @@ def _proc_imgs(i, warp_matrices, bndFolders, panel_irradiance, warp_md, normaliz
                "-overwrite_original"]
          call(cmd)
 
-def __proc_imgs_comp(i, warp_matrices, bndFolders, panel_irradiance, warp_md, rf):
+def _proc_imgs_comp(i, warp_matrices, bndFolders, panel_irradiance, warp_md, rf):
     
     
     
@@ -334,24 +334,27 @@ def __proc_imgs_comp(i, warp_matrices, bndFolders, panel_irradiance, warp_md, rf
                                             match_index=rf, img_type="reflectance")
     
     
-    im_display = np.zeros((im_aligned.shape[0],im_aligned.shape[1],5), dtype=np.float32)
+    
+    im_display = np.zeros((im_aligned.shape[0], im_aligned.shape[1], 5), dtype=np.float32)
     
     for iM in range(0,im_aligned.shape[2]):
-        im_display[:,:,iM] =  imageutils.normalize(im_aligned[:,:,iM])
+        im_display[:,:,iM] =  imageutils.normalize(im_aligned[:,:,iM])*32768
+    
+
     
     rgb = im_display[:,:,[2,1,0]] 
     #cir = im_display[:,:,[3,2,1]] 
     RRENir = im_display[:,:,[4,3,2]] 
     
-    cir = im_display[:,:,[3,2,1]]
-    
-    grRE = im_display[:,:,[4,2,1]] 
-    
+#    cir = im_display[:,:,[3,2,1]]
+#    
+#    grRE = im_display[:,:,[4,2,1]] 
+#    
 #    imoot = [rgb, RRENir]
     
     del im_display
     
-    imtags = ["RGB.tif", "RRENir.tif", "GRNir.tif", "GRRE.tif"]
+    imtags = ["RGB.tif", "RRENir.tif"]#, "GRNir.tif", "GRRE.tif"]
     im = i.images[1]
     hd, nm = os.path.split(im.path[:-5])
     
@@ -363,20 +366,21 @@ def __proc_imgs_comp(i, warp_matrices, bndFolders, panel_irradiance, warp_md, rf
     
     #for ind, k in enumerate(bndFolders):      
          #img8 = bytescale(imoot[ind])
-        imgre = exposure.rescale_intensity(image)
+        #imgre = exposure.rescale_intensity(image,  out_range='uint16')
      
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            img8 = util.img_as_ubyte(imgre)
-            del imgre
-            outFile = os.path.join(folder, nm+nametag)
+        #with warnings.catch_warnings():
+        #warnings.simplefilter("ignore")
+        img16 = np.uint16(np.round(image, decimals=0))
+        del image
+        outFile = os.path.join(folder, nm+nametag)
         #imageio.imwrite(outfile, img8)
         
-        imOut = Image.fromarray(img8)
+        #imOut = Image.fromarray(img16)
     
-        imOut.save(outFile)
-
-        del img8
+        #imOut.save(outFile)
+        imageio.imwrite(outFile, img16)
+        
+        del img16
         cmd = ["exiftool", "-tagsFromFile", im.path,  "-file:all", "-iptc:all",
                "-exif:all",  "-xmp", "-Composite:all", outFile, 
                "-overwrite_original"]
@@ -387,11 +391,7 @@ def __proc_imgs_comp(i, warp_matrices, bndFolders, panel_irradiance, warp_md, rf
     _writeim(rgb, bndFolders[0], imtags[0], im)
     del rgb    
     _writeim(RRENir, bndFolders[1], imtags[1], im)
-    del RRENir, 
-    _writeim(cir, bndFolders[2], imtags[2], im)
-    del cir
-    _writeim(grRE, bndFolders[3], imtags[3], im)    
-    del grRE, im, i
+    del RRENir#, 
     # for ref
 #[_proc_imgs(imCap, warp_matrices, reflFolder) for imCap in imgset]
 def _proc_stack(i, warp_matrices, bndFolders, panel_irradiance, reflFolder, warp_md, rf):

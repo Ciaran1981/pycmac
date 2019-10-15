@@ -224,13 +224,7 @@ def pims(folder, mode='BigMac', ext="JPG", orientation="Ground_UTM",
         print('A micmac error has occured - check the log file')
         sys.exit() 
     
-    if mode == 'Forest':
-        pishList = [path.join(folder, 'PIMs-TmpBasc'),
-                    path.join(folder, 'PIMs-ORTHO'),
-                    path.join(folder, 'PIMs-TmpMnt'),
-                    path.join(folder, 'PIMs-TmpMntOrtho')]
-        
-        Parallel(n_jobs=-1, verbose=5)(delayed(rmtree)(pish) for pish in pishList)
+
 #    
 #    
 def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',  **kwargs):
@@ -285,10 +279,14 @@ def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',  **kwargs):
         print('A micmac error has occured - check the log file')
         sys.exit()
     
-    dsmF = (folder, 'PIMs-Tmp-Basc', 'PIMs-Merged-Prof.tif')
-    dsmMeta = (folder, 'PIMs-Tmp-Basc', 'PIMs-Merged-Prof.tfw')
+    dsmF = path.join(folder, 'PIMs-TmpBasc', 'PIMs-Merged_Prof.tif')
+    dsmMeta = path.join(folder, 'PIMs-TmpBasc', 'PIMs-Merged_Prof.tfw')
+    mask  = path.join(folder, 'PIMsTmpBasc', 'PIMs-Merged_Masq.tif')
+    
     # georef the DEM
     _set_dataset_config(dsmF, proj, FMT = 'Gtiff')
+    
+    mask_raster_multi(dsmF, mask=mask)
     
     finDir = path.join(folder, 'OUTPUT')
     if path.isdir(finDir) == False:
@@ -296,6 +294,16 @@ def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',  **kwargs):
     
     copy(dsmF, finDir)
     copy(dsmMeta, finDir)
+    
+    
+    
+#    if mode == 'Forest':
+#        pishList = [path.join(folder, 'PIMs-TmpBasc'),
+#                    path.join(folder, 'PIMs-ORTHO'),
+#                    path.join(folder, 'PIMs-TmpMnt'),
+#                    path.join(folder, 'PIMs-TmpMntOrtho')]
+        
+#        Parallel(n_jobs=-1, verbose=5)(delayed(rmtree)(pish) for pish in pishList)
 
 def tawny(folder, proj="30 +north", mode='PIMs', Out=None, **kwargs):
 

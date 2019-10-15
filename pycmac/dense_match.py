@@ -141,10 +141,11 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
     
     zedFS.sort()
     
-    img = zedS[-1]
+    img = zedFS[-1]
     
+    h,t = path.split(img)
     # want the lower number
-    digit = re.findall('\d+', img)
+    digit = re.findall('\d+', t)
     digit.sort()
 
     maskstr = "Masq_STD-MALT_DeZoom"+digit[0]+".tif"

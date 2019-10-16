@@ -26,11 +26,12 @@ class CondaInstall(install):
             #packages = open('conda_modules.txt').read().splitlines()
 #            command.extend(packages)
             subprocess.check_call(command)
+
 #            install.do_egg_install(self)
         except subprocess.CalledProcessError:
             print("Conda install failed: do you have Anaconda/miniconda installed and on your PATH?")
 
-subprocess.call(['conda', 'activate', 'pycmac'])
+
 
 setup(
     cmdclass={'install': CondaInstall},

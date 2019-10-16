@@ -30,6 +30,7 @@ class CondaInstall(install):
         except subprocess.CalledProcessError:
             print("Conda install failed: do you have Anaconda/miniconda installed and on your PATH?")
 
+subprocess.call(['conda', 'activate', 'pycmac'])
 
 setup(
     cmdclass={'install': CondaInstall},

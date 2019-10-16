@@ -25,6 +25,7 @@ class CondaInstall(install):
             command = ['conda', 'env', 'create', '-f', 'pycmac_conda_env.yml']
             #packages = open('conda_modules.txt').read().splitlines()
             subprocess.check_call(command)
+            subprocess.check_call(['conda', 'activate', 'pycmac'])
 
             install.do_egg_install(self)
         except subprocess.CalledProcessError:

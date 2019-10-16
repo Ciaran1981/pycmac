@@ -27,10 +27,10 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
-import micasense.image as image
-import micasense.dls as dls
-import micasense.plotutils as plotutils
-import micasense.imageutils as imageutils
+import pycmac.micasense.image as image
+import pycmac.micasense.dls as dls
+import pycmac.micasense.plotutils as plotutils
+import pycmac.micasense.imageutils as imageutils
 import math
 import numpy as np
 import cv2

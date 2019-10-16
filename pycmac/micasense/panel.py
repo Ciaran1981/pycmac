@@ -31,7 +31,7 @@ import pyzbar.pyzbar as pyzbar
 
 from skimage import measure
 import matplotlib.pyplot as plt
-import micasense.imageutils as imageutils
+import pycmac.micasense.imageutils as imageutils
 
 class Panel(object):
 

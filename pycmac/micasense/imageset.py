@@ -8,7 +8,7 @@ RedEdge Capture Class
     found in the same folder and also share the same filename prefix, such
     as IMG_0000_*.tif, but this is not required
 
-Copyright 2017 MicaSense, Inc.
+Copyright 2017 micasense, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in the
@@ -28,8 +28,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import os, glob, fnmatch
-import micasense.image as image
-import micasense.capture as capture
+import pycmac.micasense.image as image
+import pycmac.micasense.capture as capture
 import multiprocessing
 
 def image_from_file(filename):

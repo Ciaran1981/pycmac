@@ -19,9 +19,9 @@ make a conda environment of your name choice (replace 'pycmac' here) then activa
 
 .. code-block:: bash
 
-conda create -n 'pycmac'
+	conda create -n 'pycmac'
 
-conda activate pycmac
+	conda activate pycmac
 
 cd into the pycmac folder and type 
 

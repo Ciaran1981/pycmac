@@ -1,24 +1,4 @@
-package:
-  name: pycmac
-  version: 0.1
-
-source: 
-  git_url: "https://github.com/Ciaran1981/pycmac.git"
-
-requirements:
-  host:
-    - pip
-    - python
-  run:
-    - python
-
-test:
-  imports:
-    - pycmac
-
-about:
-  home: "https://github.com/Ciaran1981/pycmac"
-
+name: pycmac
 
 dependencies:
   - python=3
@@ -45,7 +25,6 @@ dependencies:
   - pandas
 
   
-
   - pip:
     - pyzbar
     - pysolar

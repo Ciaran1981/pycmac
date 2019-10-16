@@ -8,19 +8,31 @@ Created on Wed May 15 12:16:49 2019
 
 """Alternations to setup.py based on Brandon Rhodes' conda setup.py:
 https://github.com/brandon-rhodes/conda-install"""
-from setuptools import setup
-from setuptools.command.install import install
+from setuptools import setup, find_packages
+from setuptools.command.install import install 
 #from io import open
 import subprocess
 
 descript = ('A python lib for MicMac Sfm processing for convenience, streamlining and enhanced functionality')
+
+class CondaInstall(install):
+    def run(self):
+        try:
+            command = ['conda', 'env', 'create', '-f', 'pycmac_conda_env.yml']
+            #packages = open('conda_modules.txt').read().splitlines()
+#            command.extend(packages)
+            subprocess.check_call(command)
+            install.do_egg_install(self)
+        except subprocess.CalledProcessError:
+            print("Conda install failed: do you have Anaconda/miniconda installed and on your PATH?")
+
 
 
 setup(
     cmdclass={'install': CondaInstall},
     name="pycmac",
     version="0.1",
-    packages=['pycmac'],
+    packages=find_packages(),
     #install_requires=open('requirements.txt').read().splitlines(),
     # Project uses reStructuredText, so ensure that the docutils get
     # installed or upgraded on the target machine

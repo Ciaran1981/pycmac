@@ -15,23 +15,6 @@ import subprocess
 
 descript = ('A python lib for MicMac Sfm processing for convenience, streamlining and enhanced functionality')
 
-#with open('README.rst', encoding='utf-8') as f:
-#    long_description = f.read()
-
-
-class CondaInstall(install):
-    def run(self):
-        try:
-            command = ['conda', 'env', 'create', '-f', 'pycmac_conda_env.yml']
-            #packages = open('conda_modules.txt').read().splitlines()
-            subprocess.check_call(command)
-            subprocess.check_call(['conda', 'activate', 'pycmac'])
-
-            install.do_egg_install(self)
-        except subprocess.CalledProcessError:
-            print("Conda install failed: do you have Anaconda/miniconda installed and on your PATH?")
-
-
 
 setup(
     cmdclass={'install': CondaInstall},

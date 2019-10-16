@@ -1,4 +1,24 @@
-name: pycmac
+package:
+  name: pycmac
+  version: 0.1
+
+source: 
+  git_url: "https://github.com/Ciaran1981/pycmac.git"
+
+requirements:
+  host:
+    - pip
+    - python
+  run:
+    - python
+
+test:
+  imports:
+    - pycmac
+
+about:
+  home: "https://github.com/Ciaran1981/pycmac"
+
 
 dependencies:
   - python=3
@@ -33,4 +53,5 @@ dependencies:
     - git+https://github.com/smarnach/pyexiftool.git#egg=pyexiftoolpy
     - imageio-ffmpeg
     - open3d
-    - git+https://github.com/Ciaran1981/pycmac
+
+

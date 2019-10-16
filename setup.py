@@ -24,10 +24,9 @@ class CondaInstall(install):
         try:
             command = ['conda', 'env', 'create', '-f', 'pycmac_conda_env.yml']
             #packages = open('conda_modules.txt').read().splitlines()
-#            command.extend(packages)
             subprocess.check_call(command)
 
-#            install.do_egg_install(self)
+            install.do_egg_install(self)
         except subprocess.CalledProcessError:
             print("Conda install failed: do you have Anaconda/miniconda installed and on your PATH?")
 
@@ -58,7 +57,7 @@ setup(
     description=descript,
     #long_description=long_description,
     license='GPLv3+',
-    url="https://github.com/Ciaran1981/Sfm",   # project home page, if any
+    url="https://github.com/Ciaran1981/Sfm/pycmac",   # project home page, if any
     download_url="https://github.com/Ciaran1981/Sfm/pycmac"
     # could also include long_description, download_url, classifiers, etc.
 )

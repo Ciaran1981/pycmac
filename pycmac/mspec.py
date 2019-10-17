@@ -29,9 +29,9 @@ from skimage import exposure, util
 from subprocess import call#, check_call
 from joblib import Parallel, delayed
 from tqdm import tqdm
-import gdal#, gdal_array
+import gdal, ogr#, gdal_array
 #from PIL import Image
-#import warnings
+import warnings
 
 
 exiftoolPath=None
@@ -144,7 +144,8 @@ def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=1,
     if panel_ref == None:
         panel_ref = [0.55, 0.56, 0.55, 0.50, 0.54]
     
-    
+    if os.path.isdir(srFolder) != True:
+        os.mkdir(srFolder)
     
     
     imgset = imageset.ImageSet.from_directory(imagesFolder)
@@ -178,8 +179,10 @@ def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=1,
     
     rf = refBnd
     
-    warp_matrices, alignment_pairs = align_template(imAl, mx,reflFolder,
-                                                rf, warp_md)
+    imAl, mx, reflFolder, rf, plots, warp_md
+    
+    warp_matrices, alignment_pairs = align_template(imAl, mx, reflFolder,
+                                                    rf, plots, warp_md)
 
     
     if stk != None:
@@ -195,7 +198,7 @@ def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=1,
         Parallel(n_jobs=nt,
                  verbose=2)(delayed(_proc_imgs_comp)(imCap, warp_matrices,
                            bndFolders,
-                           panel_irradiance, rf) for imCap in imgset.captures)
+                           panel_irradiance, warp_md, rf) for imCap in imgset.captures)
 
         
 
@@ -272,7 +275,9 @@ def align_template(imAl, mx, reflFolder, rf, plots, warp_md):
     for ind, p in enumerate(prevList):
         #img8 = bytescale(p)
         imgre = exposure.rescale_intensity(p)
-        img8 = util.img_as_ubyte(imgre)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            img8 = util.img_as_ubyte(imgre)
         imageio.imwrite(names[ind], img8)
     
     return warp_matrices, alignment_pairs#, dist_coeffs, cam_mats, cropped_dimensions
@@ -541,5 +546,94 @@ def stack_rasters(inRas1, inRas2, outRas, blocksize=256):
     outDataset = None
 
     
+
+def mica_csv(folder, time_date=False):
+    
+    
+    if time_date != False:
+        header = "#F=N X Y Z GPSTimeStamp"
+    else:
+        header = "#F=N X Y Z"
+    lines = [header]
+    
+    imgset = imageset.ImageSet.from_directory(folder)
+
+    for cap in imgset.captures:
+    
+        lat,lon,alt = cap.location()
+        #resolution = capture.images[0].focal_plane_resolution_px_per_mm
+        impath = cap.images[0].path[:-6]
+        hd, tl  = os.path.split(impath)
+        linestr = tl+","
+        linestr += str(lon)+","
+        linestr += str(lat)+","
+        linestr += str(alt)+","    
+        linestr += capture.utc_time().strftime("%Y:%m:%d,%H:%M:%S,")
+        linestr += '\n' # when writing in text mode, the write command will convert to os.linesep
+        lines.append(linestr)
+    
+    fullCsvPath = os.path.join(folder,'log.csv')
+    with open(fullCsvPath, 'w') as csvfile: #create CSV
+        csvfile.writelines(lines)
+
+
+
+def clip_raster(inRas, inShape, outRas):
+
+    """
+    Clip a raster using the extent of a shapefile
+    
+    Parameters
+    ----------
+        
+    inRas : string
+            the input image 
+            
+    outPoly : string
+              the input polygon file path 
+        
+    outRas : string (optional)
+             the clipped raster
+        
+    nodata_value : numerical (optional)
+                   self explanatory
+        
+   
+    """
+    
+
+    vds = ogr.Open(inShape)
+           
+    rds = gdal.Open(inRas, gdal.GA_ReadOnly)
+    
+    lyr = vds.GetLayer()
+
+    
+    extent = lyr.GetExtent()
+    
+    extent = [extent[0], extent[2], extent[1], extent[3]]
+            
+
+    print('cropping')
+    ds = gdal.Warp(outRas,
+              rds,
+              format = 'GTiff', outputBounds = extent)
+              
+
+
+    ds.FlushCache()
+
+    ds = None
+
+
+
+
+
+
+
+
+
+
+
 
     

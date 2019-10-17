@@ -281,7 +281,7 @@ def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',  **kwargs):
     
     dsmF = path.join(folder, 'PIMs-TmpBasc', 'PIMs-Merged_Prof.tif')
     dsmMeta = path.join(folder, 'PIMs-TmpBasc', 'PIMs-Merged_Prof.tfw')
-    mask  = path.join(folder, 'PIMsTmpBasc', 'PIMs-Merged_Masq.tif')
+    mask  = path.join(folder, 'PIMs-TmpBasc', 'PIMs-Merged_Masq.tif')
     
     # georef the DEM
     _set_dataset_config(dsmF, proj, FMT = 'Gtiff')
@@ -590,6 +590,7 @@ def feather(folder, proj="ESPG:32360", mode='PIMs',
 
     #chdir(folder)
 
+# TODO - consider canning this as ossim is pain to get working on machines
 def ossimmosaic(folder, proj="30 +north", mode="ossimFeatherMosaic", nt=-1):
     
     """
@@ -832,10 +833,13 @@ def malt_batch(folder,  mode='Ortho',  mp=-1, gp=0, window=2, mx=None, ext="JPG"
     
     folder : string
            working directory
-    gp : string (optional)
+    mode : string
+            The micmac processing mode eg 'Ortho' (default)
+    
+    gp : int (optional)
            path to gpu suppoted micmac bin folder 
         
-    mp : string
+    mp : int
              Correlation mode - Ortho, UrbanMNE, GeomImage
         
     ext : string

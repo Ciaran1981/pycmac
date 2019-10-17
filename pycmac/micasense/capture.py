@@ -293,7 +293,7 @@ class Capture(object):
             return None
 
     def detect_panels(self):
-        from micasense.panel import Panel
+        from pycmac.micasense.panel import Panel
         if self.panels is not None and self.detected_panel_count == len(self.images):
             return self.detected_panel_count
         self.panels = [Panel(img,panelCorners=pc) for img,pc in zip(self.images,self.panelCorners)]

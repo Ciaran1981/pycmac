@@ -15,12 +15,18 @@ Documentation is found here, including a quick start.
 
 https://ciaran1981.github.io/pycmac/build/html/index.html
 
+Clone the repository and cd into folder then....
 
-.. code-block:: python
+.. code-block:: bash
 
-    python setup.py install
+    conda env create -f pycmac_env.yml
 
-This will install pycmac and dependencies into a conda environment. Remember to activate it when you use it. 
+This will install pycmac and dependencies into a conda environment. Remember to activate it when you use it by...
+
+.. code-block:: bash
+    
+    conda activate pycmac
+
 
 Dependency installation
 ~~~~~~~~~~~~~~~~~

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Wed May 15 12:16:49 2019
@@ -27,9 +26,10 @@ class CondaInstall(install):
 
 #            subprocess.check_call(['conda', 'env', 'create', '-n', 'pycmac'])
 #            subprocess.check_call(['conda', 'activate', 'pycmac'])
-            packages = open('conda_modules.txt').read().splitlines()
-            command = ['conda', 'install', '-y']
-            command.extend(packages)
+#            packages = open('conda_modules.txt').read().splitlines()
+#            command = ['conda', 'install', '-y']
+#            command.extend(packages)
+            command = ['conda', 'env', 'create', '-f', 'pycmac_env.yml']
 
             subprocess.check_call(command)
             install.do_egg_install(self)
@@ -43,10 +43,10 @@ setup(
     name="pycmac",
     version="0.1",
     packages=find_packages(),
-    install_requires=['pyzbar', 'pysolar', 'mapboxgl', 'pyexiftool',
-
+#    install_requires=['pyzbar', 'pysolar', 'mapboxgl', 'pyexiftool',
+#
                       #'git+https://github.com/smarnach/pyexiftool.git#egg=pyexiftoolpy',
-                      'imageio-ffmpeg', 'open3d'],
+#                      'imageio-ffmpeg', 'open3d'],
     
     #open('requirements.txt').read().splitlines(),
     # Project uses reStructuredText, so ensure that the docutils get

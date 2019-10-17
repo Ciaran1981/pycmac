@@ -193,7 +193,7 @@ def convert_c3p(folder, lognm, ext="JPG", mspec=False):
                                          
 
 
-def mv_subset(csv, inFolder, outfolder):
+def mv_subset(csv, inFolder, outfolder, sep=" "):
     
     """
     Move a subset of images based on a MicMac csv file
@@ -207,12 +207,14 @@ def mv_subset(csv, inFolder, outfolder):
             path to folder containing jpegs
     lognm : string
             path to c3p derived csv file
-                           
+    sep : string
+            the delimiter of the csv (space is default)
+                                  
     """
     
     os.chdir(inFolder)
     
-    dF = pd.read_csv(csv)
+    dF = pd.read_csv(csv, sep=sep)
     
     dfList = list(dF['#F=N'])
     

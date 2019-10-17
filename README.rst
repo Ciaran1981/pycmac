@@ -15,15 +15,6 @@ Documentation is found here, including a quick start.
 
 https://ciaran1981.github.io/pycmac/build/html/index.html
 
-make a conda environment of your name choice (replace 'pycmac' here) then activate it
-
-.. code-block:: bash
-
-	conda create -n 'pycmac'
-
-	conda activate pycmac
-
-cd into the pycmac folder and type 
 
 .. code-block:: python
 

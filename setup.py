@@ -20,26 +20,25 @@ with open('README.rst', encoding='utf-8') as f:
 
 descript = ('A python lib for Micmac and associated geospatial functionality with enhancements and adaptations. \nThe lib also facilitates the processing of Micasense multi-spectral imagery to surface reflectance ready for use with MicMac (or indeed others)')
 
-class CondaInstall(install):
-    def run(self):
-        try:
-
-#            subprocess.check_call(['conda', 'env', 'create', '-n', 'pycmac'])
-#            subprocess.check_call(['conda', 'activate', 'pycmac'])
-#            packages = open('conda_modules.txt').read().splitlines()
-#            command = ['conda', 'install', '-y']
-#            command.extend(packages)
-            command = ['conda', 'env', 'create', '-f', 'pycmac_env.yml']
-
-            subprocess.check_call(command)
-            install.do_egg_install(self)
-        except subprocess.CalledProcessError:
-            print("Conda install failed: do you have Anaconda/miniconda installed and on your PATH?")
-
+#class CondaInstall(install):
+#    def run(self):
+#        try:
+#
+##            subprocess.check_call(['conda', 'env', 'create', '-n', 'pycmac'])
+##            subprocess.check_call(['conda', 'activate', 'pycmac'])
+##            packages = open('conda_modules.txt').read().splitlines()
+##            command = ['conda', 'install', '-y']
+##            command.extend(packages)
+#            command = ['conda', 'env', 'create', '-f', 'pycmac_env.yml']
+#
+#            subprocess.check_call(command)
+#            #install.do_egg_install(self)
+#        except subprocess.CalledProcessError:
+#            print("Conda install failed: do you have Anaconda/miniconda installed and on your PATH?")
+#
 
 
 setup(
-    cmdclass={'install': CondaInstall},
     name="pycmac",
     version="0.1",
     packages=find_packages(),

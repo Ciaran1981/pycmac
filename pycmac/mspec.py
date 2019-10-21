@@ -589,7 +589,7 @@ def clip_raster(inRas, inShape, outRas):
     inRas : string
             the input image 
             
-    outPoly : string
+    inShape : string
               the input polygon file path 
         
     outRas : string (optional)

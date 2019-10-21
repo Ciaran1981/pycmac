@@ -297,7 +297,7 @@ def make_sys_utm(folder, proj):
     
     
 def _copy_dataset_config(inDataset, FMT = 'Gtiff', outMap = 'copy',
-                          bands = 1):
+                          bands = 1, dtype=gdal.GDT_Float32):
     """Copies a dataset without the associated rasters.
 
     """
@@ -321,7 +321,6 @@ def _copy_dataset_config(inDataset, FMT = 'Gtiff', outMap = 'copy',
     #dtype=gdal.GDT_Int32
     driver = gdal.GetDriverByName(FMT)
     
-    dtype = gdal.GDT_Float32
     
     # Set params for output raster
     outDataset = driver.Create(

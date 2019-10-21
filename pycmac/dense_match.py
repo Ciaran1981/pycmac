@@ -359,12 +359,14 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, **kwargs):
     if ret !=0:
         print('A micmac error has occured - check the log file')
         sys.exit()
-    
-    
     orthF = path.join(folder, ootFolder, "Orthophotomosaic_Out.tif") 
+    if path.exists(orthF) == False:
+        orthF = path.join(folder, ootFolder, "Orthophotomosaic.tif")
+        
+    
     orthMeta = path.join(folder, ootFolder, "Orthophotomosaic.tfw") 
     
-    cnvIm = ["mm3d", "ConvertIm", "Ortho-MEC-Malt/Orthophotomosaic.tif"] 
+    cnvIm = ["mm3d", "ConvertIm", path.join(ootFolder, 'Orthophotomosaic.tif')] 
     
     ret = call(cnvIm, stdout=mlog)
 

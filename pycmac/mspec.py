@@ -462,10 +462,144 @@ def _proc_stack(i, warp_matrices, bndFolders, panel_irradiance, reflFolder, warp
                "-overwrite_original"]
     call(cmd)
 
+def _raster_copy( s_fh, s_xoff, s_yoff, s_xsize, s_ysize, s_band_n,
+                 t_fh, t_xoff, t_yoff, t_xsize, t_ysize, t_band_n):
+    
+    """
+    Lifted from gdal_merge
+    
+    """
+
+#    if verbose != 0:
+    print('Copy %d,%d,%d,%d to %d,%d,%d,%d.'
+          % (s_xoff, s_yoff, s_xsize, s_ysize,
+         t_xoff, t_yoff, t_xsize, t_ysize ))
+
+
+
+    s_band = s_fh.GetRasterBand( s_band_n )
+    m_band = None
+    # Works only in binary mode and doesn't take into account
+    # intermediate transparency values for compositing.
+    if s_band.GetMaskFlags() != gdal.GMF_ALL_VALID: 
+        m_band = s_band.GetMaskBand()
+    elif s_band.GetColorInterpretation() == gdal.GCI_AlphaBand:
+        m_band = s_band
+#    if m_band is not None:
+#        return raster_copy_with_mask(
+#            s_fh, s_xoff, s_yoff, s_xsize, s_ysize, s_band_n,
+#            t_fh, t_xoff, t_yoff, t_xsize, t_ysize, t_band_n,
+#            m_band )
+
+    s_band = s_fh.GetRasterBand( s_band_n )
+    t_band = t_fh.GetRasterBand( t_band_n )
+
+    data = s_band.ReadRaster( s_xoff, s_yoff, s_xsize, s_ysize,
+                  t_xsize, t_ysize, t_band.DataType )
+    t_band.WriteRaster( t_xoff, t_yoff, t_xsize, t_ysize,
+                        data, t_xsize, t_ysize, t_band.DataType )
+
+    return 0
+
+def _copy_into(inRas, t_fh, s_band = 1, t_band = 1):
+    """
+    
+    Adapted from gdal_merge and now shorne of object-based rubbish
+    
+    Copy this files image into target file.
+
+    This method will compute the overlap area of the file_info objects
+    file, and the target gdal.Dataset object, and copy the image data
+    for the common window area.  It is assumed that the files are in
+    a compatible projection ... no checking or warping is done.  However,
+    if the destination file is a different resolution, or different
+    image pixel type, the appropriate resampling and conversions will
+    be done (using normal GDAL promotion/demotion rules).
+
+    t_fh -- gdal.Dataset object for the file into which some or all
+    of this file may be copied.
+
+    Returns 1 on success (or if nothing needs to be copied), and zero one
+    failure.
+    
+    """
+
+
+    inxsize = inRas.RasterXSize
+    inysize = inRas.RasterYSize
+    ingeotransform = inRas.GetGeoTransform()
+    inulx = ingeotransform[0]
+    inuly = ingeotransform[3]
+    inlrx = inulx + ingeotransform[1] * inxsize
+    inlry = inuly + ingeotransform[5] * inysize
+
+    ct = inRas.GetRasterBand(1).GetRasterColorTable()
+    if ct is not None:
+        inct = ct.Clone()
+    else:
+        inct = None
+
+    
+    t_geotransform = t_fh.GetGeoTransform()
+    t_ulx = t_geotransform[0]
+    t_uly = t_geotransform[3]
+    t_lrx = t_geotransform[0] + t_fh.RasterXSize * t_geotransform[1]
+    t_lry = t_geotransform[3] + t_fh.RasterYSize * t_geotransform[5]
+
+    # figure out intersection region
+    tgw_ulx = max(t_ulx,inulx)
+    tgw_lrx = min(t_lrx,inlrx)
+    if t_geotransform[5] < 0:
+        tgw_uly = min(t_uly,inuly)
+        tgw_lry = max(t_lry,inlry)
+    else:
+        tgw_uly = max(t_uly,inuly)
+        tgw_lry = min(t_lry,inlry)
+
+    # do they even intersect?
+    if tgw_ulx >= tgw_lrx:
+        return 1
+    if t_geotransform[5] < 0 and tgw_uly <= tgw_lry:
+        return 1
+    if t_geotransform[5] > 0 and tgw_uly >= tgw_lry:
+        return 1
+
+    # compute target window in pixel coordinates.
+    tw_xoff = int((tgw_ulx - t_geotransform[0]) / t_geotransform[1] + 0.1)
+    tw_yoff = int((tgw_uly - t_geotransform[3]) / t_geotransform[5] + 0.1)
+    tw_xsize = int((tgw_lrx - t_geotransform[0])/t_geotransform[1] + 0.5) \
+               - tw_xoff
+    tw_ysize = int((tgw_lry - t_geotransform[3])/t_geotransform[5] + 0.5) \
+               - tw_yoff
+
+    if tw_xsize < 1 or tw_ysize < 1:
+        return 1
+
+    # Compute source window in pixel coordinates.
+    sw_xoff = int((tgw_ulx - ingeotransform[0]) / ingeotransform[1])
+    sw_yoff = int((tgw_uly - ingeotransform[3]) / ingeotransform[5])
+    sw_xsize = int((tgw_lrx - ingeotransform[0]) \
+                   / ingeotransform[1] + 0.5) - sw_xoff
+    sw_ysize = int((tgw_lry - ingeotransform[3]) \
+                   / ingeotransform[5] + 0.5) - sw_yoff
+
+    if sw_xsize < 1 or sw_ysize < 1:
+        return 1
+
+    # Open the source file, and copy the selected region.
+#    s_fh = gdal.Open( inRas.filename )
+
+    return _raster_copy(inRas, sw_xoff, sw_yoff, sw_xsize, sw_ysize, s_band,
+                        t_fh, tw_xoff, tw_yoff, tw_xsize, tw_ysize, t_band,
+                        nodata_arg)
+
 
          
 
-def stack_rasters(inRas1, inRas2, outRas, blocksize=256):
+def stack_rasters(inRas1, inRas2, outRas, dtype=gdal.GDT_Int32):
+    
+    
+    
     rasterList1 = [1,2,3]
     rasterList2 = [2, 3]
     
@@ -473,75 +607,19 @@ def stack_rasters(inRas1, inRas2, outRas, blocksize=256):
     inDataset2 = gdal.Open(inRas2)
     
     outDataset = _copy_dataset_config(inDataset1, FMT = 'Gtiff', outMap = outRas,
-                         dtype = gdal.GDT_Int32, bands = 5)
-    
-    bnnd = inDataset1.GetRasterBand(1)
-    cols = outDataset.RasterXSize
-    rows = outDataset.RasterYSize
-
-    # So with most datasets blocksize is a row scanline
-    if blocksize == None:
-        blocksize = bnnd.GetBlockSize()
-        blocksizeX = blocksize[0]
-        blocksizeY = blocksize[1]
-    else:
-        blocksizeX = blocksize
-        blocksizeY = blocksize
-    del bnnd
+                         dtype = dtype, bands = 5)
     
     
     
     for band in rasterList1:
-        bnd1 = inDataset1.GetRasterBand(band)
-        ootBnd = outDataset.GetRasterBand(band)
-        
-        for i in tqdm(range(0, rows, blocksizeY)):
-                if i + blocksizeY < rows:
-                    numRows = blocksizeY
-                else:
-                    numRows = rows -i
-            
-                for j in range(0, cols, blocksizeX):
-                    if j + blocksizeX < cols:
-                        numCols = blocksizeX
-                    else:
-                        numCols = cols - j
-#                    for band in range(1, bands+1):
-                    
-                    array = bnd1.ReadAsArray(j, i, numCols, numRows)
-    
-                    if array is None:
-                        continue
-                    else:
-    
-                        ootBnd.WriteArray(array, j, i)
+
+        _copy_into( inDataset1, outDataset, s_band = band, t_band = band,
+                   nodata_arg=None )        
                     
     for k,band in enumerate(rasterList2):
+        _copy_into( inDataset2, outDataset, s_band = band, t_band = k+4,
+                   nodata_arg=None )
         
-        bnd2 = inDataset2.GetRasterBand(band)
-        ootBnd = outDataset.GetRasterBand(k+4)
-        
-        for i in tqdm(range(0, rows, blocksizeY)):
-                if i + blocksizeY < rows:
-                    numRows = blocksizeY
-                else:
-                    numRows = rows -i
-            
-                for j in range(0, cols, blocksizeX):
-                    if j + blocksizeX < cols:
-                        numCols = blocksizeX
-                    else:
-                        numCols = cols - j
-    #                for band in range(1, bands+1):
-                    
-                    array = bnd2.ReadAsArray(j, i, numCols, numRows)
-                    
-                    if array is None:
-                        continue
-                    else:
-    
-                        ootBnd.WriteArray(array, j, i)
-                        
     outDataset.FlushCache()
     outDataset = None
 
@@ -596,7 +674,7 @@ def clip_raster(inRas, inShape, outRas):
              the clipped raster
         
     nodata_value : numerical (optional)
-                   self explanatory
+                   inRas explanatory
         
    
     """

@@ -26,14 +26,13 @@ from pycmac.gdal_edit import gdal_edit
 from pycmac.gdal_merge import _merge
 from shutil import rmtree, copytree, copy2, copy
 from joblib import Parallel, delayed
-import pandas as pd
+#import pandas as pd
 from pycmac.tile import  run
-from shutil import rmtree, move, copy#, copytree
-from tqdm import tqdm
+#from tqdm import tqdm
 from PIL import Image
 
 def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_UTM",
-         DoOrtho='1',  DefCor='0', sub=None, delim=",", BoxTerrain=None, mask=None, **kwargs):
+         DoOrtho='1',  DoMEC='1', DefCor='0', sub=None, delim=",", BoxTerrain=None, mask=None, **kwargs):
     
     """
     
@@ -84,7 +83,7 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
     
     mlog = open(path.join(folder, 'Maltlog.txt'), "w")    
     
-    cmd = ['mm3d', 'Malt', mode, extFin, orientation, 'DoOrtho='+DoOrtho,
+    cmd = ['mm3d', 'Malt', mode, extFin, orientation, "DoMEC="+DoMEC, 'DoOrtho='+DoOrtho,
            'DefCor='+DefCor, 'EZA=1']  
     
     if kwargs != None:
@@ -131,35 +130,39 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
     
     projF = "+proj=utm +zone="+proj+"+ellps=WGS84 +datum=WGS84 +units=m +no_defs"
     
+    # It could be we are simply producing the ortho's in which case this is all
+    # not required
+    if DoMEC == "1":
     # georef the DEMs - by georeffing them all we eliminate having to decide which one
-    [_set_dataset_config(z, projF, FMT = 'Gtiff') for z in zedS]
+        [_set_dataset_config(z, projF, FMT = 'Gtiff') for z in zedS]
+        
+        finalZs = path.join(folder, 'MEC-Malt', '*Z_Num*_DeZoom2*_STD-MALT.tif*')
+        # Now to mask the last zoom -level raster
+        
+        zedFS = glob(finalZs)
+        
+        zedFS.sort()
+        
+        img = zedFS[-1]
+        
+        h,t = path.split(img)
+        # want the lower number
+        digit = re.findall('\d+', t)
+        digit.sort()
     
-    finalZs = path.join(folder, 'MEC-Malt', '*Z_Num*_DeZoom2*_STD-MALT.tif*')
-    # Now to mask the last zoom -level raster
-    
-    zedFS = glob(finalZs)
-    
-    zedFS.sort()
-    
-    img = zedFS[-1]
-    
-    h,t = path.split(img)
-    # want the lower number
-    digit = re.findall('\d+', t)
-    digit.sort()
+        maskstr = "Masq_STD-MALT_DeZoom"+digit[0]+".tif"
+        mask_ras = path.join(folder, 'MEC-Malt', maskstr)
+        mask_raster_multi(img, mask=mask_ras) 
+        
+        finDir = path.join(folder, 'OUTPUT')
+        if path.isdir(finDir) == False:
+            mkdir(finDir)
+        
+        
+        copy2(img, finDir)
+        imgMeta = img[:-3]+"tfw"
+        copy2(imgMeta, finDir)
 
-    maskstr = "Masq_STD-MALT_DeZoom"+digit[0]+".tif"
-    mask_ras = path.join(folder, 'MEC-Malt', maskstr)
-    mask_raster_multi(img, mask=mask_ras) 
-    
-    finDir = path.join(folder, 'OUTPUT')
-    if path.isdir(finDir) == False:
-        mkdir(finDir)
-    
-    copy2(img, finDir)
-    imgMeta = img[:-3]+"tfw"
-    copy2(imgMeta, finDir)
-    
     
 #    
 def pims(folder, mode='BigMac', ext="JPG", orientation="Ground_UTM",  
@@ -227,7 +230,8 @@ def pims(folder, mode='BigMac', ext="JPG", orientation="Ground_UTM",
 
 #    
 #    
-def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',  **kwargs):
+def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',
+             DoMnt='1',  **kwargs):
     """
     
     A function calling the PIMs2MNT command for use in python 
@@ -259,7 +263,7 @@ def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',  **kwargs):
     
     mlog = open(path.join(folder, 'PIMslog.txt'), "w")    
     
-    cmd = ['mm3d', 'PIMs2MNT', mode, 'DoOrtho='+DoOrtho]  
+    cmd = ['mm3d', 'PIMs2MNT', mode, 'DoOrtho='+DoOrtho, "DoMnt="+DoMnt]  
     
     if kwargs != None:
         for k in kwargs.items():
@@ -284,7 +288,11 @@ def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',  **kwargs):
     mask  = path.join(folder, 'PIMs-TmpBasc', 'PIMs-Merged_Masq.tif')
     
     # georef the DEM
-    _set_dataset_config(dsmF, proj, FMT = 'Gtiff')
+    
+    projF = "+proj=utm +zone="+proj+"+ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+    
+#    gdal_edit(datasetname=dsmF, srs=projF)
+    _set_dataset_config(dsmF, projF, FMT = 'Gtiff')
     
     mask_raster_multi(dsmF, mask=mask)
     
@@ -292,11 +300,10 @@ def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',  **kwargs):
     if path.isdir(finDir) == False:
         mkdir(finDir)
     
-    copy(dsmF, finDir)
-    copy(dsmMeta, finDir)
-    
-    
-    
+    if DoMnt == '1':
+        copy(dsmF, finDir)
+        copy(dsmMeta, finDir)
+
 #    if mode == 'Forest':
 #        pishList = [path.join(folder, 'PIMs-TmpBasc'),
 #                    path.join(folder, 'PIMs-ORTHO'),
@@ -373,8 +380,10 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, **kwargs):
     if ret !=0:
         print('A micmac error has occured - check the log file')
         sys.exit()
-    
-    _set_dataset_config(orthF, proj, FMT = 'Gtiff')
+        
+    projF = "+proj=utm +zone="+proj+"+ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+    #gdal_edit(datasetname=orthF, srs=projF)
+    _set_dataset_config(orthF, projF, FMT = 'Gtiff')
     
     finDir = path.join(folder, 'OUTPUT')
     
@@ -395,7 +404,6 @@ def feather(folder, proj="ESPG:32360", mode='PIMs',
             ms=['r', 'g', 'b'], subset=None,  outMosaic=None, 
             mp=False, Label=False, redo=False, delim=",", **kwargs):
     
-
     """
     
     A function calling the TestLib SeamlineFeathering command for use in python 

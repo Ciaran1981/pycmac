@@ -361,7 +361,7 @@ def _proc_imgs_comp(i, warp_matrices, bndFolders, panel_irradiance, warp_md, rf)
     
     imtags = ["RGB.tif", "RRENir.tif"]#, "GRNir.tif", "GRRE.tif"]
     im = i.images[1]
-    hd, nm = os.path.split(im.path[:-5])
+    hd, nm = os.path.split(im.path[:-6])
     
     
 
@@ -377,7 +377,7 @@ def _proc_imgs_comp(i, warp_matrices, bndFolders, panel_irradiance, warp_md, rf)
         #warnings.simplefilter("ignore")
         img16 = np.uint16(np.round(image, decimals=0))
         del image
-        outFile = os.path.join(folder, nm+nametag)
+        outFile = os.path.join(folder, nm+'.tif')
         #imageio.imwrite(outfile, img8)
         
         #imOut = Image.fromarray(img16)
@@ -462,11 +462,14 @@ def _proc_stack(i, warp_matrices, bndFolders, panel_irradiance, reflFolder, warp
                "-overwrite_original"]
     call(cmd)
 
+
+         
+
 def _raster_copy( s_fh, s_xoff, s_yoff, s_xsize, s_ysize, s_band_n,
                  t_fh, t_xoff, t_yoff, t_xsize, t_ysize, t_band_n):
     
     """
-    Lifted from gdal_merge
+    Lifted from gdal_merge - internal use
     
     """
 
@@ -504,7 +507,9 @@ def _raster_copy( s_fh, s_xoff, s_yoff, s_xsize, s_ysize, s_band_n,
 def _copy_into(inRas, t_fh, s_band = 1, t_band = 1):
     """
     
-    Adapted from gdal_merge and now shorne of object-based rubbish
+    Adapted from gdal_merge and now shorne of object-based rubbish.
+    
+    For internal use in this module
     
     Copy this files image into target file.
 
@@ -515,12 +520,17 @@ def _copy_into(inRas, t_fh, s_band = 1, t_band = 1):
     if the destination file is a different resolution, or different
     image pixel type, the appropriate resampling and conversions will
     be done (using normal GDAL promotion/demotion rules).
-
-    t_fh -- gdal.Dataset object for the file into which some or all
+    
+    Parameters
+    ----------
+        
+    inRas : byte
+            a gdal.Dataset object (already opened)
+            
+    t_fh : byte
+              gdal.Dataset object for the file into which some or all
     of this file may be copied.
-
-    Returns 1 on success (or if nothing needs to be copied), and zero one
-    failure.
+    
     
     """
 
@@ -586,17 +596,36 @@ def _copy_into(inRas, t_fh, s_band = 1, t_band = 1):
     if sw_xsize < 1 or sw_ysize < 1:
         return 1
 
-    # Open the source file, and copy the selected region.
-#    s_fh = gdal.Open( inRas.filename )
+    # Copy the selected region.
 
     return _raster_copy(inRas, sw_xoff, sw_yoff, sw_xsize, sw_ysize, s_band,
-                        t_fh, tw_xoff, tw_yoff, tw_xsize, tw_ysize, t_band,
-                        nodata_arg)
+                        t_fh, tw_xoff, tw_yoff, tw_xsize, tw_ysize, t_band)
 
 
          
 
 def stack_rasters(inRas1, inRas2, outRas, dtype=gdal.GDT_Int32):
+    
+    
+    """
+    Stack the intersected extent of £-band composites from MicMac which contain 
+    
+    RGB and RReNir respectively. Obviously the red band will not be written twice!
+    
+    Parameters
+    ----------
+        
+    inRas1 : string
+            path to RGB image
+            
+    inRas2 : string
+             path to RReNir image
+    outRas3 : string
+             path to outputted stack
+             
+    dtype : int 
+            gdal datatype e.g. gdal.GDT_Int32 (default)
+   """
     
     
     
@@ -622,7 +651,6 @@ def stack_rasters(inRas1, inRas2, outRas, dtype=gdal.GDT_Int32):
         
     outDataset.FlushCache()
     outDataset = None
-
     
 
 def mica_csv(folder, time_date=False):
@@ -674,7 +702,7 @@ def clip_raster(inRas, inShape, outRas):
              the clipped raster
         
     nodata_value : numerical (optional)
-                   inRas explanatory
+                   self explanatory
         
    
     """

@@ -297,7 +297,7 @@ def make_sys_utm(folder, proj):
     
     
 def _copy_dataset_config(inDataset, FMT = 'Gtiff', outMap = 'copy',
-                          bands = 1, dtype=gdal.GDT_Float32):
+                          bands = 1, dtype=gdal.GDT_Int32):
     """Copies a dataset without the associated rasters.
 
     """
@@ -311,7 +311,7 @@ def _copy_dataset_config(inDataset, FMT = 'Gtiff', outMap = 'copy',
     x_pixels = inDataset.RasterXSize  # number of pixels in x
     y_pixels = inDataset.RasterYSize  # number of pixels in y
     geotransform = inDataset.GetGeoTransform()
-    PIXEL_SIZE = geotransform[1]  # size of the pixel...they are square so thats ok.
+    PIXEL_SIZE = geotransform[1]  # size of the pixel assuming they are square.
     #if not would need w x h
     x_min = geotransform[0]
     y_max = geotransform[3]

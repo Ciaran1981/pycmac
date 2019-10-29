@@ -28,9 +28,7 @@ from shutil import move
 from glob2 import glob
 
 
-
-
-def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs', submode='Forest'):
+def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",", mode='PIMs', submode='Forest'):
     
     """
     A function for the complete structure from motion process using the micasense
@@ -46,7 +44,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs'
     Notes
     -----------
     
-    This assumes you have already generated a working directory with RGB and RReNir folders
+    This assumes you have already generated a working directory with RGB and RRENir folders
     in it using the pycmac.mspec_proc function
     
     This assumes certain parameters, if want fine-grained control, use the individual commands.
@@ -104,7 +102,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs'
     
     # bundle adjust
     # if required here for calib
-    bundle_adjust(folder,  ext='tif', calib=sub, sep=sep)
+    bundle_adjust(folder,  ext='tif', calib=sub, gpsAcc=gpsAcc, sep=sep)
     
     
     
@@ -128,7 +126,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs'
     
     # Nir etc
     
-    folder2 = path.join(folder,'RReNir')
+    folder2 = path.join(folder,'RRENir')
     
     # get the niretc imagery in the folder
     
@@ -143,10 +141,10 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs'
         pims2mnt(folder, mode=submode,  DoOrtho='1',
              DoMnt='0')
       
-    tawny(folder,  mode=mode, Out="RReNir.tif")
+    tawny(folder,  mode=mode, Out="RRENir.tif")
     
     rgbIm = path.join(folder, "OUTPUT", "RGB.tif")
-    nirIm = path.join(folder, "OUTPUT", "RReNir.tif") 
+    nirIm = path.join(folder, "OUTPUT", "RRENir.tif") 
     stk = path.join(folder, "OUTPUT", "mstack.tif")
     
     stack_rasters(rgbIm, nirIm, stk)
@@ -224,7 +222,6 @@ def rgb_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs', 
     
     tawny(folder, mode=mode, Out="RGB.tif")
     
-
 
 
 

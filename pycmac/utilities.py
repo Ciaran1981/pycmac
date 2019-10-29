@@ -107,7 +107,7 @@ def calib_subset(folder, csv, ext="JPG",  algo="Fraser", delim=","):
     
     call(mm3dFinal)
     
-def convert_c3p(folder, lognm, ext="JPG", mspec=False):
+def convert_c3p(folder, lognm, ext="JPG", delim=','):
     
     """
     Edit csv file for c3p to work with MicMac.
@@ -125,8 +125,8 @@ def convert_c3p(folder, lognm, ext="JPG", mspec=False):
             path to c3p derived csv file
     ext : string
             image extension
-    ms : bool
-            If using multispec 2 csvs will be produced, with the file prefixes for the MSpec outputs
+    delim : string
+            the csv delimiter of the input
                            
     """
     # Get a list of file paths 
@@ -139,15 +139,15 @@ def convert_c3p(folder, lognm, ext="JPG", mspec=False):
     
 
     
-    fileF = [files[k] for k in range(0, len(files), 5)]
+    #fileF = [files[k] for k in range(0, len(files), 5)]
 
     # must be read as an object as we are dealing with strings and numbers
     #npCsv = np.loadtxt(lognm, dtype='object')
     
-    def _mmlog(lognm, outlog, postxt=None):
+    def _mmlog(lognm, outlog, postxt="."+ext):
         
         with open(lognm, 'r') as f:
-            header = f.readline().strip('\n').split(';')
+            header = f.readline().strip('\n').split(delim)
             x_col = header.index('Longitude')
             y_col = header.index('Latitude')
             z_col = header.index('Altitude')
@@ -156,38 +156,26 @@ def convert_c3p(folder, lognm, ext="JPG", mspec=False):
             z = []
             
             for line in f:
-                l = line.strip('\n').split(';')
+                l = line.strip('\n').split(delim)
                 
                 x.append(l[x_col])
                 y.append(l[y_col])
                 z.append(l[z_col])
         
-        if postxt == None:
-            with open(outlog, "w") as oot:
-                oot.write("#F=N X Y Z \n")
-                for idx, vr in enumerate(fileF):
-                    flnm = vr
-                    s = ' '
-                    outStr = s.join([flnm, x[idx], y[idx], z[idx], "\n"])
-                    oot.write(outStr)
-        else:
-            with open(outlog, "w") as oot:
-                oot.write("#F=N X Y Z \n")
-                for idx, vr in enumerate(fileF):
-                    flnm = vr[:-5]+postxt
-                    s = ' '
-                    outStr = s.join([flnm, x[idx], y[idx], z[idx], "\n"])
-                    oot.write(outStr)
+
+
+        with open(outlog, "w") as oot:
+            oot.write("#F=N X Y Z \n")
+            for idx, vr in enumerate(files):
+                flnm = vr[:-3]+postxt
+                s = ' '
+                outStr = s.join([flnm, x[idx], y[idx], z[idx], "\n"])
+                oot.write(outStr)
                 
-    rgblog = lognm[:-4]+'_rgb.csv'
-    cirlog = lognm[:-4]+'_renir.csv'         
-        
-    if mspec == True:
-                               
-        _mmlog(lognm, rgblog, postxt="RGB.tif")
-        _mmlog(lognm, cirlog, postxt="RRENir.tif")        
-    else:
-        _mmlog(lognm, rgblog)
+    rgblog = os.path.join(folder,lognm[:-4]+'edited.csv')  
+
+
+    _mmlog(lognm, rgblog)
         
         
                                          

@@ -131,7 +131,7 @@ def feature_match(folder, csv=None, proj="30 +north", resize=None, ext="JPG",
        
 
 def bundle_adjust(folder, algo="Fraser", proj="30 +north",
-                  ext="JPG", calib=None,  gpsAcc='1', exif=False):
+                  ext="JPG", calib=None,  gpsAcc='1', sep=",", exif=False):
     """
     
     A function running the relative orientation/bundle adjustment with micmac 
@@ -179,7 +179,7 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     chdir(folder)
     
     if calib != None:
-        calib_subset(folder, calib, ext=extFin,  algo="Fraser")
+        calib_subset(folder, calib, ext=extFin,  algo="Fraser", delim=sep)
     else: 
         #['mm3d', 'Tapas', 'Fraser', '.*tif', 'Out=Arbitrary', 'SH=_mini']
         tlog = open(path.join(folder, algo+'log.txt'), "w")

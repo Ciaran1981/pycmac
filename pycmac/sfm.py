@@ -28,10 +28,6 @@ from shutil import move
 from glob2 import glob
 
 
-# temp for lazyness
-#["exiftool", "-tagsFromFile", im.path,  "-file:all", "-iptc:all",
-#               "-exif:all",  "-xmp", "-Composite:all", outFile, 
-#               "-overwrite_original"]
 
 
 def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs', submode='Forest'):
@@ -57,6 +53,9 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs'
     
     The absolute path needs to be provided for csv's representing image data or calibration subsets
     
+    Using Malt doesn't always guarantee perfect aligment
+    PIMs Forest may be the best bet with a processing time penalty over Malt
+    
         
     Parameters
     -----------
@@ -67,8 +66,11 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs'
            a UTM zone eg "30 +north" 
         
     mode : string
-             Correlation mode - Ortho, UrbanMNE, GeomImage
-        
+             either Malt or PIMs
+             
+    submode : string
+             PIMs submode e.g. Forest, BigMac etc.
+             
     csv : string
             path to csv containing image xyz info in the micmac format
 
@@ -112,7 +114,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs'
         malt(folder, ext='tif')
     elif mode == 'PIMs':
         pims(folder, mode=submode, ext='tif')
-        pims2mnt(folder, proj="30 +north", mode=submode,  DoOrtho='1',
+        pims2mnt(folder, mode=submode,  DoOrtho='1',
              DoMnt='1')
     
     tawny(folder, mode=mode, Out="RGB.tif")
@@ -149,7 +151,79 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs'
     
     stack_rasters(rgbIm, nirIm, stk)
 
+def rgb_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs', submode='Forest'):
+    
+    """
+    A function for the complete structure from motion process using a 
+    RGB or grayscale camera
+    
+    The RGB imagery is used to generate DSMs an mosaics
+    
+    Obviously the Malt and PIMs algorithms will perform better/worse than each other
+    on certain datasets. 
 
+            
+    Notes
+    -----------
+    
+    This assumes certain parameters, if want fine-grained control to debug 
+    (as acquisitions may throw up issues) use the individual commands.
+    
+    The absolute path needs to be provided for csv's representing image data or calibration subsets
+    
+        
+    Parameters
+    -----------
+    
+    folder : string
+           working directory
+    proj : string
+           a UTM zone eg "30 +north" 
+        
+    mode : string
+             either Malt or PIMs
+    submode : string
+             PIMs submode e.g. Forest, BigMac etc.
+                
+    csv : string
+            path to csv containing image xyz info in the micmac format
+
+    sub : string
+            path to csv containing an image subset in the micmac format
+
+    sep : string
+            the csv delimiter if used (default ",")    
+
+    
+    """
+
+    # folders
+    """
+    #RGB
+    Here process the RGB which forms the template for the other bands
+    """
+      
+    # features
+    # if required here for csv
+    feature_match(folder, csv=csv, ext='tif') 
+    
+    # bundle adjust
+    # if required here for calib
+    bundle_adjust(folder,  ext='tif', calib=sub, sep=sep)
+    
+    
+    
+    # For the RGB dataset
+    
+    if mode == 'Malt':    
+        malt(folder, ext='tif')
+    elif mode == 'PIMs':
+        pims(folder, mode=submode, ext='tif')
+        pims2mnt(folder, mode=submode,  DoOrtho='1',
+             DoMnt='1')
+    
+    tawny(folder, mode=mode, Out="RGB.tif")
+    
 
 
 

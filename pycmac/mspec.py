@@ -38,7 +38,7 @@ exiftoolPath=None
 
 
 #nt = args.noT
-def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=1, 
+def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=4, 
                nt=-1, mx=100, stk=1, plots=False, panel_ref=None, 
                warp_type='MH'):
     
@@ -78,7 +78,7 @@ def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=1,
                  directory containing pre-flight calibration panels pics
                  
     refBnd : int
-                The band to which all others are aligned
+                The band to which all others are aligned def 4 works best
             
     nt : int
                 No of threads to use   
@@ -177,7 +177,7 @@ def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=1,
     #imAl.plot_undistorted_reflectance(panel_irradiance)
     
     
-    rf = refBnd
+    rf = refBnd-1
     
     imAl, mx, reflFolder, rf, plots, warp_md
     

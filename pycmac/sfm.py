@@ -28,7 +28,9 @@ from shutil import move
 from glob2 import glob
 
 
-def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",", mode='PIMs', submode='Forest'):
+def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
+              mode='PIMs', submode='Forest', dist="100" doFeat=True, doBundle=True,
+              allIm=False):
     
     """
     A function for the complete structure from motion process using the micasense
@@ -74,9 +76,22 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
 
     sub : string
             path to csv containing an image subset in the micmac format
-
+            
+    gpsAcc : string
+            the estimate of GPS accuracy
+    
+    dist : string
+            the distance from each image centre to consider when feature
+            detecting and matching 
+            
     sep : string
             the csv delimiter if used (default ",")    
+
+    doFeat : bool
+            if repeating after debug/changes mis out early stages
+            
+    doBundle : bool
+            if repeating after debug/changes mis out early stages  
 
     
     """
@@ -88,21 +103,25 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     """
     # first we move all the RGB into the working directory
     
+    if doFeat == True:
+        folder1 = path.join(folder,'RGB')
+        
+        inList = glob(path.join(folder1, "*.tif"))
+        
+        [move(rgb, folder) for rgb in inList]
+        
+        
+        # features
+        # if required here for csv
+        if allIm == True:
+            feature_match(folder, csv=csv, ext='tif', allIm=True)
+            
+        feature_match(folder, csv=csv, ext='tif', dist=dist) 
+    if doBundle == True:
     
-    folder1 = path.join(folder,'RGB')
-    
-    inList = glob(path.join(folder1, "*.tif"))
-    
-    [move(rgb, folder) for rgb in inList]
-    
-    
-    # features
-    # if required here for csv
-    feature_match(folder, csv=csv, ext='tif') 
-    
-    # bundle adjust
-    # if required here for calib
-    bundle_adjust(folder,  ext='tif', calib=sub, gpsAcc=gpsAcc, sep=sep)
+        # bundle adjust
+        # if required here for calib
+        bundle_adjust(folder,  ext='tif', calib=sub, gpsAcc=gpsAcc, sep=sep)
     
     
     

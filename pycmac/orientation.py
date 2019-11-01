@@ -42,7 +42,7 @@ def _callit(cmd, log=None):
             sys.exit()
 
 def feature_match(folder, csv=None, proj="30 +north", resize=None, ext="JPG",
-                  delim=" ", schnaps=True):
+                  delim=" ", schnaps=True, allIm=False, dist="100"):
     
     """
     
@@ -97,8 +97,8 @@ def feature_match(folder, csv=None, proj="30 +north", resize=None, ext="JPG",
         _callit(gpxml, featlog)
         
         oriCon= ["mm3d", "OriConvert", "#F=N X Y Z", "GpsCoordinatesFromExif.txt",
-                 "RAWGNSS_N","ChSys=DegreeWGS84@RTLFromExif.xml", "MTD1=1", 
-                 "NameCple=FileImagesNeighbour.xml", "CalcV=1"]
+                 "RAWGNSS_N","ChSys=DegreeWGS84@RTLFromExif.xml", "MTD1=1",
+                 "DN="+dist, "NameCple=FileImagesNeighbour.xml", "CalcV=1"]
             
         
         _callit(oriCon, featlog)
@@ -116,8 +116,10 @@ def feature_match(folder, csv=None, proj="30 +north", resize=None, ext="JPG",
 
     if resize != None:
         Parallel(n_jobs=-1, verbose=5)(delayed(_imresize)(i, resize) for i in imList)
-        
-    tapi = ["mm3d", "Tapioca", "File", "FileImagesNeighbour.xml", "-1", "@SFS"]
+    if allIm == True:
+        tapi = ["mm3d", "Tapioca", "All", extFin, "-1", "@SFS"]
+    else:
+        tapi = ["mm3d", "Tapioca", "File", "FileImagesNeighbour.xml", "-1", "@SFS"]
     _callit(tapi)
     
     if schnaps is True:

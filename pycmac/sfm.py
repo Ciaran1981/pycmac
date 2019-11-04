@@ -13,15 +13,9 @@ from os import path
 
 from pycmac.orientation import feature_match, bundle_adjust
 
-from pycmac.dense_match import malt, tawny, feather, pims, pims2mnt
-
-#from pycmac.utilities import mv_subset
+from pycmac.dense_match import malt, tawny, pims, pims2mnt
 
 from pycmac.mspec import stack_rasters
-
-
-#import matplotlib.pyplot as plt
-
 
 from shutil import move
 
@@ -29,8 +23,8 @@ from glob2 import glob
 
 
 def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
-              mode='PIMs', submode='Forest', dist="100" doFeat=True, doBundle=True,
-              allIm=False):
+              mode='PIMs', submode='Forest', dist="100", doFeat=True, doBundle=True,
+              allIm=False, shpmask=None, subset=None):
     
     """
     A function for the complete structure from motion process using the micasense
@@ -92,7 +86,15 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
             
     doBundle : bool
             if repeating after debug/changes mis out early stages  
+            
+    allIm : bool
+            Exaustive feature search for image pairs (way slower!)
+            
+    shpmask : string
+            a shapefile mask to constrain malt-based processing  
 
+    subset : string
+            a csv defining a subset of images to be processed during dense matching                        
     
     """
 
@@ -115,8 +117,10 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
         # if required here for csv
         if allIm == True:
             feature_match(folder, csv=csv, ext='tif', allIm=True)
-            
-        feature_match(folder, csv=csv, ext='tif', dist=dist) 
+        else:    
+            feature_match(folder, csv=csv, ext='tif', dist=dist) 
+        
+        
     if doBundle == True:
     
         # bundle adjust
@@ -128,7 +132,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     # For the RGB dataset
     
     if mode == 'Malt':    
-        malt(folder, ext='tif')
+        malt(folder, ext='tif', mask=shpmask, sub=subset)
     elif mode == 'PIMs':
         pims(folder, mode=submode, ext='tif')
         pims2mnt(folder, mode=submode,  DoOrtho='1',
@@ -154,11 +158,13 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     [move(i, folder) for i in inList]
     
     if mode == 'Malt':    
-        malt(folder, DoMEC='0', ext='tif')
+        malt(folder, DoMEC='0', ext='tif', mask=shpmask, sub=subset)
     elif mode == 'PIMs':
-        pims(folder, mode=submode, ext='tif')
+       # PIMs bloody deletes the previous folders so would have to rename them
+       # But generation of merged DSM is rapid so doesn't make much difference
+
         pims2mnt(folder, mode=submode,  DoOrtho='1',
-             DoMnt='0')
+             DoMnt='1')
       
     tawny(folder,  mode=mode, Out="RRENir.tif")
     
@@ -168,13 +174,16 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     
     stack_rasters(rgbIm, nirIm, stk)
 
-def rgb_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs', submode='Forest'):
+def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1', sep=",",
+              mode='PIMs', submode='Forest', dist="100", doFeat=True, doBundle=True,
+              allIm=False, shpmask=None, subset=None):
     
     """
-    A function for the complete structure from motion process using a 
-    RGB or grayscale camera
+    A function for the complete structure from motion process using the micasense
+    red edge camera. 
     
-    The RGB imagery is used to generate DSMs an mosaics
+    The RGB imagery is used to generate DSMs, which are in turn used to orthorectify the remaining
+    bands (Red edge, Nir)
     
     Obviously the Malt and PIMs algorithms will perform better/worse than each other
     on certain datasets. 
@@ -183,10 +192,15 @@ def rgb_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs', 
     Notes
     -----------
     
-    This assumes certain parameters, if want fine-grained control to debug 
-    (as acquisitions may throw up issues) use the individual commands.
+    This assumes you have already generated a working directory with RGB and RRENir folders
+    in it using the pycmac.mspec_proc function
+    
+    This assumes certain parameters, if want fine-grained control, use the individual commands.
     
     The absolute path needs to be provided for csv's representing image data or calibration subsets
+    
+    Using Malt doesn't always guarantee perfect aligment
+    PIMs Forest may be the best bet with a processing time penalty over Malt
     
         
     Parameters
@@ -199,18 +213,40 @@ def rgb_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs', 
         
     mode : string
              either Malt or PIMs
+             
     submode : string
              PIMs submode e.g. Forest, BigMac etc.
-                
+             
     csv : string
             path to csv containing image xyz info in the micmac format
 
     sub : string
             path to csv containing an image subset in the micmac format
-
+            
+    gpsAcc : string
+            the estimate of GPS accuracy
+    
+    dist : string
+            the distance from each image centre to consider when feature
+            detecting and matching 
+            
     sep : string
             the csv delimiter if used (default ",")    
 
+    doFeat : bool
+            if repeating after debug/changes mis out early stages
+            
+    doBundle : bool
+            if repeating after debug/changes mis out early stages  
+            
+    allIm : bool
+            Exaustive feature search for image pairs (way slower!)
+            
+    shpmask : string
+            a shapefile mask to constrain malt-based processing  
+
+    subset : string
+            a csv defining a subset of images to be processed during dense matching                        
     
     """
 
@@ -219,27 +255,37 @@ def rgb_sfm(folder, proj="30 +north", csv=None, sub=None, sep=",", mode='PIMs', 
     #RGB
     Here process the RGB which forms the template for the other bands
     """
-      
-    # features
-    # if required here for csv
-    feature_match(folder, csv=csv, ext='tif') 
+    # first we move all the RGB into the working directory
     
-    # bundle adjust
-    # if required here for calib
-    bundle_adjust(folder,  ext='tif', calib=sub, sep=sep)
+    
+    if doFeat == True:               
+        # features
+        # if required here for csv
+        if allIm == True:
+            feature_match(folder, csv=csv, ext=ext, allIm=True)
+        else:    
+            feature_match(folder, csv=csv, ext=ext, dist=dist) 
+        
+        
+    if doBundle == True:
+    
+        # bundle adjust
+        # if required here for calib
+        bundle_adjust(folder,  ext=ext, calib=sub, gpsAcc=gpsAcc, sep=sep)
     
     
     
     # For the RGB dataset
     
     if mode == 'Malt':    
-        malt(folder, ext='tif')
+        malt(folder, ext=ext, mask=shpmask, sub=subset)
     elif mode == 'PIMs':
-        pims(folder, mode=submode, ext='tif')
+        pims(folder, mode=submode, ext=ext)
         pims2mnt(folder, mode=submode,  DoOrtho='1',
              DoMnt='1')
     
     tawny(folder, mode=mode, Out="RGB.tif")
+    
     
 
 

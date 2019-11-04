@@ -642,12 +642,10 @@ def stack_rasters(inRas1, inRas2, outRas, dtype=gdal.GDT_Int32):
     
     for band in rasterList1:
 
-        _copy_into( inDataset1, outDataset, s_band = band, t_band = band,
-                   nodata_arg=None )        
+        _copy_into( inDataset1, outDataset, s_band = band, t_band = band)        
                     
     for k,band in enumerate(rasterList2):
-        _copy_into( inDataset2, outDataset, s_band = band, t_band = k+4,
-                   nodata_arg=None )
+        _copy_into( inDataset2, outDataset, s_band = band, t_band = k+4)
         
     outDataset.FlushCache()
     outDataset = None

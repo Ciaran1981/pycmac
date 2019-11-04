@@ -8,8 +8,9 @@ Installation
 A python lib for Micmac and associated geospatial functionality with enhancements and adaptations. 
 
 The lib also facilitates the processing of Micasense multi-spectral imagery to surface reflectance ready for use with MicMac (or indeed others)
+and facilitates processing this imagery with the MicMac algorithms. 
 
-All the functionallity of the material in the scripts site (https://github.com/Ciaran1981/Sfm/) is covered here in a more compact form via python.
+Most of the functionallity of this lib is covered in the old scripts site (https://github.com/Ciaran1981/Sfm/) but is covered here in a more compact form via python.
 
 Documentation is found here, including a quick start. 
 

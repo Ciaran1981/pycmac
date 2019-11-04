@@ -84,8 +84,9 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
     
     mlog = open(path.join(folder, 'Maltlog.txt'), "w")    
     
-    cmd = ['mm3d', 'Malt', mode, extFin, orientation, 'DoOrtho='+DoOrtho,
-           'DefCor='+DefCor, 'EZA=1']  
+    cmd = ['mm3d', 'Malt', mode, extFin, orientation, "DoMEC="+DoMEC,
+           'DoOrtho='+DoOrtho,
+           'DefCor='+DefCor,  'EZA=1']  
     
     if kwargs != None:
         for k in kwargs.items():
@@ -126,41 +127,6 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
     dsmF = path.join(folder, 'MEC-Malt', '*Z_Num*_DeZoom*_STD-MALT.tif*')
     
     zedS = glob(dsmF)
-   
-    
-    
-    projF = "+proj=utm +zone="+proj+"+ellps=WGS84 +datum=WGS84 +units=m +no_defs"
-    
-    # georef the DEMs - by georeffing them all we eliminate having to decide which one
-    [_set_dataset_config(z, projF, FMT = 'Gtiff') for z in zedS]
-    
-    finalZs = path.join(folder, 'MEC-Malt', '*Z_Num*_DeZoom2*_STD-MALT.tif*')
-    # Now to mask the last zoom -level raster
-    
-    zedFS = glob(finalZs)
-    
-    zedFS.sort()
-    
-    img = zedFS[-1]
-    
-    h,t = path.split(img)
-    # want the lower number
-    digit = re.findall('\d+', t)
-    digit.sort()
-
-    maskstr = "Masq_STD-MALT_DeZoom"+digit[0]+".tif"
-    mask_ras = path.join(folder, 'MEC-Malt', maskstr)
-    mask_raster_multi(img, mask=mask_ras) 
-    
-    finDir = path.join(folder, 'OUTPUT')
-    if path.isdir(finDir) == False:
-        mkdir(finDir)
-    
-    copy2(img, finDir)
-    imgMeta = img[:-3]+"tfw"
-    copy2(imgMeta, finDir)
-    
-    
     
     projF = "+proj=utm +zone="+proj+"+ellps=WGS84 +datum=WGS84 +units=m +no_defs"
     
@@ -264,7 +230,7 @@ def pims(folder, mode='BigMac', ext="JPG", orientation="Ground_UTM",
 
 #    
 #    
-def pims2mnt(folder, mode='BigMac',  DoOrtho='1',
+def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',
              DoMnt='1',  **kwargs):
     """
     

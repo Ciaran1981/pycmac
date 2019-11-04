@@ -138,13 +138,12 @@ def convert_c3p(folder, lognm, ext="JPG", mspec=False, delim=','):
     
     # wow this is getting uglier works well though
     #filesFin = [f[:-6]+'.tif' for f in files if "_1" in f]
-    files = fileList.sort()
-    
+   
     
     pdcsv=pd.read_csv(lognm, sep=delim)
 
 
-    fleDf= pd.DataFrame(files, columns=["#F=N"])
+
     
     files = [os.path.split(file)[1] for file in fileList]
     files.sort()
@@ -153,9 +152,10 @@ def convert_c3p(folder, lognm, ext="JPG", mspec=False, delim=','):
         files = [f[:-6]+'.tif' for f in files if "_1" in f]
         pdcsv = pdcsv[pdcsv['FileName'].str.contains("_1")]
     
+    
                                          
                                          
-
+    fleDf= pd.DataFrame(files, columns=["#F=N"])
 
     newCsv = pd.concat([fleDf["#F=N"], 
                               pdcsv['Longitude'], pdcsv['Latitude'],

@@ -152,8 +152,12 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     folder2 = path.join(folder,'RRENir')
     
     # get the niretc imagery in the folder
+    # Here we join from the outgoing imagelist as images may have been rejected
+    # by schnapps, tapas or manually etc along the way
     
-    inList = glob(path.join(folder2, "*.tif"))
+    modList = [path.split(i)[1] for i in outList] 
+    
+    inList = [path.join(folder2, x) for x in modList]
     
     [move(i, folder) for i in inList]
     

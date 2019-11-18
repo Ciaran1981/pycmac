@@ -179,7 +179,7 @@ def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=4,
     
     rf = refBnd-1
     
-    imAl, mx, reflFolder, rf, plots, warp_md
+    #imAl, mx, reflFolder, rf, plots, warp_md
     
     warp_matrices, alignment_pairs = align_template(imAl, mx, reflFolder,
                                                     rf, plots, warp_md)
@@ -191,7 +191,7 @@ def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=4,
 
         print("Producing pairs of 3-band composites muti core")
         #prep the dir
-        bndNames = ['RGB', 'RRENir', 'GRNir', 'GRRe']
+        bndNames = ['RGB', 'RRENir']
         bndFolders = [os.path.join(reflFolder, b) for b in bndNames]
         [os.mkdir(bf) for bf in bndFolders]
         

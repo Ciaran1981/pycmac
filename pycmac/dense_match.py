@@ -24,7 +24,7 @@ import osr
 from pycmac.utilities import mask_raster_multi
 from pycmac.gdal_edit import gdal_edit
 from pycmac.gdal_merge import _merge
-from shutil import rmtree, copytree, copy2, copy
+from shutil import rmtree, copytree, copy2, copy, move
 from joblib import Parallel, delayed
 #import pandas as pd
 from pycmac.tile import  run
@@ -948,3 +948,35 @@ def malt_batch(folder,  mode='Ortho',  mp=-1, gp=0, window=2, mx=None, ext="JPG"
         [print(t) for t in rejList]
         print("\nRectifying this now...")
 
+def dense_pcl(folder, mode="PIMs", Out="psm.ply"):
+    
+    
+    if mode == 'PIMs':
+        ootply = path.join(folder,'PIMs-TmpBasc', 'PIMs-Merged.xml')
+        ootorth = path.join(folder,'PIMs-ORTHO', 'Orthophotomosaic.tif')
+        
+    elif mode == 'Malt':
+        
+        ootply = path.join(folder,'MEC-Malt', 'NuageImProf_STD-MALT_Etape_8.xml')
+        ootorth = path.join(folder,'Ortho-MEC-Malt', 'Orthophotomosaic.tif')
+        
+    chdir(folder)
+#    
+
+    
+    nuage = ["mm3d", "Nuage2Ply",  ootply, "Attr="+ootorth, "Out="+Out]
+    
+    ret = call(nuage)
+
+    if ret !=0:
+        print('A micmac error has occured - check the log file')
+        sys.exit()
+    
+    outcloud = path.join("OUTPUT", Out)
+    
+    move(path.join(folder,Out), outcloud)
+    
+    
+    
+    
+    

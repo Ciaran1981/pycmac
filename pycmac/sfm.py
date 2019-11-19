@@ -183,11 +183,7 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
               allIm=False, shpmask=None, subset=None):
     
     """
-    A function for the complete structure from motion process using the micasense
-    red edge camera. 
-    
-    The RGB imagery is used to generate DSMs, which are in turn used to orthorectify the remaining
-    bands (Red edge, Nir)
+    A function for the complete structure from motion process using a RGB camera. 
     
     Obviously the Malt and PIMs algorithms will perform better/worse than each other
     on certain datasets. 

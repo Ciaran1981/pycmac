@@ -133,7 +133,7 @@ def feature_match(folder, csv=None, proj="30 +north", resize=None, ext="JPG",
        
 
 def bundle_adjust(folder, algo="Fraser", proj="30 +north",
-                  ext="JPG", calib=None,  gpsAcc='1', sep=",", exif=False):
+                  ext="JPG", calib=None,  gpsAcc='1', sep=",", exif=False, meshlab=False):
     """
     
     A function running the relative orientation/bundle adjustment with micmac 
@@ -168,7 +168,9 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     exif : bool
         if the GPS info is embedded in the image exif check this as True to 
         convert back to geographic coordinates, 
-        If previous steps always used a csv for img coords ignore this          
+        If previous steps always used a csv for img coords ignore this     
+    exif : bool
+        if true open the pointcloud with meshlab for visualisation     
     """
 #    if SH is None:
 #        shFin=""
@@ -223,8 +225,11 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     _callit(aperi, aplog)
     
     pntPth = path.join(folder, "AperiCloud_Ground_UTM.ply")
-    pcd = o3d.io.read_point_cloud(pntPth)
+#    pcd = o3d.io.read_point_cloud(pntPth)
+#    
+#    o3d.visualization.draw_geometries([pcd])
+    if meshlab == True:
+        call(["meshlab", pntPth])
     
-    o3d.visualization.draw_geometries([pcd])
-    
+
     

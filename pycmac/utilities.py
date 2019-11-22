@@ -625,7 +625,89 @@ def hist_match(inputImage, templateImage):
     imOut.save(inputImage)
 
     
+def array2raster(array, bands, inRaster, outRas, dtype, FMT=None):
+    
+    """
+    Save a raster from a numpy array using the geoinfo from another.
+    
+    Parameters
+    ----------      
+    array : np array
+            a numpy array.
+    
+    bands : int
+            the no of bands. 
+    
+    inRaster : string
+               the path of a raster.
+    
+    outRas : string
+             the path of the output raster.
+    
+    dtype : int 
+            though you need to know what the number represents!
+            a GDAL datatype (see the GDAL website) e.g gdal.GDT_Int32
+    
+    FMT  : string 
+           (optional) a GDAL raster format (see the GDAL website) eg Gtiff, HFA, KEA.
+        
+    
+    """
 
+    if FMT == None:
+        FMT = 'Gtiff'
+        
+    if FMT == 'HFA':
+        fmt = '.img'
+    if FMT == 'KEA':
+        fmt = '.kea'
+    if FMT == 'Gtiff':
+        fmt = '.tif'    
+    
+    inras = gdal.Open(inRaster, gdal.GA_ReadOnly)    
+    
+    x_pixels = inras.RasterXSize  # number of pixels in x
+    y_pixels = inras.RasterYSize  # number of pixels in y
+    geotransform = inras.GetGeoTransform()
+    PIXEL_SIZE = geotransform[1]  # size of the pixel...they are square so thats ok.
+    #if not would need w x h
+    x_min = geotransform[0]
+    y_max = geotransform[3]
+    # x_min & y_max are like the "top left" corner.
+    projection = inras.GetProjection()
+    geotransform = inras.GetGeoTransform()   
+
+    driver = gdal.GetDriverByName(FMT)
+
+    dataset = driver.Create(
+        outRas, 
+        x_pixels,
+        y_pixels,
+        bands,
+        dtype)
+
+    dataset.SetGeoTransform((
+        x_min,    # 0
+        PIXEL_SIZE,  # 1
+        0,                      # 2
+        y_max,    # 3
+        0,                      # 4
+        -PIXEL_SIZE))    
+
+    dataset.SetProjection(projection)
+    if bands == 1:
+        dataset.GetRasterBand(1).WriteArray(array)
+        dataset.FlushCache()  # Write to disk.
+        dataset=None
+        #print('Raster written to disk')
+    else:
+    # Here we loop through bands
+        for band in range(1,bands+1):
+            Arr = array[:,:,band-1]
+            dataset.GetRasterBand(band).WriteArray(Arr)
+        dataset.FlushCache()  # Write to disk.
+        dataset=None
+        #print('Raster w
 
 
        

@@ -6,8 +6,6 @@ Created on Wed May 15 12:16:49 2019
 """
 
 # -*- coding: utf-8 -*-
-"""Alternations to setup.py based on Brandon Rhodes' conda setup.py:
-https://github.com/brandon-rhodes/conda-install"""
 from setuptools import setup, find_packages
 from setuptools.command.install import install 
 from io import open

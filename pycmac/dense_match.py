@@ -37,7 +37,10 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
     
     """
     
-    A function calling the Malt command for use in python 
+    A function calling the Malt command for use in python.
+    
+    Upon successful completion, this will return the directory OUTPUT with DSM, ortho (if desried)
+    and correlation image
             
     Notes
     -----------
@@ -158,12 +161,18 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
         if path.isdir(finDir) == False:
             mkdir(finDir)
         
+        correl = path.join(folder, "MEC-Malt", "Correl_STD-MALT_Num_"+digit[0]-1+".tif")
         
         copy2(img, finDir)
         imgMeta = img[:-3]+"tfw"
         copy2(imgMeta, finDir)
 
-    
+        copy2(correl, finDir)
+        copy2(imgMeta, path.join(finDir,"Correl_STD-MALT_Num_"+digit[0]-1+".tfw"))
+        
+        outCor = path.join(finDir,"Correl_STD-MALT_Num_"+digit[0]-1+".tif")
+        
+        _set_dataset_config(outCor, projF, FMT = 'Gtiff')
 #    
 def pims(folder, mode='BigMac', ext="JPG", orientation="Ground_UTM",  
          DefCor='0', sub=None, delim=",", **kwargs):

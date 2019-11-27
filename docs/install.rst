@@ -6,11 +6,17 @@ Installation
 
 cd into the pycmac folder and type 
 
-.. code-block:: python
+.. code-block:: bash
 
-    python setup.py install
+    conda env create -f pycmac_env.yml
 
-This will install pycmac and dependencies into a conda environment. Remember to activate it when you use it. 
+This will install pycmac and dependencies into a conda environment. Remember to activate it when you use it via:
+
+.. code-block:: bash
+
+    conda activate pycmac
+
+
 
 Dependency installation
 ~~~~~~~~~~~~~~~~~~~~~~~~

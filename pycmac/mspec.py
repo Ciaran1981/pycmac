@@ -38,6 +38,63 @@ exiftoolPath=None
 
 
 #nt = args.noT
+
+def slant_view_proc(folder, nt=-1):
+
+
+    dirList =  os.listdir(folder)
+    
+    dirList.sort()
+    
+    fileList = glob(os.path.join(folder, dirList[0], "*.tif"))
+    
+    ref = cv2.imread(fileList[0], cv2.IMREAD_LOAD_GDAL)
+    
+    fileList = [os.path.split(i)[1] for i in fileList] 
+    
+    fileList.sort()
+    
+    rgbdir = os.path.join(folder, "RGB")
+    os.mkdir(rgbdir)
+    
+    msdir = os.path.join(folder, "RRENir")
+    os.mkdir(msdir)
+    
+   
+    def _proc_my_pics(f):
+        
+        inList = [os.path.join(folder, d, f) for d in dirList]
+        
+        rgb = np.zeros((ref.shape[0], ref.shape[1], 3), dtype=np.uint8)
+        mspec = np.zeros((ref.shape[0], ref.shape[1], 3), dtype=np.uint8)
+        
+        
+        for im in range(0,2):
+            rgb[:,:,im] = cv2.imread(inList[im], cv2.IMREAD_LOAD_GDAL)
+        
+        for im in range(3,5):
+            mspec[:,:,im-3] = cv2.imread(inList[im], cv2.IMREAD_LOAD_GDAL)    
+            
+        outRgb = os.path.join(rgbdir, f[:-3]+'_RGB.tif')
+        imageio.imwrite(outRgb, rgb)    
+        
+        cmd1 = ["exiftool", "-tagsFromFile", inList[0],  "-file:all", "-iptc:all",
+           "-exif:all",  "-xmp", "-Composite:all", outRgb, 
+           "-overwrite_original"]
+        call(cmd1)
+        
+        
+        outMs = os.path.join(msdir, f[:-3]+'_RRENir.tif')
+        imageio.imwrite(outMs, mspec)  
+        
+        cmd2 = ["exiftool", "-tagsFromFile", inList[0],  "-file:all", "-iptc:all",
+           "-exif:all",  "-xmp", "-Composite:all", outMs, 
+           "-overwrite_original"]
+        call(cmd2)
+    
+    Parallel(n_jobs=nt, verbose=2)(delayed(_proc_my_pics)(file) for file in fileList)
+    
+
 def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=4, 
                nt=-1, mx=100, stk=1, plots=False, panel_ref=None, 
                warp_type='MH'):

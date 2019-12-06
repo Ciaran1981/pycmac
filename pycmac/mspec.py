@@ -69,10 +69,10 @@ def slant_view_proc(folder, nt=-1):
         mspec = np.zeros((ref.shape[0], ref.shape[1], 3), dtype=np.uint8)
         
         
-        for im in range(0,2):
+        for im in range(0,3):
             rgb[:,:,im] = cv2.imread(inList[im], cv2.IMREAD_LOAD_GDAL)
         
-        for im in range(3,5):
+        for im in range(3,6):
             mspec[:,:,im-3] = cv2.imread(inList[im], cv2.IMREAD_LOAD_GDAL)    
             
         outRgb = os.path.join(rgbdir, f[:-3]+'_RGB.tif')

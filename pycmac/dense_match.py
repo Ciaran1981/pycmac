@@ -157,7 +157,7 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
     
         maskstr = "Masq_STD-MALT_DeZoom"+digit[0]+".tif"
         mask_ras = path.join(folder, 'MEC-Malt', maskstr)
-        mask_raster_multi(img, mask=mask_ras) 
+        
         
         finDir = path.join(folder, 'OUTPUT')
         if path.isdir(finDir) == False:
@@ -168,7 +168,9 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
         copy2(img, finDir)
         imgMeta = img[:-3]+"tfw"
         copy2(imgMeta, finDir)
-
+        # here so we retain the unmasked one in MEC
+        mask_raster_multi(path.join(finDir, img), mask=mask_ras) 
+        
         copy2(correl, finDir)
         copy2(imgMeta, path.join(finDir,"Correl_STD-MALT_Num_"+str(n1)+".tfw"))
         

@@ -24,7 +24,7 @@ from glob2 import glob
 
 def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
               mode='PIMs', submode='Forest', dist="100", doFeat=True, doBundle=True,
-              allIm=False, shpmask=None, subset=None):
+              allIm=False, shpmask=None, subset=None, egal='1'):
     
     """
     A function for the complete structure from motion process using the micasense
@@ -156,6 +156,8 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     # by schnapps, tapas or manually etc along the way
     
     modList = [path.split(i)[1] for i in outList] 
+    
+    modList = [m.replace("RGB.tif", 'RRENir.tif') for m in modList]
     
     inList = [path.join(folder2, x) for x in modList]
     

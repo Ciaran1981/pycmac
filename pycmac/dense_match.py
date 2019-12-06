@@ -152,6 +152,8 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
         # want the lower number
         digit = re.findall('\d+', t)
         digit.sort()
+        
+        n1 = int(digit[1])-1
     
         maskstr = "Masq_STD-MALT_DeZoom"+digit[0]+".tif"
         mask_ras = path.join(folder, 'MEC-Malt', maskstr)
@@ -161,16 +163,16 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
         if path.isdir(finDir) == False:
             mkdir(finDir)
         
-        correl = path.join(folder, "MEC-Malt", "Correl_STD-MALT_Num_"+digit[0]-1+".tif")
+        correl = path.join(folder, "MEC-Malt", "Correl_STD-MALT_Num_"+str(n1)+".tif")
         
         copy2(img, finDir)
         imgMeta = img[:-3]+"tfw"
         copy2(imgMeta, finDir)
 
         copy2(correl, finDir)
-        copy2(imgMeta, path.join(finDir,"Correl_STD-MALT_Num_"+digit[0]-1+".tfw"))
+        copy2(imgMeta, path.join(finDir,"Correl_STD-MALT_Num_"+str(n1)+".tfw"))
         
-        outCor = path.join(finDir,"Correl_STD-MALT_Num_"+digit[0]-1+".tif")
+        outCor = path.join(finDir,"Correl_STD-MALT_Num_"+str(n1)+".tif")
         
         _set_dataset_config(outCor, projF, FMT = 'Gtiff')
 #    

@@ -75,7 +75,7 @@ def slant_view_proc(folder, nt=-1):
         for im in range(3,6):
             mspec[:,:,im-3] = cv2.imread(inList[im], cv2.IMREAD_LOAD_GDAL)    
             
-        outRgb = os.path.join(rgbdir, f[:-3]+'_RGB.tif')
+        outRgb = os.path.join(rgbdir, f)
         imageio.imwrite(outRgb, rgb)    
         
         cmd1 = ["exiftool", "-tagsFromFile", inList[0],  "-file:all", "-iptc:all",
@@ -84,7 +84,7 @@ def slant_view_proc(folder, nt=-1):
         call(cmd1)
         
         
-        outMs = os.path.join(msdir, f[:-3]+'_RRENir.tif')
+        outMs = os.path.join(msdir, f)
         imageio.imwrite(outMs, mspec)  
         
         cmd2 = ["exiftool", "-tagsFromFile", inList[0],  "-file:all", "-iptc:all",

@@ -7,7 +7,7 @@ Installation
 
 A python lib for Micmac and associated geospatial functionality with enhancements and adaptations. 
 
-As well a grey-scale and RGB processing the pycmac also facilitates the processing of multi-spectral imagery.
+As well a grey-scale and RGB processing pycmac also facilitates the processing of multi-spectral imagery.
  
 Both MicaSense (including surface reflectance processing) and Slant view imagery are currently supported. 
 

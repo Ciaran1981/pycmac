@@ -24,14 +24,14 @@ from glob2 import glob
 
 def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
               mode='PIMs', submode='Forest', dist="100", doFeat=True, doBundle=True,
-              allIm=False, shpmask=None, subset=None, egal='1'):
+              allIm=False, shpmask=None, subset=None, rep_dsm='0'):
     
     """
     A function for the complete structure from motion process using the micasense
-    red edge camera. 
+    red edge camera or Slant view camera.
     
     The RGB imagery is used to generate DSMs, which are in turn used to orthorectify the remaining
-    bands (Red edge, Nir)
+    bands (Red edge, Nir).
     
     Obviously the Malt and PIMs algorithms will perform better/worse than each other
     on certain datasets. 
@@ -95,6 +95,12 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
 
     subset : string
             a csv defining a subset of images to be processed during dense matching                        
+    
+    rep_dsm : string
+            sometimes it is necessary to redo the DSM (MEC folder) on the second
+            3-band composite run due to some sort of bug within MicMac, 
+            though most of the time this is not necessary
+            def is '0' change to '1' if redoing dsm 
     
     """
 
@@ -163,7 +169,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     [move(i, folder) for i in inList]
     
     if mode == 'Malt':    
-        malt(folder, DoMEC='0', ext='tif', mask=shpmask, sub=subset)
+        malt(folder, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset)
     elif mode == 'PIMs':
        # PIMs bloody deletes the previous folders so would have to rename them
        # But generation of merged DSM is rapid so doesn't make much difference

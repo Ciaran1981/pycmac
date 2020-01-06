@@ -41,7 +41,7 @@ See MicMac install instructions here:
 
 https://micmac.ensg.eu/index.php/Install
 
-This will usually work. 
+This will usually work. If you don't want QT5 menus/GUIs omit this from the cmake line below. 
 
 .. code-block:: bash
 
@@ -51,16 +51,16 @@ This will usually work.
     
     cd micmac
     
-    cmake ..
+    cmake WITH_QT5=1 ..
 
     make install -j k
 
+if compiling with QT (handy for GCPs, delineating things on photos) add the following to your bashrc if the GUI menus don't work
+
+.. code-block:: bash
+
+    export QT_QPA_PLATFORM_PLUGIN_PATH=/usr/lib/x86_64-linux-gnu/qt5/plugins/platforms
+
+
 Remember to add the micmac bin dir to your path (.bashrc or .bash_profile)
 
-**OSSIM**
-
-Install OSSIM via tha ubuntu GIS or equivalent repo 
-
-- Ensure the OSSIM preferences file is on you path, otherwise it will not recognise different projections
-
-- see here https://trac.osgeo.org/ossim/wiki/ossimPreferenceFile

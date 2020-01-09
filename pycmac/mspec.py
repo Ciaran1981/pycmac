@@ -95,7 +95,7 @@ def slant_view_proc(folder, nt=-1):
     Parallel(n_jobs=nt, verbose=2)(delayed(_proc_my_pics)(file) for file in fileList)
     
 
-def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=4, 
+def mspec_proc(imgFolder, alIm, srFolder, precal=None, postcal=None, refBnd=4, 
                nt=-1, mx=100, stk=1, plots=False, panel_ref=None, 
                warp_type='MH'):
     
@@ -171,8 +171,8 @@ def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=4,
     elif warp_type =='Affine':
         warp_md= cv2.MOTION_AFFINE
         
-    
-    calibPre = os.path.abspath(precal)
+    if precal != None:
+        calibPre = os.path.abspath(precal)
     
     if postcal != None:
         calibPost = os.path.abspath(postcal)
@@ -207,11 +207,13 @@ def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=4,
     
     imgset = imageset.ImageSet.from_directory(imagesFolder)
     
-    
-    preCapList = glob(os.path.join(calibPre, "*.tif"))
-    preCapList.sort()
-    pCapPre = capture.Capture.from_filelist(preCapList) 
-    pPreIr = pCapPre.panel_irradiance(panel_ref)
+    if precal !=None:
+        preCapList = glob(os.path.join(calibPre, "*.tif"))
+        preCapList.sort()
+        pCapPre = capture.Capture.from_filelist(preCapList) 
+        pPreIr = pCapPre.panel_irradiance(panel_ref)
+    else:
+        pPreIr = None
     
     if postcal != None:
         pCapPost = capture.Capture.from_filelist(glob(calibPost, "*.tif")) 
@@ -230,7 +232,7 @@ def mspec_proc(precal, imgFolder, alIm, srFolder, postcal=None, refBnd=4,
     algList = glob(os.path.join(imagesFolder, wildCrd))
     #algList.sort()
     imAl = capture.Capture.from_filelist(algList) 
-    imAl.compute_reflectance(panel_irradiance)
+    imAl.compute_reflectance(irradiance_list=panel_irradiance)
     #imAl.plot_undistorted_reflectance(panel_irradiance)
     
     
@@ -349,7 +351,7 @@ def _proc_imgs(i, warp_matrices, bndFolders, panel_irradiance, warp_md, normaliz
     
 #    for i in imgset.captures: 
     
-    i.compute_reflectance(panel_irradiance) 
+    i.compute_reflectance(irradiance_list=panel_irradiance) 
     #i.plot_undistorted_reflectance(panel_irradiance)  
 
 
@@ -384,7 +386,7 @@ def _proc_imgs_comp(i, warp_matrices, bndFolders, panel_irradiance, warp_md, rf)
     
     
     
-    i.compute_reflectance(panel_irradiance) 
+    i.compute_reflectance(irradiance_list=panel_irradiance) 
     #i.plot_undistorted_reflectance(panel_irradiance)  
 
 
@@ -458,7 +460,7 @@ def _proc_imgs_comp(i, warp_matrices, bndFolders, panel_irradiance, warp_md, rf)
 #[_proc_imgs(imCap, warp_matrices, reflFolder) for imCap in imgset]
 def _proc_stack(i, warp_matrices, bndFolders, panel_irradiance, reflFolder, warp_md, rf):
     
-    i.compute_reflectance(panel_irradiance) 
+    i.compute_reflectance(irradiance_list=panel_irradiance) 
         #i.plot_undistorted_reflectance(panel_irradiance)  
     
     

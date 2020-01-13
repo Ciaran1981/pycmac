@@ -24,7 +24,7 @@ from glob2 import glob
 
 def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
               mode='PIMs', submode='Forest', dist="100", doFeat=True, doBundle=True,
-              allIm=False, shpmask=None, subset=None, rep_dsm='0'):
+              allIm=False, shpmask=None, subset=None, rep_dsm='0', egal=1):
     
     """
     A function for the complete structure from motion process using the micasense
@@ -138,13 +138,13 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     # For the RGB dataset
     
     if mode == 'Malt':    
-        malt(folder, ext='tif', mask=shpmask, sub=subset)
+        malt(folder, proj=proj, ext='tif', mask=shpmask, sub=subset)
     elif mode == 'PIMs':
         pims(folder, mode=submode, ext='tif')
-        pims2mnt(folder, mode=submode,  DoOrtho='1',
+        pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
              DoMnt='1')
     
-    tawny(folder, mode=mode, Out="RGB.tif")
+    tawny(folder, proj=proj, mode=mode, Out="RGB.tif")
     
     outList = glob(path.join(folder, "*.tif"))
     
@@ -169,15 +169,15 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     [move(i, folder) for i in inList]
     
     if mode == 'Malt':    
-        malt(folder, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset)
+        malt(folder, proj=proj, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset)
     elif mode == 'PIMs':
        # PIMs bloody deletes the previous folders so would have to rename them
        # But generation of merged DSM is rapid so doesn't make much difference
 
-        pims2mnt(folder, mode=submode,  DoOrtho='1',
+        pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
              DoMnt='1')
       
-    tawny(folder,  mode=mode, Out="RRENir.tif")
+    tawny(folder, proj=proj,  mode=mode, Out="RRENir.tif", RadiomEgal=egal)
     
     rgbIm = path.join(folder, "OUTPUT", "RGB.tif")
     nirIm = path.join(folder, "OUTPUT", "RRENir.tif") 
@@ -285,13 +285,13 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     # For the RGB dataset
     
     if mode == 'Malt':    
-        malt(folder, ext=ext, mask=shpmask, sub=subset)
+        malt(folder, proj=proj, ext=ext, mask=shpmask, sub=subset)
     elif mode == 'PIMs':
         pims(folder, mode=submode, ext=ext)
-        pims2mnt(folder, mode=submode,  DoOrtho='1',
+        pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
              DoMnt='1')
     
-    tawny(folder, mode=mode, Out="RGB.tif")
+    tawny(folder, proj=proj, mode=mode, Out="RGB.tif")
     
     
 

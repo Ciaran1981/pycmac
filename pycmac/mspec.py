@@ -24,7 +24,8 @@ import pycmac.micasense.imageset as imageset
 from glob2 import glob
 import imageio
 import cv2
-
+from pycmac.micasense.panel import Panel
+from pycmac.micasense.image import Image
 from skimage import exposure, util
 from subprocess import call#, check_call
 from joblib import Parallel, delayed
@@ -191,22 +192,12 @@ def mspec_proc(imgFolder, alIm, srFolder, precal=None, postcal=None, refBnd=4,
 
     '''
 
-    
-
-
     # RP03-1731303-SC
     #panel_ref = [0.56, 0.56, 0.56, 0.51, 0.55]
     
     # RP03-1731271-SC
-    if panel_ref == None:
-        panel_ref = [0.55, 0.56, 0.55, 0.50, 0.54]
-    
-    if os.path.isdir(srFolder) != True:
-        os.mkdir(srFolder)
-    
-    
-    imgset = imageset.ImageSet.from_directory(imagesFolder)
-    
+           
+        #panel_ref = [0.55, 0.56, 0.55, 0.50, 0.54]
     if precal !=None:
         preCapList = glob(os.path.join(calibPre, "*.tif"))
         preCapList.sort()
@@ -214,6 +205,20 @@ def mspec_proc(imgFolder, alIm, srFolder, precal=None, postcal=None, refBnd=4,
         pPreIr = pCapPre.panel_irradiance(panel_ref)
     else:
         pPreIr = None
+    if panel_ref == None:
+        
+        pList = [Panel(Image(i)) for i in preCapList]
+        
+        panel_ref = [p.reflectance_from_panel_serial() for p in pList]
+
+    
+    if os.path.isdir(srFolder) != True:
+        os.mkdir(srFolder)
+    
+    
+    imgset = imageset.ImageSet.from_directory(imagesFolder)
+    
+
     
     if postcal != None:
         pCapPost = capture.Capture.from_filelist(glob(calibPost, "*.tif")) 

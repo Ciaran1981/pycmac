@@ -47,9 +47,6 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     
     The absolute path needs to be provided for csv's representing image data or calibration subsets
     
-    Using Malt doesn't always guarantee perfect aligment
-    PIMs Forest may be the best bet with a processing time penalty over Malt
-    
         
     Parameters
     -----------
@@ -122,16 +119,16 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
         # features
         # if required here for csv
         if allIm == True:
-            feature_match(folder, csv=csv, ext='tif', allIm=True)
+            feature_match(folder, proj=proj, csv=csv, ext='tif', allIm=True)
         else:    
-            feature_match(folder, csv=csv, ext='tif', dist=dist) 
+            feature_match(folder, proj=proj, csv=csv, ext='tif', dist=dist) 
         
         
     if doBundle == True:
     
         # bundle adjust
         # if required here for calib
-        bundle_adjust(folder,  ext='tif', calib=sub, gpsAcc=gpsAcc, sep=sep)
+        bundle_adjust(folder,  ext='tif', proj=proj, calib=sub, gpsAcc=gpsAcc, sep=sep)
     
     
     
@@ -199,15 +196,10 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     Notes
     -----------
     
-    This assumes you have already generated a working directory with RGB and RRENir folders
-    in it using the pycmac.mspec_proc function
-    
+
     This assumes certain parameters, if want fine-grained control, use the individual commands.
     
     The absolute path needs to be provided for csv's representing image data or calibration subsets
-    
-    Using Malt doesn't always guarantee perfect aligment
-    PIMs Forest may be the best bet with a processing time penalty over Malt
     
         
     Parameters

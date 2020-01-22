@@ -12,7 +12,7 @@ This correction is based on the material on the micasense lib git site,
 though this uses as fork of the micasense lib with some alterations. 
 
 """
-import os#, sys
+import os, sys
 import matplotlib.pyplot as plt
 
 import pycmac.micasense.imageutils as imageutils
@@ -221,11 +221,14 @@ def mspec_proc(imgFolder, alIm, srFolder, precal=None, postcal=None, refBnd=4,
 
     
     if postcal != None:
-        pCapPost = capture.Capture.from_filelist(glob(calibPost, "*.tif")) 
-    
+        
+        pstList = glob(os.path.join(calibPost, "*.tif"))
+        pstList.sort()
+        pCapPost = capture.Capture.from_filelist(pstList) 
         pPostIr = pCapPost.panel_irradiance(panel_ref)
-    
-        panel_irradiance = (pPreIr + pPostIr) / 2
+        
+        panel_irr = (np.array(pPreIr) + np.array(pPostIr)) / 2
+        panel_irradiance = list(panel_irr)
     else:
         panel_irradiance = pPreIr
      #RedEdge band_index order
@@ -245,9 +248,25 @@ def mspec_proc(imgFolder, alIm, srFolder, precal=None, postcal=None, refBnd=4,
     
     #imAl, mx, reflFolder, rf, plots, warp_md
     
-    warp_matrices, alignment_pairs = align_template(imAl, mx, reflFolder,
+    warp_matrices, alignment_pairs, rgb, cir, grRE = align_template(imAl, mx, reflFolder,
                                                     rf, plots, warp_md)
-
+    
+    if plots == True:
+        
+        fig, axes = plt.subplots(1, 3, figsize=(16,16)) 
+        plt.title("Red-Green-Blue Composite") 
+        axes[0].imshow(rgb) 
+        plt.title("Color Infrared (CIR) Composite") 
+        axes[1].imshow(cir) 
+        plt.title("Red edge-Green-Red (ReGR) Composite") 
+        axes[2].imshow(grRE) 
+        plt.show()
+    
+    if not input("Please check the SR folder - Is the imagery correctly aligned for all bands ? (y/n): ").lower().strip()[:1] == "y": 
+        print("Run again with a different alignment image candidate")
+        sys.exit(1)
+        
+    del rgb, cir, grRE
     
     if stk != None:
         
@@ -321,20 +340,12 @@ def align_template(imAl, mx, reflFolder, rf, plots, warp_md):
     grRE = im_display[:,:,[4,2,1]] 
     
     
-    if plots == True:
-        
-        fig, axes = plt.subplots(1, 3, figsize=(16,16)) 
-        plt.title("Red-Green-Blue Composite") 
-        axes[0].imshow(rgb) 
-        plt.title("Color Infrared (CIR) Composite") 
-        axes[1].imshow(cir) 
-        plt.title("Red edge-Green-Red (ReGR) Composite") 
-        axes[2].imshow(grRE) 
-        plt.show()
+
     
     prevList = [rgb, cir, grRE]
     nmList = ['rgb.jpg', 'cir.jpg', 'grRE.jpg']
-    names = [os.path.join(reflFolder, pv) for pv in nmList]
+    ootF, _ = os.path.split(reflFolder)
+    names = [os.path.join(ootF, pv) for pv in nmList]
     
     for ind, p in enumerate(prevList):
         #img8 = bytescale(p)
@@ -344,7 +355,7 @@ def align_template(imAl, mx, reflFolder, rf, plots, warp_md):
             img8 = util.img_as_ubyte(imgre)
         imageio.imwrite(names[ind], img8)
     
-    return warp_matrices, alignment_pairs#, dist_coeffs, cam_mats, cropped_dimensions
+    return warp_matrices, alignment_pairs, rgb, cir, grRE#, dist_coeffs, cam_mats, cropped_dimensions
    
 # prep work dir
 

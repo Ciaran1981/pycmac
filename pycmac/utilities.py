@@ -11,9 +11,9 @@ https://github.com/Ciaran1981/Sfm/pycmac/
 import numpy as np
 import pandas as pd
 import os
-
+from subprocess import call
 import glob2
-
+import cv2
 from joblib import Parallel, delayed
 import lxml.etree
 import lxml.builder    
@@ -26,6 +26,43 @@ import ogr
 
 from sklearn import metrics
 from PIL import Image
+import sys
+
+def make_csv(folder,  ext="tif"):
+    
+    """
+    make a csv for use with micmac
+    
+    Parameters
+    ----------
+    folder : string
+           working directory
+        
+    ext : string
+                 image extention e.g JPG, tif     
+    
+    """
+    
+    #TODO improve this lazy crap
+    os.chdir(folder)
+    
+    cmd  = ["mm3d", "XifGps2Txt",  ".*"+ext]
+    
+    ret = call(cmd)
+
+    
+    if ret !=0:
+        print('A micmac error has occured - check the log file')
+        sys.exit()
+    txtFile = path.join(folder, "GpsCoordinatesFromExif.txt")
+    #stk ex lazyness
+    with open(txtFile, 'r+') as f:
+        line = "#F=N X Y Z"
+        content = f.read()
+        f.seek(0, 0)
+        f.write(line.rstrip('\r\n') + '\n' + content)
+    #Finally
+    os.rename(txtFile, path.join(folder, "log.csv"))
 
 def calib_subset(folder, csv, ext="JPG",  algo="Fraser", delim=","):
     
@@ -449,6 +486,58 @@ def mask_raster_multi(inputIm,  mval=1, outval = None, mask=None,
         inDataset.FlushCache()
         inDataset = None
  
+def get_vid(video, outFolder, ext="JPG", cam="Iphone_SE", foc="2.4", foc35="29"):
+    
+    """ 
+    Extract the frames from a video with the view to using them for SfM
+    
+    The camera focal length and 35mm equiv must be known as the frames will not contain them
+    
+    If you have taken a pic with the same platform use exiftool to obtain the info you need
+    
+    
+    Parameters 
+    ----------- 
+    
+    video : string
+              the input raster 
+        
+    outFolder : string
+           the masking value that delineates pixels to be kept
+        
+    num : int 
+              the subdivision - e.g. every fifth image
+
+    ext : string
+                 image extention e.g JPG, tif
+    cam : string
+                 the camera focal length as it is required
+        
+    cam : string
+                 the camera focal length as it is required
+                 
+    """
+    
+    # stack theft.....
+    vidcap = cv2.VideoCapture(video)
+    success,image = vidcap.read()
+    count = 0
+    
+    while success:
+      cv2.imwrite(path.join(outFolder,"frame%d."+ext) % count, image)     # save frame as JPEG file      
+      success,image = vidcap.read()
+      print('Read a new frame: ', success)
+      count += 1
+    os.chdir(outFolder)
+    cmd = ["mm3d", "SetExif", "F35="+foc35, "F="+foc, "Cam="+cam]
+    
+    ret = call(cmd)
+    
+    if ret !=0:
+        print('A micmac error has occured - check the micmac error log')
+        sys.exit()
+    
+      
 def num_subset(inFolder, outFolder, num=5, ext="JPG"):
     
     """ 
@@ -461,10 +550,10 @@ def num_subset(inFolder, outFolder, num=5, ext="JPG"):
     ----------- 
     
     inFolder : string
-              the input raster 
+              the folder with the images in 
         
     outFolder : string
-           the masking value that delineates pixels to be kept
+           the folder the output images will go
         
     num : int 
               the subdivision - e.g. every fifth image

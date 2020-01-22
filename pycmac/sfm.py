@@ -24,7 +24,7 @@ from glob2 import glob
 
 def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
               mode='PIMs', submode='Forest', dist="100", doFeat=True, doBundle=True,
-              allIm=False, shpmask=None, subset=None, rep_dsm='0', egal=1):
+              allIm=False, polymask=False, shpmask=None, subset=None, rep_dsm='0', egal=1):
     
     """
     A function for the complete structure from motion process using the micasense
@@ -86,9 +86,11 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
             
     allIm : bool
             Exaustive feature search for image pairs (way slower!)
+    polymask : string
+            a shapefile mask to constrain malt-based processing  
             
     shpmask : string
-            a shapefile mask to constrain malt-based processing  
+            whether to use a micmac generated 3D mask  
 
     subset : string
             a csv defining a subset of images to be processed during dense matching                        
@@ -128,7 +130,8 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     
         # bundle adjust
         # if required here for calib
-        bundle_adjust(folder,  ext='tif', proj=proj, calib=sub, gpsAcc=gpsAcc, sep=sep)
+        bundle_adjust(folder,  ext='tif', proj=proj, calib=sub, gpsAcc=gpsAcc, 
+                      sep=sep, polymask=polymask)
     
     
     

@@ -18,12 +18,12 @@ from joblib import Parallel, delayed
 import lxml.etree
 import lxml.builder    
 from os import path
-from shutil import copy
+from shutil import copy, move
 from subprocess import call
 import gdal
 from tqdm import tqdm
 import ogr
-
+from glob2 import glob
 from sklearn import metrics
 from PIL import Image
 import sys
@@ -485,7 +485,53 @@ def mask_raster_multi(inputIm,  mval=1, outval = None, mask=None,
            
         inDataset.FlushCache()
         inDataset = None
- 
+
+def _varlap(image):
+    
+    #variance_of_laplacian
+
+	return cv2.Laplacian(image, cv2.CV_64F).var()
+
+def detect_blur(inFolder, ext="JPG", threshold=100):
+    
+    """ 
+    Detect if images are blurry then move them to a blur folder prior to SfM
+    
+    using a laplacian convolution.....
+    
+    
+    Parameters 
+    ----------- 
+    
+    inFolder: string
+              the input folder with images
+
+    ext: string
+                 image extention e.g JPG, tif
+    threshold: int
+                the threshold of blurryness to remove photo 
+                around 100 usually does it
+
+                 
+    """
+    
+    imList = glob(os.path.join(inFolder, "*."+ext))
+    if os.path.exists(os.path.join(inFolder, "blur")):
+        pass
+    else:
+        os.mkdir(os.path.join(inFolder, "blur"))
+    for imagePath in imList:
+        image = cv2.imread(imagePath)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        score = _varlap(gray)
+
+        if score > threshold:
+            continue
+        else:
+            _, tl = os.path.split(imagePath)
+            outPath = os.path.join(inFolder, "blur", tl)
+            move(imagePath, outPath)
+            
 def get_vid(video, outFolder, ext="JPG", cam="Iphone_SE", foc="2.4", foc35="29"):
     
     """ 

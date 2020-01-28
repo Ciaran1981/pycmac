@@ -23,7 +23,7 @@ from glob2 import glob
 
 
 def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
-              mode='PIMs', submode='Forest', dist="100", doFeat=True, doBundle=True,
+              mode='PIMs', submode='Forest', dist="100", doFeat=True, doBundle=True, doDense=True,
               allIm=False, polymask=False, shpmask=None, subset=None, rep_dsm='0', egal=1):
     
     """
@@ -136,58 +136,61 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     
     
     # For the RGB dataset
+    if doDense==True:
     
-    if mode == 'Malt':    
-        malt(folder, proj=proj, ext='tif', mask=shpmask, sub=subset)
-    elif mode == 'PIMs':
-        pims(folder, mode=submode, ext='tif')
-        pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
-             DoMnt='1')
+        if mode == 'Malt':    
+            malt(folder, proj=proj, ext='tif', mask=shpmask, sub=subset)
+        elif mode == 'PIMs':
+            pims(folder, mode=submode, ext='tif')
+            pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
+                 DoMnt='1')
+        
+        tawny(folder, proj=proj, mode=mode, Out="RGB.tif")
+        
+        outList = glob(path.join(folder, "*.tif"))
+        
+        # now we move it all out again - micmac doesn't like it being anywhere 
+        # other than the working dir (yes this is an ugly solution)
+        [move(t, path.join(folder, "RGB")) for t in outList]
+        
+        
+        # Nir etc
+        
+        folder2 = path.join(folder,'RRENir')
+        
+        # get the niretc imagery in the folder
+        # Here we join from the outgoing imagelist as images may have been rejected
+        # by schnapps, tapas or manually etc along the way
+        
+        modList = [path.split(i)[1] for i in outList] 
     
-    tawny(folder, proj=proj, mode=mode, Out="RGB.tif")
+        
+        inList = [path.join(folder2, x) for x in modList]
+        
+        [move(i, folder) for i in inList]
+        
+        if mode == 'Malt':    
+            malt(folder, proj=proj, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset)
+        elif mode == 'PIMs':
+           # PIMs bloody deletes the previous folders so would have to rename them
+           # But generation of merged DSM is rapid so doesn't make much difference
     
-    outList = glob(path.join(folder, "*.tif"))
-    
-    # now we move it all out again - micmac doesn't like it being anywhere 
-    # other than the working dir (yes this is an ugly solution)
-    [move(t, path.join(folder, "RGB")) for t in outList]
-    
-    
-    # Nir etc
-    
-    folder2 = path.join(folder,'RRENir')
-    
-    # get the niretc imagery in the folder
-    # Here we join from the outgoing imagelist as images may have been rejected
-    # by schnapps, tapas or manually etc along the way
-    
-    modList = [path.split(i)[1] for i in outList] 
-
-    
-    inList = [path.join(folder2, x) for x in modList]
-    
-    [move(i, folder) for i in inList]
-    
-    if mode == 'Malt':    
-        malt(folder, proj=proj, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset)
-    elif mode == 'PIMs':
-       # PIMs bloody deletes the previous folders so would have to rename them
-       # But generation of merged DSM is rapid so doesn't make much difference
-
-        pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
-             DoMnt='1')
-      
-    tawny(folder, proj=proj,  mode=mode, Out="RRENir.tif", RadiomEgal=egal)
-    
-    rgbIm = path.join(folder, "OUTPUT", "RGB.tif")
-    nirIm = path.join(folder, "OUTPUT", "RRENir.tif") 
-    stk = path.join(folder, "OUTPUT", "mstack.tif")
-    
-    stack_rasters(rgbIm, nirIm, stk)
+            pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
+                 DoMnt='1')
+          
+        tawny(folder, proj=proj,  mode=mode, Out="RRENir.tif", RadiomEgal=egal)
+        
+        rgbIm = path.join(folder, "OUTPUT", "RGB.tif")
+        nirIm = path.join(folder, "OUTPUT", "RRENir.tif") 
+        stk = path.join(folder, "OUTPUT", "mstack.tif")
+        
+        stack_rasters(rgbIm, nirIm, stk)
+    else:
+        pass
 
 def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1', sep=",",
               mode='PIMs', submode='Forest', dist="100", doFeat=True, doBundle=True,
-              allIm=False, shpmask=None, subset=None):
+              doDense=True, allIm=False, shpmask=None, subset=None, egal=1, resize=None):
     
     """
     A function for the complete structure from motion process using a RGB camera. 
@@ -257,16 +260,15 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     #RGB
     Here process the RGB which forms the template for the other bands
     """
-    # first we move all the RGB into the working directory
-    
+
     
     if doFeat == True:               
         # features
         # if required here for csv
         if allIm == True:
-            feature_match(folder, csv=csv, ext=ext, allIm=True)
+            feature_match(folder, csv=csv, ext=ext, allIm=True, resize=resize)
         else:    
-            feature_match(folder, csv=csv, ext=ext, dist=dist) 
+            feature_match(folder, csv=csv, ext=ext, dist=dist, resize=resize) 
         
         
     if doBundle == True:
@@ -278,15 +280,18 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     
     
     # For the RGB dataset
-    
-    if mode == 'Malt':    
-        malt(folder, proj=proj, ext=ext, mask=shpmask, sub=subset)
-    elif mode == 'PIMs':
-        pims(folder, mode=submode, ext=ext)
-        pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
-             DoMnt='1')
-    
-    tawny(folder, proj=proj, mode=mode, Out="RGB.tif")
+    if doDense==True:
+        
+        if mode == 'Malt':    
+            malt(folder, proj=proj, ext=ext, mask=shpmask, sub=subset)
+        elif mode == 'PIMs':
+            pims(folder, mode=submode, ext=ext)
+            pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
+                 DoMnt='1')
+        
+        tawny(folder, proj=proj, mode=mode, Out="RGB.tif", RadiomEgal=egal)
+    else:
+        pass
     
     
 

@@ -27,6 +27,44 @@ from glob2 import glob
 from sklearn import metrics
 from PIL import Image
 import sys
+import re
+
+def mm3d(folder, cmd, *args, **kwargs):
+    
+    """
+    Execute a micmac command via mm3d just as it would be in the micmac command 
+    line - purely for convenience  - you'd be as well using the command line directly
+    
+    All args kwargs must be in this format with the command as arg then python:
+        eg - mm3d(myfolder, 'Malt', 'Ortho', ".*JPG" 'Ground_UTM', DefCor="0")
+        
+    There will be the odd time where this may not work!
+    
+    Parameters
+    ----------
+    folder : string
+           working directory
+        
+    ext : string
+                 image extention e.g JPG, tif     
+    
+    """
+    
+    os.chdir(folder)
+    
+    cmd = ["mm3d"]
+    
+    if args != None:
+        for a in args:
+            cmd.append(a)
+    
+    if kwargs != None:
+        for k in kwargs.items():
+            oot = re.findall(r'\w+',str(k))
+            anArg = oot[0]+'='+oot[1]
+            cmd.append(anArg)
+            
+    call(cmd)
 
 def make_csv(folder,  ext="tif"):
     

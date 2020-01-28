@@ -89,7 +89,7 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
     
     cmd = ['mm3d', 'Malt', mode, extFin, orientation, "DoMEC="+DoMEC,
            'DoOrtho='+DoOrtho,
-           'DefCor='+DefCor,  'EZA=1']  
+           'DefCor='+DefCor, 'EZA=1']  
     
     if kwargs != None:
         for k in kwargs.items():
@@ -299,6 +299,7 @@ def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',
     dsmF = path.join(folder, 'PIMs-TmpBasc', 'PIMs-Merged_Prof.tif')
     dsmMeta = path.join(folder, 'PIMs-TmpBasc', 'PIMs-Merged_Prof.tfw')
     mask  = path.join(folder, 'PIMs-TmpBasc', 'PIMs-Merged_Masq.tif')
+    correl = path.join(folder, 'PIMs-TmpBasc', 'PIMs-Merged_Correl.tif')
     
     # georef the DEM
     
@@ -306,6 +307,8 @@ def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',
     
 #    gdal_edit(datasetname=dsmF, srs=projF)
     _set_dataset_config(dsmF, projF, FMT = 'Gtiff')
+    
+    _set_dataset_config(correl, projF, FMT = 'Gtiff')
     
     mask_raster_multi(dsmF, mask=mask)
     
@@ -316,6 +319,8 @@ def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',
     if DoMnt == '1':
         copy(dsmF, finDir)
         copy(dsmMeta, finDir)
+        copy(correl, finDir)
+    
 
 #    if mode == 'Forest':
 #        pishList = [path.join(folder, 'PIMs-TmpBasc'),

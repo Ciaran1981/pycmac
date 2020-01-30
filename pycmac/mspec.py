@@ -679,7 +679,7 @@ def _copy_into(inRas, t_fh, s_band = 1, t_band = 1):
 
          
 
-def stack_rasters(inRas1, inRas2, outRas, dtype=gdal.GDT_Int32):
+def stack_rasters(inRas1, inRas2, outRas, dtype=gdal.GDT_Int32, slantr=False):
     
     
     """
@@ -705,13 +705,19 @@ def stack_rasters(inRas1, inRas2, outRas, dtype=gdal.GDT_Int32):
     
     
     rasterList1 = [1,2,3]
-    rasterList2 = [2, 3]
+    if slantr==True:
+        rasterList2 = [1, 2, 3]
+        bnds=6
+    else:
+        
+        rasterList2 = [2, 3]
+        bnds=5
     
     inDataset1 = gdal.Open(inRas1)
     inDataset2 = gdal.Open(inRas2)
     
     outDataset = _copy_dataset_config(inDataset1, FMT = 'Gtiff', outMap = outRas,
-                         dtype = dtype, bands = 5)
+                         dtype = dtype, bands = bnds)
     
     
     

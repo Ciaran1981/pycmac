@@ -35,8 +35,9 @@ def mm3d(folder, cmd, *args, **kwargs):
     Execute a micmac command via mm3d just as it would be in the micmac command 
     line - purely for convenience  - you'd be as well using the command line directly
     
-    All args kwargs must be in this format with the command as arg then python:
-        eg - mm3d(myfolder, 'Malt', 'Ortho', ".*JPG" 'Ground_UTM', DefCor="0")
+    All args kwargs must be in this format where the arg is a string and the kwarg is a bytecode=string
+
+        eg - mm3d(myfolder, 'Malt', 'Ortho', ".*JPG" 'Ground_UTM', DefCor="0", DoOrtho="0")
         
     There will be the odd time where this may not work!
     
@@ -249,8 +250,101 @@ def convert_c3p(folder, lognm, ext="JPG", mspec=False, delim=','):
     
     newCsv.to_csv(rgblog, sep=' ', index=False, header=hdr)
         
-                                             
+#def convert_slant(folder, lognm, ext="tif", mspec=False, delim=','):
+#    
+#    """
+#    Edit csv file for slant range log to work with MicMac.
+#    
+#    This is intended to produce an image/gps index for slantrange log
+#    
+#    This assumes the column order is name, x, y, z
+#    
+#    Parameters
+#    ----------  
+#    
+#    folder : string
+#            path to folder containing jpegs
+#    lognm : string
+#            path to c3p derived csv file
+#    ext : string
+#            image extension
+#    delim : string
+#            the csv delimiter of the input
+#                           
+#    """
+#    # Get a list of file paths 
+#    fileList = glob2.glob(os.path.join(folder, "*."+ext))
+#    
+#    #split them so it is just the img (ugly yes)
+#    # these will constitute the first column of the output csv
+#
+#    
+#    # wow this is getting uglier works well though
+#    #filesFin = [f[:-6]+'.tif' for f in files if "_1" in f]
+##   
+##    
+##    pdcsv=pd.read_csv(lognm, sep=delim)
+##    
+##    For ref ONLY!    
+##    header = ['imageCount', ' timestamp', ' global_lat', ' global_lon', ' global_hae',
+##       ' roll', ' pitch', ' yaw', ' gps_lat', ' gps_lon', ' fix', ' noise',
+##       ' jamming', ' satellites', ' range', ' uins_lat', ' uins_lon',
+##       ' uins_hae', ' uins_fix', ' uins_sats', ' uins_cnoMean', ' uins_roll',
+##       ' uins_pitch', ' uins_yaw']
+#    
+#    with open(lognm, 'r') as f:
+#        header = f.readline().strip('\n').split(delim)
+#        
+#        nm = header.index('imageCount')
+#        x_col = header.index(' global_lon') 
+#        y_col = header.index(' global_lat')
+#        z_col = header.index(' global_hae')
+#        imList = []
+#        x = []
+#        y = []
+#        z = []
+#        
+#        for line in f:
+#                l = line.strip('\n').split(delim)
+#                imList.append(l[nm])
+#                x.append(l[x_col])
+#                y.append(l[y_col])
+#                z.append(l[z_col])
+#
+#    imList.sort()
 
+
+
+    
+    files = [os.path.split(file)[1] for file in fileList]
+    files.sort()
+    
+    if mspec == True:
+        files = [f[:-6]+'.tif' for f in files if "_1" in f]
+        pdcsv = pdcsv[pdcsv['FileName'].str.contains("_1")]
+    
+    
+                                         
+                                         
+    fleDf= pd.DataFrame(files, columns=["#F=N"])
+
+    newCsv = pd.concat([fleDf["#F=N"], 
+                              pdcsv['Longitude'], pdcsv['Latitude'],
+                              pdcsv['Altitude']], axis=1)
+    
+    # header for MicMac     
+    hdr = ["#F=N", "X", "Y", "Z"]
+         
+
+    # insert new header
+    newCsv.columns = [hdr] 
+ 
+        
+                
+    rgblog = os.path.join(folder,lognm[:-4]+'edited.csv')  
+    
+    newCsv.to_csv(rgblog, sep=' ', index=False, header=hdr)
+        
 
 def mv_subset(csv, inFolder, outfolder, sep=" "):
     

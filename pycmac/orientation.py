@@ -20,7 +20,7 @@ from glob2 import glob
 from PIL import Image
 from pycmac.utilities import calib_subset, make_sys_utm, make_xml
 from joblib import Parallel, delayed
-import open3d as o3d
+#import open3d as o3d
 
 
 
@@ -30,9 +30,11 @@ def _imresize(image, width):
     wpercent = (width / float(img.size[0]))
     hsize = int((float(img.size[1]) * float(wpercent)))
     
+    exif = img.info['exif']
+    
     img2 = img.resize((width, hsize), Image.ANTIALIAS)
     
-    img2.save(image)
+    img2.save(image, exif=exif)
 
 def _callit(cmd, log=None):
     ret = call(cmd, stdout=log)
@@ -105,9 +107,10 @@ def feature_match(folder, csv=None, proj="30 +north", resize=None, ext="JPG",
         
 
     else:
+        hd, tl = path.split(csv)
         
         make_xml(csv, folder, sep=delim)
-        oriCon= ["mm3d", "OriConvert", "OriTxtInFile", csv, "RAWGNSS_N", "ChSys=DegreeWGS84@SysUTM.xml", "MTD1=1",
+        oriCon= ["mm3d", "OriConvert", "OriTxtInFile", tl, "RAWGNSS_N", "ChSys=DegreeWGS84@SysUTM.xml", "MTD1=1",
                  "NameCple=FileImagesNeighbour.xml", "CalcV=1"]
         _callit(oriCon, featlog)
     

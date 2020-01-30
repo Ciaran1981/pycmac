@@ -24,7 +24,8 @@ from glob2 import glob
 
 def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
               mode='PIMs', submode='Forest', dist="100", doFeat=True, doBundle=True, doDense=True,
-              allIm=False, polymask=False, shpmask=None, subset=None, rep_dsm='0', egal=1):
+              allIm=False, polymask=False, shpmask=None, subset=None, rep_dsm='0', egal=1, 
+              slantr=False):
     
     """
     A function for the complete structure from motion process using the micasense
@@ -100,7 +101,8 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
             3-band composite run due to some sort of bug within MicMac, 
             though most of the time this is not necessary
             def is '0' change to '1' if redoing dsm 
-    
+    slantr: bool
+            if processing slantrange imagery change to true otherwise leave false for micasense           
     """
 
     # folders
@@ -184,7 +186,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
         nirIm = path.join(folder, "OUTPUT", "RRENir.tif") 
         stk = path.join(folder, "OUTPUT", "mstack.tif")
         
-        stack_rasters(rgbIm, nirIm, stk)
+        stack_rasters(rgbIm, nirIm, stk, slantr=slantr)
     else:
         pass
 

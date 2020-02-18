@@ -119,10 +119,17 @@ def feature_match(folder, csv=None, proj="30 +north", resize=None, ext="JPG",
 
     if resize != None:
         Parallel(n_jobs=-1, verbose=5)(delayed(_imresize)(i, resize) for i in imList)
+        wprm = resize
+    else:        
+        img = Image.open(imList[0])
+        w, h = img.size
+        wprm = str(w / 2)
+        del img
     if allIm == True:
-        tapi = ["mm3d", "Tapioca", "All", extFin, "-1", "@SFS"]
+        tapi = ["mm3d", "Tapioca", "All", extFin, wprm.replace(".0", ""), "@SFS"]
     else:
-        tapi = ["mm3d", "Tapioca", "File", "FileImagesNeighbour.xml", "-1", "@SFS"]
+        # Always at least half even if user does not provide resize as no gain from full res
+        tapi = ["mm3d", "Tapioca", "File", "FileImagesNeighbour.xml", wprm.replace(".0", ""), "@SFS"]
     _callit(tapi)
     
     if schnaps is True:

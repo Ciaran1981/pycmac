@@ -3,8 +3,10 @@
 """
 Created on Fri Oct 25 12:02:43 2019
 
-@author: ciaran
-A template script for upcoming all in one mspec
+@author: ciaran robb
+
+Complete Sfm piplines using the micmac lib. 
+
 
 
 """

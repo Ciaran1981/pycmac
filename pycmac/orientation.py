@@ -68,10 +68,7 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
            a UTM zone eg "30 +north" 
         
     resize : string
-             The long axis in pixels to optionally resize the imagery perminantly
-             Default is to leave as None - where feature extraction is done at 
-             50% automatically. This is recommended unless disk space/speed is 
-             an issue
+             The long axis in pixels to optionally resize the imagery
         
     ext : string
                  image extention e.g JPG, tif

@@ -35,5 +35,6 @@ dependencies:
     - imageio-ffmpeg
     - open3d
     - git+https://github.com/Ciaran1981/pycmac#egg=pycmacpy
+    - centerline
 
 

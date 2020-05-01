@@ -5,13 +5,11 @@ Installation
 ~~~~~~~~~~~~~~~~~
 
 
-A python lib for Micmac and associated geospatial functionality with enhancements and adaptations. 
+A python lib for Micmac and associated geospatial functionality, for the conveneince of use with python.
 
 As well a grey-scale and RGB processing pycmac also facilitates the processing of multi-spectral imagery.
  
 Both MicaSense (including surface reflectance processing) and Slant view imagery are currently supported. 
-
-Some of the functionallity of this lib is covered in the old scripts site (https://github.com/Ciaran1981/Sfm/) but is covered here in a more compact form via python.
 
 Documentation is found here, including a quick start. 
 

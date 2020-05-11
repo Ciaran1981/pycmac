@@ -37,4 +37,10 @@ pycmac.mspec module
     :undoc-members:
     :show-inheritance:
 
+pycmac.sfm module
+--------------------------------
 
+.. automodule:: sfm
+    :members:
+    :undoc-members:
+    :show-inheritance:

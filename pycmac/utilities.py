@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Ciaran Robb, 2019
+Ciaran Robb
 
 A module which provides various ancillary functions for processing SfM with Micmac. 
 
-https://github.com/Ciaran1981/Sfm/pycmac/
+https://github.com/Ciaran1981/pycmac/
+
 """
 
 import numpy as np
@@ -833,7 +834,7 @@ def hist_match(inputImage, templateImage):
                     template image can have different dimensions to source    
     
     """
-    # TODO - cythinis or numba this one
+    # TODO - cythonise/numba write this in faster language
     
     imgSource = Image.open(inputImage)
     

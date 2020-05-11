@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Ciaran Robb, 2019
+Ciaran Robb
 
 A module which calls Micmac dense matching commands and mosaicking operations, 
 whilst a providing dditional file parsing, sorting, image masking and multi-band 
 functionallity.
 
-https://github.com/Ciaran1981/Sfm/pycmac/
+https://github.com/Ciaran1981/pycmac/
 
 
 """

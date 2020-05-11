@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Ciaran Robb, 2019
-
-https://github.com/Ciaran1981/Sfm
+Ciaran Robb
 
 This module processes data from the micasense red-edge camera for use in MicMac
 or indeed other SfM software
 
 This correction is based on the material on the micasense lib git site, 
 though this uses as fork of the micasense lib with some alterations. 
+
+https://github.com/Ciaran1981/pycmac/
 
 """
 import os, sys

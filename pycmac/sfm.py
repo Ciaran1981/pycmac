@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Oct 25 12:02:43 2019
 
-@author: ciaran robb
+@author: Ciaran robb
 
 Complete Sfm piplines using the micmac lib. 
 
-
+https://github.com/Ciaran1981/pycmac/
 
 """
 

@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Ciaran Robb
+Ciaran Robb, 2019
 
 A module which calls Micmac dense matching commands and mosaicking operations, 
 whilst a providing dditional file parsing, sorting, image masking and multi-band 
 functionallity.
 
-https://github.com/Ciaran1981/pycmac/
+https://github.com/Ciaran1981/Sfm/pycmac/
 
 
 """
 
 
 from subprocess import call, Popen
-from os import path, chdir, mkdir, remove
+from os import path, chdir, mkdir, remove, system
 import gdal
 import re
 import sys
@@ -28,7 +28,7 @@ from shutil import rmtree, copytree, copy2, copy, move
 from joblib import Parallel, delayed
 #import pandas as pd
 from pycmac.tile import  run
-#from tqdm import tqdm
+from tqdm import tqdm
 from PIL import Image
 
 def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_UTM",
@@ -330,7 +330,29 @@ def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',
         
 #        Parallel(n_jobs=-1, verbose=5)(delayed(rmtree)(pish) for pish in pishList)
 
-def tawny(folder, proj="30 +north", mode='PIMs', Out=None, **kwargs):
+
+def _remove_ortho_tiles(folder):
+    '''
+    Remove every other orthomosaic tile. Optimizes color balance and radiometric routine,
+    speeds up ortho generation using Porto/Tawny module.
+    
+    Adapted from ODM node micmac
+    '''
+    ort_files = path.join(folder,'Ortho-MEC-Malt', 'Ort_*.tif')
+    fileList = glob(ort_files)
+    fileList.sort()
+    # this doesn't work - so I have replaced it though I wonder what dif is...
+    # tiles = glob(ort_files)
+    # tiles.sort(key=lambda f: int(filter(str.isdigit, f)))
+    
+    rej = path.join(folder, 'Orthorejects')
+    mkdir(rej)
+    
+    [move(tile, rej) for tile in fileList[::2]]
+            
+
+def tawny(folder, proj="30 +north", mode='PIMs', Out=None, rmtile=False,
+          **kwargs):
 
     """
     
@@ -342,7 +364,10 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, **kwargs):
     see MicMac tools link for further possible args - just put the module arg as a keyword arg
     The kwargs must be exactly the same case as the mm3d cmd options
     
+    If struggling with even illumination, try:
     
+    tawny(folder, proj="30 +north", mode='PIMs', Out=None, rmtile=False, 
+          DEq="1", DegRapXY="[4,4]" SzV="75" NbPerIm="5e4")
         
     Parameters
     -----------
@@ -355,9 +380,10 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, **kwargs):
         
     mode : string
              Either Malt or PIMs depending on the previous process
-        
+    rmtile : bool
+             Remove every second tile - can speed up and sometimes improve 
+             even illumination across mosaic
 
-    
        
     """
     
@@ -365,6 +391,10 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, **kwargs):
         ootFolder = 'PIMs-ORTHO'
     elif mode == 'Malt':
         ootFolder = 'Ortho-MEC-Malt'
+    
+    
+    if rmtile==True:
+        _remove_ortho_tiles(folder)
     
     mlog = open(path.join(folder, 'Tawnylog.txt'), "w")    
     
@@ -419,7 +449,8 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, **kwargs):
     
 
 def feather(folder, proj="ESPG:32360", mode='PIMs',
-            ms=['r', 'g', 'b'], subset=None,  outMosaic=None, 
+            ms=['r', 'g', 'b'], Dist="100", ApplyRE="1", ComputeRE="1", 
+            subset=None,  outMosaic=None, rmtile=False, 
             mp=False, Label=False, redo=False, delim=",", **kwargs):
     
     """
@@ -503,11 +534,8 @@ def feather(folder, proj="ESPG:32360", mode='PIMs',
     
     mlog = open(path.join(folder, 'FeatherLog.txt'), "w") 
     
-#    def removeFiles(ootFolder):
-#        
-#        pths = ["RadiomEgalModels.xml", ]
-#        pthList = path.join(ootFolder)
-#        
+    if rmtile==True:
+        _remove_ortho_tiles(folder)
 #        
     
     if ms !=None:
@@ -619,7 +647,8 @@ def feather(folder, proj="ESPG:32360", mode='PIMs',
     #chdir(folder)
 
 # TODO - consider canning this as ossim is pain to get working on machines
-def ossimmosaic(folder, proj="30 +north", mode="ossimFeatherMosaic", nt=-1):
+def ossimmosaic(folder, proj="30 +north", mode="ossimFeatherMosaic", nt=-1,
+                rmtile=False):
     
     """
     
@@ -649,15 +678,27 @@ def ossimmosaic(folder, proj="30 +north", mode="ossimFeatherMosaic", nt=-1):
     """    
     
 
-    projstr = ("+proj=utm +zone="+proj+" +ellps=WGS84 +datum=WGS84"
-              "+units=m +no_defs")
+    projstr = ("+proj=utm +zone="+proj+"+ellps=WGS84 +datum=WGS84 +units=m +no_defs")
+    
+    if rmtile==True:
+        _remove_ortho_tiles(folder)
     
     orthList = glob(path.join(folder, "*Ort_*tif"))
     
-    Parallel(n_jobs=16,
+    # Using this for now as for some bizarre reason I can't get it to work
+    # internally for ossim
+    
+#    for f in $FOLDER/*Ort_*tif; do
+#        gdal_edit.py -a_srs 
+#        "+proj=utm +zone=$UTM  +ellps=WGS84 +datum=WGS84 +units=m +no_defs" "$f"; done
+    Parallel(n_jobs=nt,
              verbose=5)(delayed(gdal_edit)(datasetname=i,
                        srs=projstr) for i in orthList) 
-#    [gdal_edit(datasetname=i, srs=projstr) for i in tqdm(orthList)]
+#    [call(["gdal_edit.py", i, "-a_srs", projstr]) for i in tqdm(orthList)]
+
+#    Parallel(n_jobs=nt,
+#             verbose=5)(delayed(gdal_edit)(call(["gdal_edit.py", i, "-a_srs", projstr])) 
+#             for i in orthList) 
     # this works
     #procList=[]
     
@@ -675,21 +716,16 @@ def ossimmosaic(folder, proj="30 +north", mode="ossimFeatherMosaic", nt=-1):
                        "-i", i]) for i in orthList) 
     
     
-    ossimproc= ["ossim-orthoigen", "--combiner-type", mode, path.join(folder, "*Ort_*tif"),
-     path.join(folder, mode+".tif")]
-    call(ossimproc)
-#    echo "generating image histograms"
-#    find $FOLDER/*Ort_*tif | parallel "ossim-create-histo -i {}" 
-     
-    # Max seems best
-#    echo "creating final mosaic using $MTYPE"
-#    ossim-orthoigen --combiner-type "${PBATCH}"  $FOLDER/*Ort_*tif $FOLDER/$OUT
+#    inPth = path.join(folder, "*Ort_*tif")
+                
+    ootPth = mode+".tif"
     
-#    if kwargs != None:
-#        for k in kwargs.items():
-#            oot = re.findall(r'\w+',str(k))
-#            anArg = oot[0]+'='+oot[1]
-#            cmd.append(anArg)
+    #TODO - this is the only thing that will work for some reason all the other comm'd out
+    # stuff doesn't Ahhhhrrrgh!!!
+    print("Mosaicing orthos....")
+    system("ossim-orthoigen --combiner-type ossimFeatherMosaic *Ort_*tif "+ootPth)
+    print("done!")
+
 
         
 def _set_dataset_config(inRas, projection, FMT = 'Gtiff'):
@@ -702,7 +738,7 @@ def _set_dataset_config(inRas, projection, FMT = 'Gtiff'):
 
     sr = osr.SpatialReference() 
     
-    sr.ImportFromProj4(projection)
+    sr.ImportFromESPG(projection)
     # must be this for a geotiff
     wkt = sr.ExportToWkt()
     inDataset.SetProjection(wkt)
@@ -778,7 +814,7 @@ def _subset(folder, csv, delim=",", ext="JPG"):
     
     return sub2
 
-def _proc_malt(subList, subName, bFolder, gOri, algo='Ortho', gP='0', window='2',
+def _proc_malt(subList, subName, bFolder, gOri, algo='Ortho', gP='0', window='5',
                proc=1, mmgpu=None, bbox=True):
     # Yes all this string mucking about is not great but it is better than 
     # dealing with horrific xml, when the info is so simple

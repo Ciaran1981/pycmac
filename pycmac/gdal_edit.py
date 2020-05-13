@@ -180,8 +180,8 @@ def gdal_edit(datasetname = None, srs = None, ulx = None, uly = None, lrx = None
 
     return 0
 
-def main():
-    return gdal_edit(sys.argv)
+#def main():
+ #   return gdal_edit(sys.argv)
 
-if __name__ == '__main__':
-    sys.exit(gdal_edit(sys.argv))
+#if __name__ == '__main__':
+#    sys.exit(gdal_edit(sys.argv))

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Ciaran Robb
+Ciaran Robb, 2019
 
 A module which calls Micmac image orientation commands  
 whilst providing additional file parsing and sorting operations. 
 
-https://github.com/Ciaran1981/pycmac/
+https://github.com/Ciaran1981/Sfm/pycmac/
 
 """
 

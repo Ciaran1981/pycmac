@@ -119,7 +119,7 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
 
     if resize != None:
         Parallel(n_jobs=-1, verbose=5)(delayed(_imresize)(i, resize) for i in imList)
-        wprm = resize
+        wprm = "-1"
     else:
         # Always at least half even for Tapioca if user does not provide resize 
         # as little/no gain from full res        

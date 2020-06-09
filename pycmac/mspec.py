@@ -119,11 +119,12 @@ def mspec_proc(imgFolder, alIm, srFolder, precal=None, postcal=None, refBnd=4,
     Parameters
     -----------
     
+    imgFolder : string
+           a directory containing the raw imagery 
+    
     precal : string
            directory containing pre-flight calibration panels pics
            
-    imgFolder : string
-           a directory containing the  
         
     alIm : string
              4 digit code of the image to align band images

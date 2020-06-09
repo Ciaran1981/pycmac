@@ -26,7 +26,7 @@ from glob2 import glob
 
 def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
               mode='PIMs', submode='Forest', dist="100", doFeat=True, doBundle=True, doDense=True,
-              allIm=False, shpmask=None, subset=None, rep_dsm='0', egal=1, 
+              allIm=False, shpmask=None, subset=None, rep_dsm='0', egal=1, DegRap="0", 
               slantr=False):
     
     """
@@ -147,7 +147,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
             pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
                  DoMnt='1')
         
-        tawny(folder, proj=proj, mode=mode, Out="RGB.tif")
+        tawny(folder, proj=proj, mode=mode, DegRap=DegRap, Out="RGB.tif")
         
         outList = glob(path.join(folder, "*.tif"))
         
@@ -180,7 +180,8 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
             pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
                  DoMnt='1')
           
-        tawny(folder, proj=proj,  mode=mode, Out="RRENir.tif", RadiomEgal=egal)
+        tawny(folder, proj=proj,  mode=mode, Out="RRENir.tif", DegRap=DegRap, 
+              RadiomEgal=egal)
         
         rgbIm = path.join(folder, "OUTPUT", "RGB.tif")
         nirIm = path.join(folder, "OUTPUT", "RRENir.tif") 

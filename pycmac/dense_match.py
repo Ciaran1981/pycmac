@@ -647,6 +647,7 @@ def feather(folder, proj="ESPG:32360", mode='PIMs',
     #chdir(folder)
 
 # TODO - consider canning this as ossim is pain to get working on machines
+# and for some weird reason will not subprocess so uses os.system
 def ossimmosaic(folder, proj="30 +north", mode="ossimFeatherMosaic", nt=-1,
                 rmtile=False):
     
@@ -671,7 +672,8 @@ def ossimmosaic(folder, proj="30 +north", mode="ossimFeatherMosaic", nt=-1,
             ossimBlendMosaic ossimMaxMosaic ossimImageMosaic 
             ossimClosestToCenterCombiner ossimBandMergeSource
             ossimFeatherMosaic
-        
+    rmtile : bool
+           remove every other tile to perhaps improve things       
 
     
        
@@ -722,6 +724,7 @@ def ossimmosaic(folder, proj="30 +north", mode="ossimFeatherMosaic", nt=-1,
     
     #TODO - this is the only thing that will work for some reason all the other comm'd out
     # stuff doesn't Ahhhhrrrgh!!!
+    chdir(folder)
     print("Mosaicing orthos....")
     system("ossim-orthoigen --combiner-type ossimFeatherMosaic *Ort_*tif "+ootPth)
     print("done!")
@@ -738,7 +741,7 @@ def _set_dataset_config(inRas, projection, FMT = 'Gtiff'):
 
     sr = osr.SpatialReference() 
     
-    sr.ImportFromESPG(projection)
+    sr.ImportFromProj4(projection)
     # must be this for a geotiff
     wkt = sr.ExportToWkt()
     inDataset.SetProjection(wkt)

@@ -147,7 +147,8 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
        
 
 def bundle_adjust(folder, algo="Fraser", proj="30 +north",
-                  ext="JPG", calib=None,  gpsAcc='1', sep=",", exif=False, meshlab=False):
+                  ext="JPG", calib=None,  gpsAcc='1', sep=",", exif=False,
+                  meshlab=False):
     """
     
     A function running the relative orientation/bundle adjustment with micmac 
@@ -170,7 +171,7 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     proj : string
            a UTM zone eg "30 +north" 
     calib : string
-            a calibration subset (optional)
+            a calibration subset (optional - otherwise the martini initialisation will be used)
     ext : string
                  image extention e.g JPG, tif
     SH : string
@@ -198,10 +199,14 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     
     if calib != None:
         calib_subset(folder, calib, ext=extFin,  algo="Fraser", delim=sep)
-    else: 
+    else:
+        marti = ["mm3d", "Martini", extFin]
+        _callit(marti)
+        
         #['mm3d', 'Tapas', 'Fraser', '.*tif', 'Out=Arbitrary', 'SH=_mini']
         tlog = open(path.join(folder, algo+'log.txt'), "w")
-        tapas = ["mm3d",  "Tapas", "Fraser", extFin, "Out=Arbitrary"]
+        tapas = ["mm3d",  "Tapas", "Fraser", extFin, "Out=Arbitrary", 
+                 "InOri=Martini"]
         _callit(tapas, tlog)
     
         

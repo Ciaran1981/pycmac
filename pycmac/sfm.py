@@ -25,7 +25,7 @@ from glob2 import glob
 
 
 def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
-              mode='PIMs', submode='Forest', dist="100", doFeat=True, doBundle=True, doDense=True,
+              mode='PIMs', submode='Forest',  doFeat=True, doBundle=True, doDense=True,
               allIm=False, shpmask=None, subset=None, rep_dsm='0', egal=1, DegRap="0", 
               slantr=False):
     
@@ -74,9 +74,6 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     gpsAcc : string
             the estimate of GPS accuracy
     
-    dist : string
-            the distance from each image centre to consider when feature
-            detecting and matching 
             
     sep : string
             the csv delimiter if used (default ",")    
@@ -125,7 +122,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
         if allIm == True:
             feature_match(folder, proj=proj, csv=csv, ext='tif', allIm=True)
         else:    
-            feature_match(folder, proj=proj, csv=csv, ext='tif', dist=dist) 
+            feature_match(folder, proj=proj, csv=csv, ext='tif') 
         
         
     if doBundle == True:
@@ -192,7 +189,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
         pass
 
 def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1', sep=",",
-              mode='PIMs', submode='Forest', dist="100", doFeat=True, doBundle=True,
+              mode='PIMs', submode='Forest', doFeat=True, doBundle=True,
               doDense=True, allIm=False, shpmask=None, subset=None, egal=1, resize=None):
     
     """
@@ -233,10 +230,7 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
             
     gpsAcc : string
             the estimate of GPS accuracy
-    
-    dist : string
-            the distance from each image centre to consider when feature
-            detecting and matching 
+
             
     sep : string
             the csv delimiter if used (default ",")    
@@ -269,9 +263,9 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
         # features
         # if required here for csv
         if allIm == True:
-            feature_match(folder, csv=csv, ext=ext, allIm=True, resize=resize)
+            feature_match(folder, csv=csv, ext=ext, method='All', resize=resize)
         else:    
-            feature_match(folder, csv=csv, ext=ext, dist=dist, resize=resize) 
+            feature_match(folder, csv=csv, ext=ext, resize=resize) 
         
         
     if doBundle == True:

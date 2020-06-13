@@ -1021,7 +1021,7 @@ def dense_pcl(folder, mode="PIMs", Out="psm.ply"):
 #    
 
     
-    nuage = ["mm3d", "Nuage2Ply",  ootply, "Attr="+ootorth, "Out="+Out]
+    nuage = ["mm3d", "Nuage2Ply",  ootply, "Attr="+ootorth, "Out="+Out, "64B=1"]
     
     ret = call(nuage)
 

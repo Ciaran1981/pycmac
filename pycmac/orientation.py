@@ -44,7 +44,7 @@ def _callit(cmd, log=None):
             sys.exit()
 
 def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None, ext="JPG",
-                  delim=" ", schnaps=True,  dist="100"):
+                  delim=" ", schnaps=True):
     
     """
     
@@ -100,9 +100,9 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
         
         oriCon= ["mm3d", "OriConvert", "#F=N X Y Z", "GpsCoordinatesFromExif.txt",
                  "RAWGNSS_N","ChSys=DegreeWGS84@RTLFromExif.xml", "MTD1=1",
-                 "DN="+dist, "NameCple=FileImagesNeighbour.xml", "CalcV=1"]
-            
-        
+                 "NameCple=FileImagesNeighbour.xml", "CalcV=1"]
+        # This has been cut for the moment    
+        # "DN="+dist,
         _callit(oriCon, featlog)
         
 

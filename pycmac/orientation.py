@@ -44,7 +44,7 @@ def _callit(cmd, log=None):
             sys.exit()
 
 def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None, ext="JPG",
-                  delim=" ", schnaps=True):
+                  delim=" ", schnaps=True, dist=None):
     
     """
     
@@ -72,8 +72,8 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
         
     ext : string
                  image extention e.g JPG, tif
-
-    
+    dist: string
+        distance for nearest neighbour search
        
     """
     
@@ -101,8 +101,9 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
         oriCon= ["mm3d", "OriConvert", "#F=N X Y Z", "GpsCoordinatesFromExif.txt",
                  "RAWGNSS_N","ChSys=DegreeWGS84@RTLFromExif.xml", "MTD1=1",
                  "NameCple=FileImagesNeighbour.xml", "CalcV=1"]
-        # This has been cut for the moment    
-        # "DN="+dist,
+        if dist != None:
+            oriCon.append("DN="+dist)
+            
         _callit(oriCon, featlog)
         
 
@@ -148,7 +149,7 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
 
 def bundle_adjust(folder, algo="Fraser", proj="30 +north",
                   ext="JPG", calib=None,  gpsAcc='1', sep=",", exif=False,
-                  meshlab=False):
+                  meshlab=False, useGps=True):
     """
     
     A function running the relative orientation/bundle adjustment with micmac 
@@ -183,9 +184,12 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     exif : bool
         if the GPS info is embedded in the image exif check this as True to 
         convert back to geographic coordinates, 
-        If previous steps always used a csv for img coords ignore this     
-    exif : bool
-        if true open the pointcloud with meshlab for visualisation     
+        If previous steps always used a csv for img coords ignore this   
+    useGps : bool
+        if the GPS info is untrustyworthy with a lot of the data (eg Dji Phantom - z)
+        simply transform from rel to ref coordinate sys without GPS aided bundle adjust.
+    
+  
     """
 #    if SH is None:
 #        shFin=""
@@ -216,27 +220,39 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     _callit(basc)
     
     glog = open(path.join(folder, algo+'GPSlog.txt'), "w")
-    
-
-    
+            
     if exif is True:
         
-        campari =["mm3d", "Campari", extFin, "Ground_Init_RTL",
-                  "Ground_RTL", "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
+        if useGps ==True:
+            sysco = ["mm3d", "ChgSysCo",  extFin, "Arbitrary",
+                     "RTLFromExif.xml@SysUTM.xml", "Ground_UTM"]
+            _callit(sysco)
+        else:
         
-        _callit(campari, glog)
-    
-        sysco = ["mm3d", "ChgSysCo",  extFin, "Ground_RTL",
-                 "RTLFromExif.xml@SysUTM.xml", "Ground_UTM"]
-        _callit(sysco)
+            campari =["mm3d", "Campari", extFin, "Ground_Init_RTL",
+                      "Ground_RTL", "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
+            
+            _callit(campari, glog)
         
-        oriex = ["mm3d", "OriExport", "Ori-Ground_UTM/.*xml",
-                 "CameraPositionsUTM.txt", "AddF=1"]
+            sysco = ["mm3d", "ChgSysCo",  extFin, "Ground_RTL",
+                     "RTLFromExif.xml@SysUTM.xml", "Ground_UTM"]
+            _callit(sysco)
+            
+            oriex = ["mm3d", "OriExport", "Ori-Ground_UTM/.*xml",
+                     "CameraPositionsUTM.txt", "AddF=1"]
         _callit(oriex)
     else:
-        campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
-              "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
-        _callit(campari, glog)
+        
+        if useGps ==True:
+            sysco = ["mm3d", "ChgSysCo",  extFin, "Arbitrary",
+                     "SysCoRTL.xml@SysUTM.xml", "Ground_UTM"]
+            _callit(sysco)
+        else:
+            campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
+                  "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
+            _callit(campari, glog)
+
+        
     
     aperi = ["mm3d", "AperiCloud", extFin,  "Ground_UTM"]
     

@@ -7,7 +7,8 @@ A module which provides various ancillary functions for processing SfM with Micm
 
 https://github.com/Ciaran1981/Sfm/pycmac/
 """
-
+from shapely.wkt import loads
+#from shapely.geometry import Polygon, box, LineString, Point, LinearRing
 import numpy as np
 import pandas as pd
 import os
@@ -413,6 +414,68 @@ def make_xml(csvFile, folder, sep=" "):
     et = lxml.etree.ElementTree(xmlDoc)
     ootXml = path.join(folder, 'SysCoRTL.xml')
     et.write(ootXml, pretty_print=True)
+    
+    
+def pims_mask(inShp, folder):
+    
+    """
+    Make an xmlmask from a shapefile for polyg3d for pims/c3dc
+    The shapefile MUST be rectilinear
+    
+    Parameters
+    ----------  
+    
+    inShp : string
+             shapefile with coords to use
+    """
+    
+    shp = ogr.Open(inShp)
+    lyr = shp.GetLayer()
+    feat = lyr.GetFeature(0)
+    
+    # avoid temptation of shapely gettin meesy these days
+    
+    geom = feat.GetGeometryRef()
+    ring = geom.GetGeometryRef(0)
+    numpoints = ring.GetPointCount()
+    
+    points = []
+    
+    for p in range(numpoints):
+            lon, lat, z = ring.GetPoint(p)
+            inStr = str(lon)+"," +str(lat)+","+str(z)
+            inStr.replace('"', "")
+            points.append(inStr)
+
+# gave up on this
+#    el = etree.Element('Polyg3D')
+#    it = etree.SubElement(el, 'Item')
+#    for i in points:      
+#        pt = etree.SubElement(it, 'Pt', text=i)
+        
+#    md = etree.SubElement(it, 'Mode', text="1")
+#
+#    
+#    subel.text = 'World'
+#    # I detest xml writing!!!!!!!!!!!!!!!
+    E = lxml.builder.ElementMaker()
+#    
+    root = E.Polyg3D
+    doc = E.Item
+    coord = E.Pt
+    mode=E.Mode
+
+
+    xmlDoc = (root(doc(coord(points[0]),
+                   coord(points[1]),
+                   coord(points[2]),
+                   coord(points[3]),
+                   mode('1'))))
+    
+    et = lxml.etree.ElementTree(xmlDoc)
+    ootXml = path.join(folder, 'polyg3d.xml')
+    et.write(ootXml, pretty_print=True)
+
 
 def make_sys_utm(folder, proj):
     

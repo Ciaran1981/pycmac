@@ -25,8 +25,9 @@ from glob2 import glob
 
 
 def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
-              mode='PIMs', submode='Forest',  doFeat=True, doBundle=True, doDense=True,
-              allIm=False, shpmask=None, subset=None, rep_dsm='0', egal=1, DegRap="0", 
+              mode='PIMs', submode='Forest',  doFeat=True, doBundle=True, doDense=True, 
+              pointmask=True, cleanpoints=True,
+              fmethod=None, shpmask=None, subset=None, rep_dsm='0', egal=1, DegRap="0", 
               slantr=False):
     
     """
@@ -84,11 +85,16 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     doBundle : bool
             if repeating after debug/changes mis out early stages  
             
-    allIm : bool
-            Exaustive feature search for image pairs (way slower!)
+    fmethod : bool
+            feature search for image pairs strategy eg Line All
             
     shpmask : string
-            a shapefile mask to constrain malt-based processing  
+            a shapefile mask to constrain malt-based processing
+    
+    pointmask : bool
+            use the micmac SaisieMasq3D (need QT compiled) to define a mask
+            on the sparse cloud to constrain processing - this is VERY useful
+            and will save a lot of time
 
     subset : string
             a csv defining a subset of images to be processed during dense matching                        
@@ -98,6 +104,11 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
             3-band composite run due to some sort of bug within MicMac, 
             though most of the time this is not necessary
             def is '0' change to '1' if redoing dsm 
+            
+    cleanpoints: bool
+            if true use the schnaps tie point cleaning tool for a evenly distributed
+            
+            and reduced tie point set  
     slantr: bool
             if processing slantrange imagery change to true otherwise leave false for micasense           
     """
@@ -119,10 +130,12 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
         
         # features
         # if required here for csv
-        if allIm == True:
-            feature_match(folder, proj=proj, csv=csv, ext='tif', allIm=True)
+        if fmethod != None:
+            feature_match(folder, proj=proj, csv=csv, ext='tif', 
+                          method=fmethod, schnaps=cleanpoints)
         else:    
-            feature_match(folder, proj=proj, csv=csv, ext='tif') 
+            feature_match(folder, proj=proj, csv=csv, ext='tif', 
+                          schnaps=cleanpoints) 
         
         
     if doBundle == True:
@@ -190,7 +203,8 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
 
 def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1', sep=",",
               mode='PIMs', submode='Forest', doFeat=True, doBundle=True,
-              doDense=True, allIm=False, shpmask=None, subset=None, egal=1, resize=None):
+              doDense=True, fmethod=None, useGps=True, pointmask=True, shpmask=None, 
+              subset=None, egal=1, resize=None, cleanpoints=True):
     
     """
     A function for the complete structure from motion process using a RGB camera. 
@@ -241,14 +255,23 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     doBundle : bool
             if repeating after debug/changes mis out early stages  
             
-    allIm : bool
-            Exaustive feature search for image pairs (way slower!)
+    fmethod : bool
+            select a feature detection strategy eg Line All etc
             
     shpmask : string
-            a shapefile mask to constrain malt-based processing  
+            a shapefile mask to constrain malt-based processing
+            
+    pointmask : bool
+            use the micmac SaisieMasq3D (need QT compiled) to define a mask
+            on the sparse cloud to constrain processing - this is VERY useful
+            and will save a lot of time and is recommended over shpmask
 
     subset : string
-            a csv defining a subset of images to be processed during dense matching                        
+            a csv defining a subset of images to be processed during dense matching
+            
+    cleanpoints: bool
+            if true use the schnaps tie point cleaning tool for a evenly distributed
+            and reduced tie point set                         
     
     """
 
@@ -262,17 +285,19 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     if doFeat == True:               
         # features
         # if required here for csv
-        if allIm == True:
-            feature_match(folder, csv=csv, ext=ext, method='All', resize=resize)
+        if fmethod != None:
+            feature_match(folder, csv=csv, ext=ext, method=fmethod, resize=resize,
+                          schnaps=cleanpoints)
         else:    
-            feature_match(folder, csv=csv, ext=ext, resize=resize) 
+            feature_match(folder, csv=csv, ext=ext, resize=resize, schnaps=cleanpoints) 
         
         
     if doBundle == True:
     
         # bundle adjust
         # if required here for calib
-        bundle_adjust(folder,  ext=ext, calib=sub, gpsAcc=gpsAcc, sep=sep)
+        bundle_adjust(folder,  ext=ext, calib=sub, gpsAcc=gpsAcc, sep=sep, 
+                      useGps=useGps)
     
     
     
@@ -282,7 +307,7 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
         if mode == 'Malt':    
             malt(folder, proj=proj, ext=ext, mask=shpmask, sub=subset)
         elif mode == 'PIMs':
-            pims(folder, mode=submode, ext=ext)
+            pims(folder, mode=submode, ext=ext, mask=pointmask)
             pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
                  DoMnt='1')
         

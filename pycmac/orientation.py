@@ -210,7 +210,7 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
         #['mm3d', 'Tapas', 'Fraser', '.*tif', 'Out=Arbitrary', 'SH=_mini']
         tlog = open(path.join(folder, algo+'log.txt'), "w")
         tapas = ["mm3d",  "Tapas", "Fraser", extFin, "Out=Arbitrary", 
-                 "InOri=Martini"]
+                 "InCal=Martini"]
         _callit(tapas, tlog)
     
         

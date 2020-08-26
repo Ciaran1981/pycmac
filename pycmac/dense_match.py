@@ -214,6 +214,8 @@ def pims(folder, mode='BigMac', ext="JPG", orientation="Ground_UTM",
                  image extention e.g JPG, tif
     """
     
+    chdir(folder)
+    
     if sub != None:
         extFin = _subset(folder, sub, delim=delim, ext=ext)
     else:
@@ -233,11 +235,6 @@ def pims(folder, mode='BigMac', ext="JPG", orientation="Ground_UTM",
             oot = re.findall(r'\w+',str(k))
             anArg = oot[0]+'='+oot[1]
             cmd.append(anArg)
-            
-            
-        
-        
-    chdir(folder)
     
       
     ret = call(cmd, stdout=mlog)

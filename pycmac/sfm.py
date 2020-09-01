@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Oct 25 12:02:43 2019
 
 @author: ciaran robb
 
@@ -15,7 +14,7 @@ from os import path
 
 from pycmac.orientation import feature_match, bundle_adjust
 
-from pycmac.dense_match import malt, tawny, pims, pims2mnt
+from pycmac.dense_match import malt, tawny, pims, pims2mnt, c3dc
 
 from pycmac.mspec import stack_rasters
 
@@ -130,12 +129,16 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
         
         # features
         # if required here for csv
+        if csv==None:
+            exif=True
+        else:
+            exif=False
         if fmethod != None:
             feature_match(folder, proj=proj, csv=csv, ext='tif', 
-                          method=fmethod, schnaps=cleanpoints)
+                          method=fmethod, schnaps=cleanpoints, exif=exif)
         else:    
             feature_match(folder, proj=proj, csv=csv, ext='tif', 
-                          schnaps=cleanpoints) 
+                          schnaps=cleanpoints, exif=exif) 
         
         
     if doBundle == True:
@@ -296,8 +299,12 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     
         # bundle adjust
         # if required here for calib
+        if csv == None:
+            exif=True
+        else:
+            exif=False
         bundle_adjust(folder,  ext=ext, calib=sub, gpsAcc=gpsAcc, sep=sep, 
-                      useGps=useGps)
+                      useGps=useGps, exif=exif)
     
     
     
@@ -306,8 +313,12 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
         
         if mode == 'Malt':    
             malt(folder, proj=proj, ext=ext, mask=shpmask, sub=subset)
-        elif mode == 'PIMs':
+        if mode == 'PIMs':
             pims(folder, mode=submode, ext=ext, mask=pointmask)
+            pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
+                 DoMnt='1')
+        if mode == 'C3DC':
+            c3dc(folder, mode=submode, ext=ext)                    
             pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
                  DoMnt='1')
         

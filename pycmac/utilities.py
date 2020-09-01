@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Ciaran Robb, 2019
+Ciaran Robb
 
 A module which provides various ancillary functions for processing SfM with Micmac. 
 

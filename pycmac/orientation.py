@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Ciaran Robb, 2019
+Ciaran Robb
 
 A module which calls Micmac image orientation commands  
 whilst providing additional file parsing and sorting operations. 
@@ -131,7 +131,7 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
     if method == 'All':
         tapi = ["mm3d", "Tapioca", "All", extFin, wprm.replace(".0", ""), "@SFS"]
     if method == "Line":
-        tapi = ["mm3d", "Tapioca", "Line", extFin, wprm.replace(".0", ""), "@SFS"]
+        tapi = ["mm3d", "Tapioca", "Line",  extFin, wprm.replace(".0", ""), '5', "@SFS"]
     if method == 'File':        
         tapi = ["mm3d", "Tapioca", "File", "FileImagesNeighbour.xml", wprm.replace(".0", ""), "@SFS"]
 
@@ -210,7 +210,7 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
         #['mm3d', 'Tapas', 'Fraser', '.*tif', 'Out=Arbitrary', 'SH=_mini']
         tlog = open(path.join(folder, algo+'log.txt'), "w")
         tapas = ["mm3d",  "Tapas", "Fraser", extFin, "Out=Arbitrary", 
-                 "InCal=Martini"]
+                 "InOri=Martini"]
         _callit(tapas, tlog)
     
         
@@ -223,7 +223,7 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
             
     if exif is True:
         
-        if useGps ==True:
+        if useGps is False:
             sysco = ["mm3d", "ChgSysCo",  extFin, "Arbitrary",
                      "RTLFromExif.xml@SysUTM.xml", "Ground_UTM"]
             _callit(sysco)
@@ -240,10 +240,10 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
             
             oriex = ["mm3d", "OriExport", "Ori-Ground_UTM/.*xml",
                      "CameraPositionsUTM.txt", "AddF=1"]
-        _callit(oriex)
+            _callit(oriex)
     else:
         
-        if useGps ==True:
+        if useGps is False:
             sysco = ["mm3d", "ChgSysCo",  extFin, "Arbitrary",
                      "SysCoRTL.xml@SysUTM.xml", "Ground_UTM"]
             _callit(sysco)

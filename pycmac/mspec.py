@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Ciaran Robb, 2019
+Ciaran Robb
 
 https://github.com/Ciaran1981/Sfm
 
@@ -119,46 +119,46 @@ def mspec_proc(imgFolder, alIm, srFolder, precal=None, postcal=None, refBnd=4,
     Parameters
     -----------
     
-    imgFolder : string
+    imgFolder: string
            a directory containing the raw imagery 
     
-    precal : string
+    precal: string
            directory containing pre-flight calibration panels pics
            
         
-    alIm : string
+    alIm: string
              4 digit code of the image to align band images
              e.g. "0023"
         
-    srFolder : string
+    srFolder: string
                  path to directory for surface reflectance imagery
     
-    postcal : string
+    postcal: string
                  directory containing pre-flight calibration panels pics
                  
-    refBnd : int
+    refBnd: int
                 The band to which all others are aligned def 4 works best
             
-    nt : int
+    nt: int
                 No of threads to use   
     
-    mx : int
+    mx: int
                 Max iterations for alignment (uses opencv motion homography)
 
-    stk : int
+    stk: int
                 The various multi-band stacking options
                 1 = A set of RGB & RReNir images (best for MicMac)
                 None = Single band images in separate folders are returned
-    plots : bool
+    plots: bool
     
             Whether to display plots of the alignment images for visual inspection
     
-    panel_ref : list
+    panel_ref: list
     
             The panel ref values unique to your panel/camera
             If left as None, it will load the authors camera values!
  
-    warp_type : string
+    warp_type: string
             
             The type of warping used to align the bands from the following choice of cv2 modes
     

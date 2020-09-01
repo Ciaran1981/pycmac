@@ -176,10 +176,10 @@
 <p>Ciaran Robb</p>
 <p>A module which calls Micmac image orientation commands
 whilst providing additional file parsing and sorting operations.</p>
-<p><a class="reference external" href="https://github.com/Ciaran1981/pycmac/">https://github.com/Ciaran1981/pycmac/</a></p>
+<p><a class="reference external" href="https://github.com/Ciaran1981/Sfm/pycmac/">https://github.com/Ciaran1981/Sfm/pycmac/</a></p>
 <dl class="function">
 <dt id="orientation.bundle_adjust">
-<code class="sig-prename descclassname">orientation.</code><code class="sig-name descname">bundle_adjust</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">algo='Fraser'</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">calib=None</em>, <em class="sig-param">gpsAcc='1'</em>, <em class="sig-param">sep='</em>, <em class="sig-param">'</em>, <em class="sig-param">exif=False</em>, <em class="sig-param">meshlab=False</em><span class="sig-paren">)</span><a class="headerlink" href="#orientation.bundle_adjust" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">orientation.</code><code class="sig-name descname">bundle_adjust</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">algo='Fraser'</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">calib=None</em>, <em class="sig-param">gpsAcc='1'</em>, <em class="sig-param">sep='</em>, <em class="sig-param">'</em>, <em class="sig-param">exif=False</em>, <em class="sig-param">meshlab=False</em>, <em class="sig-param">useGps=True</em><span class="sig-paren">)</span><a class="headerlink" href="#orientation.bundle_adjust" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function running the relative orientation/bundle adjustment with micmac</p>
 <p>A calibration subset is optional</p>
 <p class="rubric">Notes</p>
@@ -190,14 +190,15 @@ whilst providing additional file parsing and sorting operations.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>folder</strong> (<em>string</em>) – working directory</p></li>
 <li><p><strong>proj</strong> (<em>string</em>) – a UTM zone eg “30 +north”</p></li>
-<li><p><strong>calib</strong> (<em>string</em>) – a calibration subset (optional)</p></li>
+<li><p><strong>calib</strong> (<em>string</em>) – a calibration subset (optional - otherwise the martini initialisation will be used)</p></li>
 <li><p><strong>ext</strong> (<em>string</em>) – image extention e.g JPG, tif</p></li>
 <li><p><strong>SH</strong> (<em>string</em>) – a reduced set of tie points (output of schnaps command)</p></li>
 <li><p><strong>gpsAcc</strong> (<em>string</em>) – an estimate in metres of the onboard GPS accuracy</p></li>
 <li><p><strong>exif</strong> (<em>bool</em>) – if the GPS info is embedded in the image exif check this as True to
 convert back to geographic coordinates,
 If previous steps always used a csv for img coords ignore this</p></li>
-<li><p><strong>exif</strong> (<em>bool</em>) – if true open the pointcloud with meshlab for visualisation</p></li>
+<li><p><strong>useGps</strong> (<em>bool</em>) – if the GPS info is untrustyworthy with a lot of the data (eg Dji Phantom - z)
+simply transform from rel to ref coordinate sys without GPS aided bundle adjust.</p></li>
 </ul>
 </dd>
 </dl>
@@ -205,7 +206,7 @@ If previous steps always used a csv for img coords ignore this</p></li>
 
 <dl class="function">
 <dt id="orientation.feature_match">
-<code class="sig-prename descclassname">orientation.</code><code class="sig-name descname">feature_match</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">csv=None</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">method='File'</em>, <em class="sig-param">resize=None</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">delim=' '</em>, <em class="sig-param">schnaps=True</em>, <em class="sig-param">dist='100'</em><span class="sig-paren">)</span><a class="headerlink" href="#orientation.feature_match" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">orientation.</code><code class="sig-name descname">feature_match</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">csv=None</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">method='File'</em>, <em class="sig-param">resize=None</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">delim=' '</em>, <em class="sig-param">schnaps=True</em>, <em class="sig-param">dist=None</em><span class="sig-paren">)</span><a class="headerlink" href="#orientation.feature_match" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function running the feature detection and matching with micmac</p>
 <p class="rubric">Notes</p>
 <p>Underlying cmds include</p>
@@ -217,6 +218,7 @@ If previous steps always used a csv for img coords ignore this</p></li>
 <li><p><strong>proj</strong> (<em>string</em>) – a UTM zone eg “30 +north”</p></li>
 <li><p><strong>resize</strong> (<em>string</em>) – The long axis in pixels to optionally resize the imagery</p></li>
 <li><p><strong>ext</strong> (<em>string</em>) – image extention e.g JPG, tif</p></li>
+<li><p><strong>dist</strong> (<em>string</em>) – distance for nearest neighbour search</p></li>
 </ul>
 </dd>
 </dl>
@@ -229,7 +231,29 @@ If previous steps always used a csv for img coords ignore this</p></li>
 <p>A module which calls Micmac dense matching commands and mosaicking operations,
 whilst a providing dditional file parsing, sorting, image masking and multi-band
 functionallity.</p>
-<p><a class="reference external" href="https://github.com/Ciaran1981/pycmac/">https://github.com/Ciaran1981/pycmac/</a></p>
+<p><a class="reference external" href="https://github.com/Ciaran1981/Sfm/pycmac/">https://github.com/Ciaran1981/Sfm/pycmac/</a></p>
+<dl class="function">
+<dt id="dense_match.c3dc">
+<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">c3dc</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">mode='Statue'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">orientation='Ground_UTM'</em>, <em class="sig-param">sub=None</em>, <em class="sig-param">DefCor='0'</em>, <em class="sig-param">delim='</em>, <em class="sig-param">'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.c3dc" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function calling the Culture 3D-cloud function</p>
+<p class="rubric">Notes</p>
+<p>see MicMac tools link for further possible args - just put the module cmd as a kwarg
+The kwargs must be exactly the same case as the mm3d cmd options</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>string</em>) – working directory</p></li>
+<li><p><strong>proj</strong> (<em>string</em>) – a proj4/gdal like projection information e.g ESPG:32360</p></li>
+<li><p><strong>mode</strong> (<em>string</em>) – Correlation mode - MicMac, BigMac, QuickMac, Forest, Statue
+Default is BigMac</p></li>
+<li><p><strong>ext</strong> (<em>string</em>) – image extention e.g JPG, tif</p></li>
+<li><p><strong>orientation</strong> (<em>string</em>) – orientation folder to use (generated by previous tools/cmds)
+default is “Ground_UTM”</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="function">
 <dt id="dense_match.dense_pcl">
 <code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">dense_pcl</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">mode='PIMs'</em>, <em class="sig-param">Out='psm.ply'</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.dense_pcl" title="Permalink to this definition">¶</a></dt>
@@ -237,7 +261,7 @@ functionallity.</p>
 
 <dl class="function">
 <dt id="dense_match.feather">
-<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">feather</code><span class="sig-paren">(</span><em class="sig-param">folder, proj='ESPG:32360', mode='PIMs', ms=['r', 'g', 'b'], subset=None, outMosaic=None, mp=False, Label=False, redo=False, delim=',', **kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.feather" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">feather</code><span class="sig-paren">(</span><em class="sig-param">folder, proj='ESPG:32360', mode='PIMs', ms=['r', 'g', 'b'], Dist='100', ApplyRE='1', ComputeRE='1', subset=None, outMosaic=None, rmtile=False, mp=False, Label=False, redo=False, delim=',', **kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.feather" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function calling the TestLib SeamlineFeathering command for use in python</p>
 <p class="rubric">Notes</p>
 <p>The native micmac function only processes single band - this function provides
@@ -326,7 +350,7 @@ default is “Ground_UTM”</p></li>
 
 <dl class="function">
 <dt id="dense_match.ossimmosaic">
-<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">ossimmosaic</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">mode='ossimFeatherMosaic'</em>, <em class="sig-param">nt=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.ossimmosaic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">ossimmosaic</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">mode='ossimFeatherMosaic'</em>, <em class="sig-param">nt=-1</em>, <em class="sig-param">rmtile=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.ossimmosaic" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function mosaicing using the ossim library</p>
 <p class="rubric">Notes</p>
 <dl class="field-list simple">
@@ -338,6 +362,7 @@ default is “Ground_UTM”</p></li>
 ossimBlendMosaic ossimMaxMosaic ossimImageMosaic
 ossimClosestToCenterCombiner ossimBandMergeSource
 ossimFeatherMosaic</p></li>
+<li><p><strong>rmtile</strong> (<em>bool</em>) – remove every other tile to perhaps improve things</p></li>
 </ul>
 </dd>
 </dl>
@@ -345,7 +370,7 @@ ossimFeatherMosaic</p></li>
 
 <dl class="function">
 <dt id="dense_match.pims">
-<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">pims</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">mode='BigMac'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">orientation='Ground_UTM'</em>, <em class="sig-param">DefCor='0'</em>, <em class="sig-param">sub=None</em>, <em class="sig-param">delim='</em>, <em class="sig-param">'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.pims" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">pims</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">mode='BigMac'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">orientation='Ground_UTM'</em>, <em class="sig-param">DefCor='0'</em>, <em class="sig-param">sub=None</em>, <em class="sig-param">delim='</em>, <em class="sig-param">'</em>, <em class="sig-param">mask=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.pims" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function calling the PIMs command for use in python</p>
 <p class="rubric">Notes</p>
 <p>see MicMac tools link for further possible args - just put the module cmd as a kwarg
@@ -360,7 +385,7 @@ Default is BigMac</p></li>
 <li><p><strong>ext</strong> (<em>string</em>) – image extention e.g JPG, tif</p></li>
 <li><p><strong>orientation</strong> (<em>string</em>) – orientation folder to use (generated by previous tools/cmds)
 default is “Ground_UTM”</p></li>
-<li><p><strong>e.g = UseGpu=’1’</strong></p></li>
+<li><p><strong>mask</strong> (<em>bool</em>) – image extention e.g JPG, tif</p></li>
 </ul>
 </dd>
 </dl>
@@ -387,17 +412,24 @@ Default is BigMac</p></li>
 
 <dl class="function">
 <dt id="dense_match.tawny">
-<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">tawny</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">mode='PIMs'</em>, <em class="sig-param">Out=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.tawny" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">tawny</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">mode='PIMs'</em>, <em class="sig-param">Out=None</em>, <em class="sig-param">rmtile=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.tawny" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function calling the Tawny command for use in python</p>
 <p class="rubric">Notes</p>
 <p>see MicMac tools link for further possible args - just put the module arg as a keyword arg
 The kwargs must be exactly the same case as the mm3d cmd options</p>
+<p>If struggling with even illumination, try:</p>
+<dl class="simple">
+<dt>tawny(folder, proj=”30 +north”, mode=’PIMs’, Out=None, rmtile=False,</dt><dd><p>DEq=”1”, DegRapXY=”[4,4]” SzV=”75” NbPerIm=”5e4”)</p>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>folder</strong> (<em>string</em>) – working directory</p></li>
 <li><p><strong>proj</strong> (<em>string</em>) – a proj4/gdal like projection information e.g “ESPG:32360”</p></li>
 <li><p><strong>mode</strong> (<em>string</em>) – Either Malt or PIMs depending on the previous process</p></li>
+<li><p><strong>rmtile</strong> (<em>bool</em>) – Remove every second tile - can speed up and sometimes improve
+even illumination across mosaic</p></li>
 </ul>
 </dd>
 </dl>
@@ -408,7 +440,7 @@ The kwargs must be exactly the same case as the mm3d cmd options</p>
 <span id="pycmac-utilities-module"></span><h2>pycmac.utilities module<a class="headerlink" href="#module-utilities" title="Permalink to this headline">¶</a></h2>
 <p>Ciaran Robb</p>
 <p>A module which provides various ancillary functions for processing SfM with Micmac.</p>
-<p><a class="reference external" href="https://github.com/Ciaran1981/pycmac/">https://github.com/Ciaran1981/pycmac/</a></p>
+<p><a class="reference external" href="https://github.com/Ciaran1981/Sfm/pycmac/">https://github.com/Ciaran1981/Sfm/pycmac/</a></p>
 <dl class="function">
 <dt id="utilities.array2raster">
 <code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">array2raster</code><span class="sig-paren">(</span><em class="sig-param">array</em>, <em class="sig-param">bands</em>, <em class="sig-param">inRaster</em>, <em class="sig-param">outRas</em>, <em class="sig-param">dtype</em>, <em class="sig-param">FMT=None</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.array2raster" title="Permalink to this definition">¶</a></dt>
@@ -641,6 +673,18 @@ line - purely for convenience  - you’d be as well using the command line direc
 </dd></dl>
 
 <dl class="function">
+<dt id="utilities.pims_mask">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">pims_mask</code><span class="sig-paren">(</span><em class="sig-param">inShp</em>, <em class="sig-param">folder</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.pims_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make an xmlmask from a shapefile for polyg3d for pims/c3dc
+The shapefile MUST be rectilinear</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inShp</strong> (<em>string</em>) – shapefile with coords to use</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="utilities.rmse_vector_lyr">
 <code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">rmse_vector_lyr</code><span class="sig-paren">(</span><em class="sig-param">inShape</em>, <em class="sig-param">attributes</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.rmse_vector_lyr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Using sklearn get the rmse of 2 vector attributes
@@ -659,11 +703,11 @@ line - purely for convenience  - you’d be as well using the command line direc
 <div class="section" id="module-mspec">
 <span id="pycmac-mspec-module"></span><h2>pycmac.mspec module<a class="headerlink" href="#module-mspec" title="Permalink to this headline">¶</a></h2>
 <p>Ciaran Robb</p>
+<p><a class="reference external" href="https://github.com/Ciaran1981/Sfm">https://github.com/Ciaran1981/Sfm</a></p>
 <p>This module processes data from the micasense red-edge camera for use in MicMac
 or indeed other SfM software</p>
 <p>This correction is based on the material on the micasense lib git site,
 though this uses as fork of the micasense lib with some alterations.</p>
-<p><a class="reference external" href="https://github.com/Ciaran1981/pycmac/">https://github.com/Ciaran1981/pycmac/</a></p>
 <dl class="function">
 <dt id="mspec.align_template">
 <code class="sig-prename descclassname">mspec.</code><code class="sig-name descname">align_template</code><span class="sig-paren">(</span><em class="sig-param">imAl</em>, <em class="sig-param">mx</em>, <em class="sig-param">reflFolder</em>, <em class="sig-param">rf</em>, <em class="sig-param">plots</em>, <em class="sig-param">warp_md</em><span class="sig-paren">)</span><a class="headerlink" href="#mspec.align_template" title="Permalink to this definition">¶</a></dt>
@@ -698,34 +742,51 @@ choice of output types dependent on preference.</p>
 <p class="rubric">Notes</p>
 <p>A set of RGB &amp; RReNir images is recommended for processing with MicMac</p>
 <p>Either 5 band stack or single band outputs can also be produced.</p>
-<dl class="field-list">
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>imgFolder</strong> (<em>string</em>) – a directory containing the raw imagery</p></li>
 <li><p><strong>precal</strong> (<em>string</em>) – directory containing pre-flight calibration panels pics</p></li>
-<li><p><strong>imgFolder</strong> (<em>string</em>) – a directory containing the</p></li>
-<li><p><strong>alIm</strong> (<em>string</em>) – 4 digit code of the image to align band images
-e.g. “0023”</p></li>
-<li><p><strong>srFolder</strong> (<em>string</em>) – path to directory for surface reflectance imagery</p></li>
-<li><p><strong>postcal</strong> (<em>string</em>) – directory containing pre-flight calibration panels pics</p></li>
-<li><p><strong>refBnd</strong> (<em>int</em>) – The band to which all others are aligned def 4 works best</p></li>
-<li><p><strong>nt</strong> (<em>int</em>) – No of threads to use</p></li>
-<li><p><strong>mx</strong> (<em>int</em>) – Max iterations for alignment (uses opencv motion homography)</p></li>
-<li><p><strong>stk</strong> (<em>int</em>) – The various multi-band stacking options
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>alIm: string</dt><dd><p>4 digit code of the image to align band images
+e.g. “0023”</p>
+</dd>
+<dt>srFolder: string</dt><dd><p>path to directory for surface reflectance imagery</p>
+</dd>
+<dt>postcal: string</dt><dd><p>directory containing pre-flight calibration panels pics</p>
+</dd>
+<dt>refBnd: int</dt><dd><p>The band to which all others are aligned def 4 works best</p>
+</dd>
+<dt>nt: int</dt><dd><p>No of threads to use</p>
+</dd>
+<dt>mx: int</dt><dd><p>Max iterations for alignment (uses opencv motion homography)</p>
+</dd>
+<dt>stk: int</dt><dd><p>The various multi-band stacking options
 1 = A set of RGB &amp; RReNir images (best for MicMac)
-None = Single band images in separate folders are returned</p></li>
-<li><p><strong>plots</strong> (<em>bool</em>) – Whether to display plots of the alignment images for visual inspection</p></li>
-<li><p><strong>panel_ref</strong> (<em>list</em>) – The panel ref values unique to your panel/camera
-If left as None, it will load the authors camera values!</p></li>
-<li><p><strong>warp_type</strong> (<em>string</em>) – The type of warping used to align the bands from the following choice of cv2 modes</p>
+None = Single band images in separate folders are returned</p>
+</dd>
+</dl>
+<p>plots: bool</p>
+<blockquote>
+<div><p>Whether to display plots of the alignment images for visual inspection</p>
+</div></blockquote>
+<p>panel_ref: list</p>
+<blockquote>
+<div><p>The panel ref values unique to your panel/camera
+If left as None, it will load the authors camera values!</p>
+</div></blockquote>
+<p>warp_type: string</p>
+<blockquote>
+<div><p>The type of warping used to align the bands from the following choice of cv2 modes</p>
 <dl class="simple">
 <dt>Either:</dt><dd><p>MH for MOTION_HOMOGRAPHY
 Affine for MOTION_AFFINE</p>
 </dd>
 </dl>
-</li>
-</ul>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -753,12 +814,11 @@ Affine for MOTION_AFFINE</p>
 </div>
 <div class="section" id="module-sfm">
 <span id="pycmac-sfm-module"></span><h2>pycmac.sfm module<a class="headerlink" href="#module-sfm" title="Permalink to this headline">¶</a></h2>
-<p>&#64;author: Ciaran robb</p>
+<p>&#64;author: ciaran robb</p>
 <p>Complete Sfm piplines using the micmac lib.</p>
-<p><a class="reference external" href="https://github.com/Ciaran1981/pycmac/">https://github.com/Ciaran1981/pycmac/</a></p>
 <dl class="function">
 <dt id="sfm.mspec_sfm">
-<code class="sig-prename descclassname">sfm.</code><code class="sig-name descname">mspec_sfm</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">csv=None</em>, <em class="sig-param">sub=None</em>, <em class="sig-param">gpsAcc='1'</em>, <em class="sig-param">sep='</em>, <em class="sig-param">'</em>, <em class="sig-param">mode='PIMs'</em>, <em class="sig-param">submode='Forest'</em>, <em class="sig-param">dist='100'</em>, <em class="sig-param">doFeat=True</em>, <em class="sig-param">doBundle=True</em>, <em class="sig-param">doDense=True</em>, <em class="sig-param">allIm=False</em>, <em class="sig-param">shpmask=None</em>, <em class="sig-param">subset=None</em>, <em class="sig-param">rep_dsm='0'</em>, <em class="sig-param">egal=1</em>, <em class="sig-param">slantr=False</em><span class="sig-paren">)</span><a class="headerlink" href="#sfm.mspec_sfm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">sfm.</code><code class="sig-name descname">mspec_sfm</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">csv=None</em>, <em class="sig-param">sub=None</em>, <em class="sig-param">gpsAcc='1'</em>, <em class="sig-param">sep='</em>, <em class="sig-param">'</em>, <em class="sig-param">mode='PIMs'</em>, <em class="sig-param">submode='Forest'</em>, <em class="sig-param">doFeat=True</em>, <em class="sig-param">doBundle=True</em>, <em class="sig-param">doDense=True</em>, <em class="sig-param">pointmask=True</em>, <em class="sig-param">cleanpoints=True</em>, <em class="sig-param">fmethod=None</em>, <em class="sig-param">shpmask=None</em>, <em class="sig-param">subset=None</em>, <em class="sig-param">rep_dsm='0'</em>, <em class="sig-param">egal=1</em>, <em class="sig-param">DegRap='0'</em>, <em class="sig-param">slantr=False</em><span class="sig-paren">)</span><a class="headerlink" href="#sfm.mspec_sfm" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function for the complete structure from motion process using the micasense
 red edge camera or Slant view camera.</p>
 <p>The RGB imagery is used to generate DSMs, which are in turn used to orthorectify the remaining
@@ -780,27 +840,42 @@ in it using the pycmac.mspec_proc function</p>
 <li><p><strong>csv</strong> (<em>string</em>) – path to csv containing image xyz info in the micmac format</p></li>
 <li><p><strong>sub</strong> (<em>string</em>) – path to csv containing an image subset in the micmac format</p></li>
 <li><p><strong>gpsAcc</strong> (<em>string</em>) – the estimate of GPS accuracy</p></li>
-<li><p><strong>dist</strong> (<em>string</em>) – the distance from each image centre to consider when feature
-detecting and matching</p></li>
-<li><p><strong>sep</strong> (<em>string</em>) – the csv delimiter if used (default “,”)</p></li>
-<li><p><strong>doFeat</strong> (<em>bool</em>) – if repeating after debug/changes mis out early stages</p></li>
-<li><p><strong>doBundle</strong> (<em>bool</em>) – if repeating after debug/changes mis out early stages</p></li>
-<li><p><strong>allIm</strong> (<em>bool</em>) – Exaustive feature search for image pairs (way slower!)</p></li>
-<li><p><strong>shpmask</strong> (<em>string</em>) – a shapefile mask to constrain malt-based processing</p></li>
-<li><p><strong>subset</strong> (<em>string</em>) – a csv defining a subset of images to be processed during dense matching</p></li>
-<li><p><strong>rep_dsm</strong> (<em>string</em>) – sometimes it is necessary to redo the DSM (MEC folder) on the second
+</ul>
+</dd>
+</dl>
+<dl>
+<dt>sep<span class="classifier">string</span></dt><dd><p>the csv delimiter if used (default “,”)</p>
+</dd>
+<dt>doFeat<span class="classifier">bool</span></dt><dd><p>if repeating after debug/changes mis out early stages</p>
+</dd>
+<dt>doBundle<span class="classifier">bool</span></dt><dd><p>if repeating after debug/changes mis out early stages</p>
+</dd>
+<dt>fmethod<span class="classifier">bool</span></dt><dd><p>feature search for image pairs strategy eg Line All</p>
+</dd>
+<dt>shpmask<span class="classifier">string</span></dt><dd><p>a shapefile mask to constrain malt-based processing</p>
+</dd>
+<dt>pointmask<span class="classifier">bool</span></dt><dd><p>use the micmac SaisieMasq3D (need QT compiled) to define a mask
+on the sparse cloud to constrain processing - this is VERY useful
+and will save a lot of time</p>
+</dd>
+<dt>subset<span class="classifier">string</span></dt><dd><p>a csv defining a subset of images to be processed during dense matching</p>
+</dd>
+<dt>rep_dsm<span class="classifier">string</span></dt><dd><p>sometimes it is necessary to redo the DSM (MEC folder) on the second
 3-band composite run due to some sort of bug within MicMac,
 though most of the time this is not necessary
-def is ‘0’ change to ‘1’ if redoing dsm</p></li>
-<li><p><strong>slantr</strong> (<em>bool</em>) – if processing slantrange imagery change to true otherwise leave false for micasense</p></li>
-</ul>
+def is ‘0’ change to ‘1’ if redoing dsm</p>
+</dd>
+<dt>cleanpoints: bool</dt><dd><p>if true use the schnaps tie point cleaning tool for a evenly distributed</p>
+<p>and reduced tie point set</p>
+</dd>
+<dt>slantr: bool</dt><dd><p>if processing slantrange imagery change to true otherwise leave false for micasense</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="sfm.rgb_sfm">
-<code class="sig-prename descclassname">sfm.</code><code class="sig-name descname">rgb_sfm</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">csv=None</em>, <em class="sig-param">sub=None</em>, <em class="sig-param">gpsAcc='1'</em>, <em class="sig-param">sep='</em>, <em class="sig-param">'</em>, <em class="sig-param">mode='PIMs'</em>, <em class="sig-param">submode='Forest'</em>, <em class="sig-param">dist='100'</em>, <em class="sig-param">doFeat=True</em>, <em class="sig-param">doBundle=True</em>, <em class="sig-param">doDense=True</em>, <em class="sig-param">allIm=False</em>, <em class="sig-param">shpmask=None</em>, <em class="sig-param">subset=None</em>, <em class="sig-param">egal=1</em>, <em class="sig-param">resize=None</em><span class="sig-paren">)</span><a class="headerlink" href="#sfm.rgb_sfm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">sfm.</code><code class="sig-name descname">rgb_sfm</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">csv=None</em>, <em class="sig-param">sub=None</em>, <em class="sig-param">gpsAcc='1'</em>, <em class="sig-param">sep='</em>, <em class="sig-param">'</em>, <em class="sig-param">mode='PIMs'</em>, <em class="sig-param">submode='Forest'</em>, <em class="sig-param">doFeat=True</em>, <em class="sig-param">doBundle=True</em>, <em class="sig-param">doDense=True</em>, <em class="sig-param">fmethod=None</em>, <em class="sig-param">useGps=True</em>, <em class="sig-param">pointmask=True</em>, <em class="sig-param">shpmask=None</em>, <em class="sig-param">subset=None</em>, <em class="sig-param">egal=1</em>, <em class="sig-param">resize=None</em>, <em class="sig-param">cleanpoints=True</em><span class="sig-paren">)</span><a class="headerlink" href="#sfm.rgb_sfm" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function for the complete structure from motion process using a RGB camera.</p>
 <p>Obviously the Malt and PIMs algorithms will perform better/worse than each other
 on certain datasets.</p>
@@ -817,15 +892,28 @@ on certain datasets.</p>
 <li><p><strong>csv</strong> (<em>string</em>) – path to csv containing image xyz info in the micmac format</p></li>
 <li><p><strong>sub</strong> (<em>string</em>) – path to csv containing an image subset in the micmac format</p></li>
 <li><p><strong>gpsAcc</strong> (<em>string</em>) – the estimate of GPS accuracy</p></li>
-<li><p><strong>dist</strong> (<em>string</em>) – the distance from each image centre to consider when feature
-detecting and matching</p></li>
-<li><p><strong>sep</strong> (<em>string</em>) – the csv delimiter if used (default “,”)</p></li>
-<li><p><strong>doFeat</strong> (<em>bool</em>) – if repeating after debug/changes mis out early stages</p></li>
-<li><p><strong>doBundle</strong> (<em>bool</em>) – if repeating after debug/changes mis out early stages</p></li>
-<li><p><strong>allIm</strong> (<em>bool</em>) – Exaustive feature search for image pairs (way slower!)</p></li>
-<li><p><strong>shpmask</strong> (<em>string</em>) – a shapefile mask to constrain malt-based processing</p></li>
-<li><p><strong>subset</strong> (<em>string</em>) – a csv defining a subset of images to be processed during dense matching</p></li>
 </ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>sep<span class="classifier">string</span></dt><dd><p>the csv delimiter if used (default “,”)</p>
+</dd>
+<dt>doFeat<span class="classifier">bool</span></dt><dd><p>if repeating after debug/changes mis out early stages</p>
+</dd>
+<dt>doBundle<span class="classifier">bool</span></dt><dd><p>if repeating after debug/changes mis out early stages</p>
+</dd>
+<dt>fmethod<span class="classifier">bool</span></dt><dd><p>select a feature detection strategy eg Line All etc</p>
+</dd>
+<dt>shpmask<span class="classifier">string</span></dt><dd><p>a shapefile mask to constrain malt-based processing</p>
+</dd>
+<dt>pointmask<span class="classifier">bool</span></dt><dd><p>use the micmac SaisieMasq3D (need QT compiled) to define a mask
+on the sparse cloud to constrain processing - this is VERY useful
+and will save a lot of time and is recommended over shpmask</p>
+</dd>
+<dt>subset<span class="classifier">string</span></dt><dd><p>a csv defining a subset of images to be processed during dense matching</p>
+</dd>
+<dt>cleanpoints: bool</dt><dd><p>if true use the schnaps tie point cleaning tool for a evenly distributed
+and reduced tie point set</p>
 </dd>
 </dl>
 </dd></dl>

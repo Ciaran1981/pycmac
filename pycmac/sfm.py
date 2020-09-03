@@ -126,19 +126,13 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
         
         [move(rgb, folder) for rgb in inList]
         
-        
-        # features
-        # if required here for csv
-        if csv==None:
-            exif=True
-        else:
-            exif=False
+
         if fmethod != None:
             feature_match(folder, proj=proj, csv=csv, ext='tif', 
-                          method=fmethod, schnaps=cleanpoints, exif=exif)
+                          method=fmethod, schnaps=cleanpoints)
         else:    
             feature_match(folder, proj=proj, csv=csv, ext='tif', 
-                          schnaps=cleanpoints, exif=exif) 
+                          schnaps=cleanpoints) 
         
         
     if doBundle == True:
@@ -201,6 +195,12 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
         stk = path.join(folder, "OUTPUT", "mstack.tif")
         
         stack_rasters(rgbIm, nirIm, stk, slantr=slantr)
+        
+        outList = glob(path.join(folder, "*.tif"))
+        
+        # move it all back to keep things tidy
+        [move(t, path.join(folder, "RRENir")) for t in outList]
+        
     else:
         pass
 

@@ -18,7 +18,7 @@ import sys
 from glob2 import glob
 #import osr
 from PIL import Image
-from pycmac.utilities import calib_subset, make_sys_utm, make_xml
+from pycmac.utilities import calib_subset, make_sys_utm, make_xml, make_csv
 from joblib import Parallel, delayed
 #import open3d as o3d
 
@@ -89,30 +89,22 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
     featlog = open(path.join(folder, 'Featlog.txt'), "w")
     
     if csv is None:
+        
+        # Now using csv as continual reprojection problems with MM's native method
+        
+        make_csv(folder, ext)
+        
+        csv = path.join(folder, "log.csv")
                      
-        xif = ['mm3d', 'XifGps2Txt', extFin]
-        
-        _callit(xif, featlog)                            
-        
-        gpxml = ["mm3d", "XifGps2Xml", extFin, "RAWGNSS"]
-        
-        _callit(gpxml, featlog)
-        
-        oriCon= ["mm3d", "OriConvert", "#F=N X Y Z", "GpsCoordinatesFromExif.txt",
-                 "RAWGNSS_N","ChSys=DegreeWGS84@RTLFromExif.xml", "MTD1=1",
-                 "NameCple=FileImagesNeighbour.xml", "CalcV=1"]
-        if dist != None:
-            oriCon.append("DN="+dist)
-            
-        _callit(oriCon, featlog)
-        
-
     else:
         hd, tl = path.split(csv)
         
         make_xml(csv, folder, sep=delim)
         oriCon= ["mm3d", "OriConvert", "OriTxtInFile", tl, "RAWGNSS_N", "ChSys=DegreeWGS84@SysUTM.xml", "MTD1=1",
                  "NameCple=FileImagesNeighbour.xml", "CalcV=1"]
+        if dist != None:
+            oriCon.append("DN="+dist)
+            
         _callit(oriCon, featlog)
     
     imList = glob(path.join(folder, "*"+ext))
@@ -148,7 +140,7 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
        
 
 def bundle_adjust(folder, algo="Fraser", proj="30 +north",
-                  ext="JPG", calib=None,  gpsAcc='1', sep=",", exif=False,
+                  ext="JPG", calib=None,  gpsAcc='1', sep=",", 
                   meshlab=False, useGps=True):
     """
     
@@ -220,37 +212,17 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     _callit(basc)
     
     glog = open(path.join(folder, algo+'GPSlog.txt'), "w")
-            
-    if exif is True:
+
+
         
-        if useGps is False:
-            sysco = ["mm3d", "ChgSysCo",  extFin, "Arbitrary",
-                     "RTLFromExif.xml@SysUTM.xml", "Ground_UTM"]
-            _callit(sysco)
-        else:
-        
-            campari =["mm3d", "Campari", extFin, "Ground_Init_RTL",
-                      "Ground_RTL", "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
-            
-            _callit(campari, glog)
-        
-            sysco = ["mm3d", "ChgSysCo",  extFin, "Ground_RTL",
-                     "RTLFromExif.xml@SysUTM.xml", "Ground_UTM"]
-            _callit(sysco)
-            
-            oriex = ["mm3d", "OriExport", "Ori-Ground_UTM/.*xml",
-                     "CameraPositionsUTM.txt", "AddF=1"]
-            _callit(oriex)
+    if useGps is False:
+        sysco = ["mm3d", "ChgSysCo",  extFin, "Arbitrary",
+                 "SysCoRTL.xml@SysUTM.xml", "Ground_UTM"]
+        _callit(sysco)
     else:
-        
-        if useGps is False:
-            sysco = ["mm3d", "ChgSysCo",  extFin, "Arbitrary",
-                     "SysCoRTL.xml@SysUTM.xml", "Ground_UTM"]
-            _callit(sysco)
-        else:
-            campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
-                  "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
-            _callit(campari, glog)
+        campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
+              "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
+        _callit(campari, glog)
 
         
     
@@ -267,4 +239,43 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
         call(["meshlab", pntPth])
     
 
-    
+#### Here in case ever reinstated##############################################
+#        xif = ['mm3d', 'XifGps2Txt', extFin]
+#        
+#        _callit(xif, featlog)                            
+#        
+#        gpxml = ["mm3d", "XifGps2Xml", extFin, "RAWGNSS"]
+#        
+#        _callit(gpxml, featlog)
+#        
+#        oriCon= ["mm3d", "OriConvert", "#F=N X Y Z", "GpsCoordinatesFromExif.txt",
+#                 "RAWGNSS_N","ChSys=DegreeWGS84@RTLFromExif.xml", "MTD1=1",
+#                 "NameCple=FileImagesNeighbour.xml", "CalcV=1"]
+#        _callit(oriCon, featlog)   
+        
+###############################################################################        
+#    Canned for same reason as feat
+#    if exif is True:
+#        
+#        #TODO - CONSIDER using utilities.make_csv to avoid continual problems
+#        # with exif coord transforms
+#        
+#        if useGps is False:
+#            sysco = ["mm3d", "ChgSysCo",  extFin, "Arbitrary",
+#                     "RTLFromExif.xml@SysUTM.xml", "Ground_UTM"]
+#            _callit(sysco)
+#        else:
+#        
+#            campari =["mm3d", "Campari", extFin, "Ground_Init_RTL",
+#                      "Ground_RTL", "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
+#            
+#            _callit(campari, glog)
+#        
+#            sysco = ["mm3d", "ChgSysCo",  extFin, "Ground_RTL",
+#                     "RTLFromExif.xml@SysUTM.xml", "Ground_UTM"]
+#            _callit(sysco)
+#            
+#            oriex = ["mm3d", "OriExport", "Ori-Ground_UTM/.*xml",
+#                     "CameraPositionsUTM.txt", "AddF=1"]
+#            _callit(oriex)
+#    else:

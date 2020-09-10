@@ -23,11 +23,12 @@ from shutil import move
 from glob2 import glob
 
 
-def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
+def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None, 
+              gcpAcc=["0.03", "1"], sep=",",
               mode='PIMs', submode='Forest',  doFeat=True, doBundle=True, doDense=True, 
               pointmask=True, cleanpoints=True,
-              fmethod=None, shpmask=None, subset=None, rep_dsm='0', egal=1, DegRap="0", 
-              slantr=False):
+              fmethod=None, shpmask=None, subset=None, rep_dsm='0', egal=1, 
+              DegRap="0", slantr=False):
     
     """
     A function for the complete structure from motion process using the micasense
@@ -140,7 +141,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
         # bundle adjust
         # if required here for calib
         bundle_adjust(folder,  ext='tif', proj=proj, calib=sub, gpsAcc=gpsAcc, 
-                      sep=sep)
+                      gcp=gcp, gcpAcc=gcpAcc, sep=sep)
     
     
     

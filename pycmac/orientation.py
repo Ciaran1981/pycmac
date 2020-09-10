@@ -62,15 +62,17 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
     Parameters
     -----------
     
-    folder : string
+    folder: string
            working directory
-    proj : string
+    proj: string
            a UTM zone eg "30 +north" 
+    csv: string
+           a path to the csv of GPS coords
         
-    resize : string
+    resize: string
              The long axis in pixels to optionally resize the imagery
         
-    ext : string
+    ext: string
                  image extention e.g JPG, tif
     dist: string
         distance for nearest neighbour search
@@ -88,24 +90,22 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
     
     featlog = open(path.join(folder, 'Featlog.txt'), "w")
     
-    if csv is None:
+    if csv == None:
         
         # Now using csv as continual reprojection problems with MM's native method
         
         make_csv(folder, ext)
+        csv = path.join(folder, "log.csv")                  
+    
+    hd, tl = path.split(csv)
+    
+    make_xml(csv, folder, sep=delim)
+    oriCon= ["mm3d", "OriConvert", "OriTxtInFile", tl, "RAWGNSS_N", "ChSys=DegreeWGS84@SysUTM.xml", "MTD1=1",
+             "NameCple=FileImagesNeighbour.xml", "CalcV=1"]
+    if dist != None:
+        oriCon.append("DN="+dist)
         
-        csv = path.join(folder, "log.csv")
-                     
-    else:
-        hd, tl = path.split(csv)
-        
-        make_xml(csv, folder, sep=delim)
-        oriCon= ["mm3d", "OriConvert", "OriTxtInFile", tl, "RAWGNSS_N", "ChSys=DegreeWGS84@SysUTM.xml", "MTD1=1",
-                 "NameCple=FileImagesNeighbour.xml", "CalcV=1"]
-        if dist != None:
-            oriCon.append("DN="+dist)
-            
-        _callit(oriCon, featlog)
+    _callit(oriCon, featlog)
     
     imList = glob(path.join(folder, "*"+ext))
     
@@ -129,7 +129,7 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
 
     _callit(tapi)
     
-    if schnaps is True:
+    if schnaps == True:
         schnapi = ["mm3d", "Schnaps", extFin, "MoveBadImgs=1"]
         _callit(schnapi, featlog)
         rename(path.join(folder, "Homol"), path.join(folder, "Homol_init"))
@@ -140,7 +140,8 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
        
 
 def bundle_adjust(folder, algo="Fraser", proj="30 +north",
-                  ext="JPG", calib=None,  gpsAcc='1', sep=",", 
+                  ext="JPG", calib=None,  gpsAcc='1', sep=",", gcp=None,
+                  gcpAcc=["0.03", "1"], 
                   meshlab=False, useGps=True):
     """
     
@@ -159,21 +160,23 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     Parameters
     -----------
     
-    folder : string
+    folder: string
            working directory
-    proj : string
+    proj: string
            a UTM zone eg "30 +north" 
-    calib : string
+    calib: string
             a calibration subset (optional - otherwise the martini initialisation will be used)
-    ext : string
+    ext: string
                  image extention e.g JPG, tif
-    SH : string
-        a reduced set of tie points (output of schnaps command)
-                 
-    gpsAcc : string
+    gpsAcc: string
         an estimate in metres of the onboard GPS accuracy
-                 
-    exif : bool
+    gcp: string
+        whether to process gcps - you MUST have a GCP file in the MM format of
+        #F=N X Y Z and MUST be in the working dir   
+    gcpAcc: list (of strings)
+        an estimate of the GCP measurment accuarcy
+        [on the ground in metres, in pixels]        
+    exif: bool
         if the GPS info is embedded in the image exif check this as True to 
         convert back to geographic coordinates, 
         If previous steps always used a csv for img coords ignore this   
@@ -183,11 +186,7 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     
   
     """
-#    if SH is None:
-#        shFin=""
-#    else:
-#        shFin = "SH="+SH
-#    
+
     extFin = '.*'+ext  
     
     
@@ -199,7 +198,7 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
         marti = ["mm3d", "Martini", extFin]
         _callit(marti)
         
-        #['mm3d', 'Tapas', 'Fraser', '.*tif', 'Out=Arbitrary', 'SH=_mini']
+
         tlog = open(path.join(folder, algo+'log.txt'), "w")
         tapas = ["mm3d",  "Tapas", "Fraser", extFin, "Out=Arbitrary", 
                  "InOri=Martini"]
@@ -220,10 +219,29 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
                  "SysCoRTL.xml@SysUTM.xml", "Ground_UTM"]
         _callit(sysco)
     else:
-        campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
+        if gcp != None:
+            # My goodness this is bad.....
+            gcpcnv = ["mm3d", "GCPConvert", "AppInFile", gcp]
+            _callit(gcpcnv)
+            
+            gcpent = ["mm3d", "SaisieAppuisPredicQT", extFin, "Ground_Init_RTL",
+              gcp[:-3]+'xml', "MeasureFinal.xml"]
+            _callit(gcpent)
+            
+            gcpbsc = ["mm3d", "GCPBascule", extFin, "Ground_Init_RTL", "Ground_GCP",
+             "GCP.xml",  "MeasureFinal-S2D.xml"]
+            _callit(gcpbsc)
+            
+            campari =["mm3d", "Campari", extFin, "Ground_GCP", "Ground_UTM",
+                      "EmGPS=[RAWGNSS_N,"+gpsAcc+"]",
+              "GCP=[GCP.xml,"+gcpAcc[0]+",MeasureFinal-S2D.xml,"+gcpAcc[0]+"]"
+              ,"AllFree=1"]
+            _callit(campari, glog)
+        else:
+            campari =["mm3d", "Campari", extFin, "Ground_GCP", "Ground_UTM",
               "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
-        _callit(campari, glog)
-
+            _callit(campari, glog)
+            
         
     
     aperi = ["mm3d", "AperiCloud", extFin,  "Ground_UTM"]
@@ -237,7 +255,121 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
 #    o3d.visualization.draw_geometries([pcd])
     if meshlab == True:
         call(["meshlab", pntPth])
+
+
+
+def rel_orient(folder, algo="Fraser", proj="30 +north",
+                  ext="JPG", calib=None, sep=",", 
+                  meshlab=False, useGps=True):
+    """
     
+    A function running the relative orientation with micmac 
+    
+    A calibration subset is optional
+            
+    Notes
+    -----------
+    
+    Underlying cmds include
+    
+    (Tapas, centrebascule)
+    
+        
+    Parameters
+    -----------
+    
+    folder: string
+           working directory
+    proj: string
+           a UTM zone eg "30 +north" 
+    calib: string
+            a calibration subset (optional - otherwise the martini initialisation will be used)
+    ext: string
+                 image extention e.g JPG, tif
+  
+    """
+
+    extFin = '.*'+ext  
+    
+    
+    chdir(folder)
+    
+    if calib != None:
+        calib_subset(folder, calib, ext=extFin,  algo="Fraser", delim=sep)
+    else:
+        marti = ["mm3d", "Martini", extFin]
+        _callit(marti)
+        
+        tlog = open(path.join(folder, algo+'log.txt'), "w")
+        tapas = ["mm3d",  "Tapas", "Fraser", extFin, "Out=Arbitrary", 
+                 "InOri=Martini"]
+        _callit(tapas, tlog)
+    
+        
+    basc = ["mm3d", "CenterBascule", extFin, "Arbitrary",  "RAWGNSS_N",
+            "Ground_Init_RTL"]
+    
+    _callit(basc)
+    
+
+
+def gps_orient(folder, algo="Fraser", proj="30 +north",
+                  ext="JPG", gpsAcc='1', 
+                  meshlab=False):
+    """
+    
+    A function running the gps bundle adjustment with micmac 
+    
+            
+    Notes
+    -----------
+    
+    Underlying cmds include
+    
+    (Campari, AperiCloud)
+    
+        
+    Parameters
+    -----------
+    
+    folder: string
+           working directory
+    proj: string
+           a UTM zone eg "30 +north" 
+    ext: string
+                 image extention e.g JPG, tif
+                 
+    gpsAcc: string
+        an estimate in metres of the onboard GPS accuracy
+                 
+    useGps : bool
+        if the GPS info is untrustyworthy with a lot of the data (eg Dji Phantom - z)
+        simply transform from rel to ref coordinate sys without GPS aided bundle adjust.
+    
+  
+    """
+
+    extFin = '.*'+ext  
+    
+    glog = open(path.join(folder, algo+'GPSlog.txt'), "w")
+    
+    chdir(folder)
+        
+    campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
+          "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
+    _callit(campari, glog)
+
+        
+    
+    aperi = ["mm3d", "AperiCloud", extFin,  "Ground_UTM"]
+    
+    aplog = open(path.join(folder, 'aperilog.txt'), "w")
+    _callit(aperi, aplog)
+    
+    pntPth = path.join(folder, "AperiCloud_Ground_UTM.ply")
+
+    if meshlab == True:
+        call(["meshlab", pntPth])
 
 #### Here in case ever reinstated##############################################
 #        xif = ['mm3d', 'XifGps2Txt', extFin]

@@ -54,51 +54,51 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1', sep=",",
     Parameters
     -----------
     
-    folder : string
+    folder: string
            working directory
-    proj : string
+    proj: string
            a UTM zone eg "30 +north" 
         
-    mode : string
+    mode: string
              either Malt or PIMs
              
-    submode : string
+    submode: string
              PIMs submode e.g. Forest, BigMac etc.
              
-    csv : string
+    csv: string
             path to csv containing image xyz info in the micmac format
 
-    sub : string
+    sub: string
             path to csv containing an image subset in the micmac format
             
-    gpsAcc : string
+    gpsAcc: string
             the estimate of GPS accuracy
     
             
-    sep : string
+    sep: string
             the csv delimiter if used (default ",")    
 
-    doFeat : bool
+    doFeat: bool
             if repeating after debug/changes mis out early stages
             
-    doBundle : bool
+    doBundle: bool
             if repeating after debug/changes mis out early stages  
             
-    fmethod : bool
+    fmethod: bool
             feature search for image pairs strategy eg Line All
             
-    shpmask : string
+    shpmask: string
             a shapefile mask to constrain malt-based processing
     
-    pointmask : bool
+    pointmask: bool
             use the micmac SaisieMasq3D (need QT compiled) to define a mask
             on the sparse cloud to constrain processing - this is VERY useful
             and will save a lot of time
 
-    subset : string
+    subset: string
             a csv defining a subset of images to be processed during dense matching                        
     
-    rep_dsm : string
+    rep_dsm: string
             sometimes it is necessary to redo the DSM (MEC folder) on the second
             3-band composite run due to some sort of bug within MicMac, 
             though most of the time this is not necessary
@@ -228,48 +228,48 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     Parameters
     -----------
     
-    folder : string
+    folder: string
            working directory
-    proj : string
+    proj: string
            a UTM zone eg "30 +north" 
         
-    mode : string
+    mode: string
              either Malt or PIMs
              
-    submode : string
+    submode: string
              PIMs submode e.g. Forest, BigMac etc.
              
-    csv : string
+    csv: string
             path to csv containing image xyz info in the micmac format
 
-    sub : string
+    sub: string
             path to csv containing an image subset in the micmac format
             
-    gpsAcc : string
+    gpsAcc: string
             the estimate of GPS accuracy
 
             
-    sep : string
+    sep: string
             the csv delimiter if used (default ",")    
 
-    doFeat : bool
+    doFeat: bool
             if repeating after debug/changes mis out early stages
             
-    doBundle : bool
+    doBundle: bool
             if repeating after debug/changes mis out early stages  
             
-    fmethod : bool
+    fmethod: bool
             select a feature detection strategy eg Line All etc
             
-    shpmask : string
+    shpmask: string
             a shapefile mask to constrain malt-based processing
             
-    pointmask : bool
+    pointmask: bool
             use the micmac SaisieMasq3D (need QT compiled) to define a mask
             on the sparse cloud to constrain processing - this is VERY useful
             and will save a lot of time and is recommended over shpmask
 
-    subset : string
+    subset: string
             a csv defining a subset of images to be processed during dense matching
             
     cleanpoints: bool
@@ -299,12 +299,8 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     
         # bundle adjust
         # if required here for calib
-        if csv == None:
-            exif=True
-        else:
-            exif=False
         bundle_adjust(folder,  ext=ext, calib=sub, gpsAcc=gpsAcc, sep=sep, 
-                      useGps=useGps, exif=exif)
+                      useGps=useGps)
     
     
     

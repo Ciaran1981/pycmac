@@ -71,10 +71,16 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
 
     sub: string
             path to csv containing an image subset in the micmac format
-            
     gpsAcc: string
-            the estimate of GPS accuracy
-    
+        an estimate in metres of the onboard GPS accuracy
+        
+    gcp: string
+        whether to process gcps - you MUST have a GCP file in the MM format of
+        #F=N X Y Z and MUST be in the working dir   
+        
+    gcpAcc: list (of strings)
+        an estimate of the GCP measurment accuarcy
+        [on the ground in metres, in pixels]        
             
     sep: string
             the csv delimiter if used (default ",")    
@@ -205,7 +211,8 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
     else:
         pass
 
-def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1', sep=",",
+def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
+            gcp=None, gcpAcc=["0.03", "1"], sep=",",
               mode='PIMs', submode='Forest', doFeat=True, doBundle=True,
               doDense=True, fmethod=None, useGps=True, pointmask=True, shpmask=None, 
               subset=None, egal=1, resize=None, cleanpoints=True):
@@ -247,8 +254,15 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
             path to csv containing an image subset in the micmac format
             
     gpsAcc: string
-            the estimate of GPS accuracy
-
+        an estimate in metres of the onboard GPS accuracy
+        
+    gcp: string
+        whether to process gcps - you MUST have a GCP file in the MM format of
+        #F=N X Y Z and MUST be in the working dir   
+        
+    gcpAcc: list (of strings)
+        an estimate of the GCP measurment accuarcy
+        [on the ground in metres, in pixels]        
             
     sep: string
             the csv delimiter if used (default ",")    
@@ -300,8 +314,8 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     
         # bundle adjust
         # if required here for calib
-        bundle_adjust(folder,  ext=ext, calib=sub, gpsAcc=gpsAcc, sep=sep, 
-                      useGps=useGps)
+        bundle_adjust(folder,  ext='tif', proj=proj, calib=sub, gpsAcc=gpsAcc, 
+                      gcp=gcp, gcpAcc=gcpAcc, sep=sep)
     
     
     

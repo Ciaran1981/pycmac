@@ -338,10 +338,10 @@ if left as None, all the images will be mosiacked.</p></li>
 </dd>
 </dl>
 <dl class="simple">
-<dt>Label<span class="classifier">bool</span></dt><dd><p>Whether to use a tawny generated label map (Label.tif)
+<dt>Label: bool</dt><dd><p>Whether to use a tawny generated label map (Label.tif)
 This requires a run of Tawny on the Ortho folder first!</p>
 </dd>
-<dt>redo<span class="classifier">bool</span></dt><dd><p>To rerun without having to copy the band folders on big datasets
+<dt>redo: bool</dt><dd><p>To rerun without having to copy the band folders on big datasets
 Useful as this step is time consuming during processing otherwise</p>
 </dd>
 <dt>delim: string</dt><dd><p>If using a csv-based subset list, the delimeter can be specified- it is comma by default</p>
@@ -879,52 +879,45 @@ on certain datasets.</p>
 in it using the pycmac.mspec_proc function</p>
 <p>This assumes certain parameters, if want fine-grained control, use the individual commands.</p>
 <p>The absolute path needs to be provided for csv’s representing image data or calibration subsets</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
+<dd class="field-odd"><ul>
 <li><p><strong>folder</strong> (<em>string</em>) – working directory</p></li>
 <li><p><strong>proj</strong> (<em>string</em>) – a UTM zone eg “30 +north”</p></li>
 <li><p><strong>mode</strong> (<em>string</em>) – either Malt or PIMs</p></li>
 <li><p><strong>submode</strong> (<em>string</em>) – PIMs submode e.g. Forest, BigMac etc.</p></li>
 <li><p><strong>csv</strong> (<em>string</em>) – path to csv containing image xyz info in the micmac format</p></li>
 <li><p><strong>sub</strong> (<em>string</em>) – path to csv containing an image subset in the micmac format</p></li>
-<li><p><strong>gpsAcc</strong> (<em>string</em>) – the estimate of GPS accuracy</p></li>
-</ul>
-</dd>
-</dl>
-<dl>
-<dt>sep: string</dt><dd><p>the csv delimiter if used (default “,”)</p>
-</dd>
-<dt>doFeat: bool</dt><dd><p>if repeating after debug/changes mis out early stages</p>
-</dd>
-<dt>doBundle: bool</dt><dd><p>if repeating after debug/changes mis out early stages</p>
-</dd>
-<dt>fmethod: bool</dt><dd><p>feature search for image pairs strategy eg Line All</p>
-</dd>
-<dt>shpmask: string</dt><dd><p>a shapefile mask to constrain malt-based processing</p>
-</dd>
-<dt>pointmask: bool</dt><dd><p>use the micmac SaisieMasq3D (need QT compiled) to define a mask
+<li><p><strong>gpsAcc</strong> (<em>string</em>) – an estimate in metres of the onboard GPS accuracy</p></li>
+<li><p><strong>gcp</strong> (<em>string</em>) – whether to process gcps - you MUST have a GCP file in the MM format of
+#F=N X Y Z and MUST be in the working dir</p></li>
+<li><p><strong>gcpAcc</strong> (<em>list (of strings)</em>) – an estimate of the GCP measurment accuarcy
+[on the ground in metres, in pixels]</p></li>
+<li><p><strong>sep</strong> (<em>string</em>) – the csv delimiter if used (default “,”)</p></li>
+<li><p><strong>doFeat</strong> (<em>bool</em>) – if repeating after debug/changes mis out early stages</p></li>
+<li><p><strong>doBundle</strong> (<em>bool</em>) – if repeating after debug/changes mis out early stages</p></li>
+<li><p><strong>fmethod</strong> (<em>bool</em>) – feature search for image pairs strategy eg Line All</p></li>
+<li><p><strong>shpmask</strong> (<em>string</em>) – a shapefile mask to constrain malt-based processing</p></li>
+<li><p><strong>pointmask</strong> (<em>bool</em>) – use the micmac SaisieMasq3D (need QT compiled) to define a mask
 on the sparse cloud to constrain processing - this is VERY useful
-and will save a lot of time</p>
-</dd>
-<dt>subset: string</dt><dd><p>a csv defining a subset of images to be processed during dense matching</p>
-</dd>
-<dt>rep_dsm: string</dt><dd><p>sometimes it is necessary to redo the DSM (MEC folder) on the second
+and will save a lot of time</p></li>
+<li><p><strong>subset</strong> (<em>string</em>) – a csv defining a subset of images to be processed during dense matching</p></li>
+<li><p><strong>rep_dsm</strong> (<em>string</em>) – sometimes it is necessary to redo the DSM (MEC folder) on the second
 3-band composite run due to some sort of bug within MicMac,
 though most of the time this is not necessary
-def is ‘0’ change to ‘1’ if redoing dsm</p>
-</dd>
-<dt>cleanpoints: bool</dt><dd><p>if true use the schnaps tie point cleaning tool for a evenly distributed</p>
+def is ‘0’ change to ‘1’ if redoing dsm</p></li>
+<li><p><strong>cleanpoints</strong> (<em>bool</em>) – if true use the schnaps tie point cleaning tool for a evenly distributed</p>
 <p>and reduced tie point set</p>
-</dd>
-<dt>slantr: bool</dt><dd><p>if processing slantrange imagery change to true otherwise leave false for micasense</p>
+</li>
+<li><p><strong>slantr</strong> (<em>bool</em>) – if processing slantrange imagery change to true otherwise leave false for micasense</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="sfm.rgb_sfm">
-<code class="sig-prename descclassname">sfm.</code><code class="sig-name descname">rgb_sfm</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">csv=None</em>, <em class="sig-param">sub=None</em>, <em class="sig-param">gpsAcc='1'</em>, <em class="sig-param">sep='</em>, <em class="sig-param">'</em>, <em class="sig-param">mode='PIMs'</em>, <em class="sig-param">submode='Forest'</em>, <em class="sig-param">doFeat=True</em>, <em class="sig-param">doBundle=True</em>, <em class="sig-param">doDense=True</em>, <em class="sig-param">fmethod=None</em>, <em class="sig-param">useGps=True</em>, <em class="sig-param">pointmask=True</em>, <em class="sig-param">shpmask=None</em>, <em class="sig-param">subset=None</em>, <em class="sig-param">egal=1</em>, <em class="sig-param">resize=None</em>, <em class="sig-param">cleanpoints=True</em><span class="sig-paren">)</span><a class="headerlink" href="#sfm.rgb_sfm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">sfm.</code><code class="sig-name descname">rgb_sfm</code><span class="sig-paren">(</span><em class="sig-param">folder, proj='30 +north', ext='JPG', csv=None, sub=None, gpsAcc='1', gcp=None, gcpAcc=['0.03', '1'], sep=',', mode='PIMs', submode='Forest', doFeat=True, doBundle=True, doDense=True, fmethod=None, useGps=True, pointmask=True, shpmask=None, subset=None, egal=1, resize=None, cleanpoints=True</em><span class="sig-paren">)</span><a class="headerlink" href="#sfm.rgb_sfm" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function for the complete structure from motion process using a RGB camera.</p>
 <p>Obviously the Malt and PIMs algorithms will perform better/worse than each other
 on certain datasets.</p>
@@ -940,29 +933,23 @@ on certain datasets.</p>
 <li><p><strong>submode</strong> (<em>string</em>) – PIMs submode e.g. Forest, BigMac etc.</p></li>
 <li><p><strong>csv</strong> (<em>string</em>) – path to csv containing image xyz info in the micmac format</p></li>
 <li><p><strong>sub</strong> (<em>string</em>) – path to csv containing an image subset in the micmac format</p></li>
-<li><p><strong>gpsAcc</strong> (<em>string</em>) – the estimate of GPS accuracy</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="simple">
-<dt>sep: string</dt><dd><p>the csv delimiter if used (default “,”)</p>
-</dd>
-<dt>doFeat: bool</dt><dd><p>if repeating after debug/changes mis out early stages</p>
-</dd>
-<dt>doBundle: bool</dt><dd><p>if repeating after debug/changes mis out early stages</p>
-</dd>
-<dt>fmethod: bool</dt><dd><p>select a feature detection strategy eg Line All etc</p>
-</dd>
-<dt>shpmask: string</dt><dd><p>a shapefile mask to constrain malt-based processing</p>
-</dd>
-<dt>pointmask: bool</dt><dd><p>use the micmac SaisieMasq3D (need QT compiled) to define a mask
+<li><p><strong>gpsAcc</strong> (<em>string</em>) – an estimate in metres of the onboard GPS accuracy</p></li>
+<li><p><strong>gcp</strong> (<em>string</em>) – whether to process gcps - you MUST have a GCP file in the MM format of
+#F=N X Y Z and MUST be in the working dir</p></li>
+<li><p><strong>gcpAcc</strong> (<em>list (of strings)</em>) – an estimate of the GCP measurment accuarcy
+[on the ground in metres, in pixels]</p></li>
+<li><p><strong>sep</strong> (<em>string</em>) – the csv delimiter if used (default “,”)</p></li>
+<li><p><strong>doFeat</strong> (<em>bool</em>) – if repeating after debug/changes mis out early stages</p></li>
+<li><p><strong>doBundle</strong> (<em>bool</em>) – if repeating after debug/changes mis out early stages</p></li>
+<li><p><strong>fmethod</strong> (<em>bool</em>) – select a feature detection strategy eg Line All etc</p></li>
+<li><p><strong>shpmask</strong> (<em>string</em>) – a shapefile mask to constrain malt-based processing</p></li>
+<li><p><strong>pointmask</strong> (<em>bool</em>) – use the micmac SaisieMasq3D (need QT compiled) to define a mask
 on the sparse cloud to constrain processing - this is VERY useful
-and will save a lot of time and is recommended over shpmask</p>
-</dd>
-<dt>subset: string</dt><dd><p>a csv defining a subset of images to be processed during dense matching</p>
-</dd>
-<dt>cleanpoints: bool</dt><dd><p>if true use the schnaps tie point cleaning tool for a evenly distributed
-and reduced tie point set</p>
+and will save a lot of time and is recommended over shpmask</p></li>
+<li><p><strong>subset</strong> (<em>string</em>) – a csv defining a subset of images to be processed during dense matching</p></li>
+<li><p><strong>cleanpoints</strong> (<em>bool</em>) – if true use the schnaps tie point cleaning tool for a evenly distributed
+and reduced tie point set</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

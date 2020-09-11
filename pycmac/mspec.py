@@ -600,10 +600,10 @@ def _copy_into(inRas, t_fh, s_band = 1, t_band = 1):
     Parameters
     ----------
         
-    inRas : byte
+    inRas: byte
             a gdal.Dataset object (already opened)
             
-    t_fh : byte
+    t_fh: byte
               gdal.Dataset object for the file into which some or all
     of this file may be copied.
     
@@ -691,15 +691,15 @@ def stack_rasters(inRas1, inRas2, outRas, dtype=gdal.GDT_Int32, slantr=False):
     Parameters
     ----------
         
-    inRas1 : string
+    inRas1: string
             path to RGB image
             
-    inRas2 : string
+    inRas2: string
              path to RReNir image
-    outRas3 : string
+    outRas3: string
              path to outputted stack
              
-    dtype : int 
+    dtype: int 
             gdal datatype e.g. gdal.GDT_Int32 (default)
    """
     
@@ -772,16 +772,16 @@ def clip_raster(inRas, inShape, outRas):
     Parameters
     ----------
         
-    inRas : string
+    inRas: string
             the input image 
             
-    inShape : string
+    inShape: string
               the input polygon file path 
         
-    outRas : string (optional)
+    outRas: string (optional)
              the clipped raster
         
-    nodata_value : numerical (optional)
+    nodata_value: numerical (optional)
                    self explanatory
         
    

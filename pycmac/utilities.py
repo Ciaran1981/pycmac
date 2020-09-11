@@ -5,7 +5,7 @@ Ciaran Robb
 
 A module which provides various ancillary functions for processing SfM with Micmac. 
 
-https://github.com/Ciaran1981/Sfm/pycmac/
+
 """
 from shapely.wkt import loads
 #from shapely.geometry import Polygon, box, LineString, Point, LinearRing

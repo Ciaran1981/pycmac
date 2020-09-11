@@ -179,12 +179,16 @@ whilst providing additional file parsing and sorting operations.</p>
 <p><a class="reference external" href="https://github.com/Ciaran1981/Sfm/pycmac/">https://github.com/Ciaran1981/Sfm/pycmac/</a></p>
 <dl class="function">
 <dt id="orientation.bundle_adjust">
-<code class="sig-prename descclassname">orientation.</code><code class="sig-name descname">bundle_adjust</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">algo='Fraser'</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">calib=None</em>, <em class="sig-param">gpsAcc='1'</em>, <em class="sig-param">sep='</em>, <em class="sig-param">'</em>, <em class="sig-param">exif=False</em>, <em class="sig-param">meshlab=False</em>, <em class="sig-param">useGps=True</em><span class="sig-paren">)</span><a class="headerlink" href="#orientation.bundle_adjust" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">orientation.</code><code class="sig-name descname">bundle_adjust</code><span class="sig-paren">(</span><em class="sig-param">folder, algo='Fraser', proj='30 +north', ext='JPG', calib=None, gpsAcc='1', sep=',', gcp=None, gcpAcc=['0.03', '1'], meshlab=False, useGps=True</em><span class="sig-paren">)</span><a class="headerlink" href="#orientation.bundle_adjust" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function running the relative orientation/bundle adjustment with micmac</p>
 <p>A calibration subset is optional</p>
 <p class="rubric">Notes</p>
 <p>Underlying cmds include</p>
 <p>(Tapas, centrebascule, Campari, ChgSysCo, OriExport)</p>
+<p>Pleae note, that if GCPs are used, then the on-board GPS will not be
+included in the final bundle adjustment as the on-board will not have
+positive effect on the overall result. This assumes your GCPs come from a
+DGPS, otherwise don’t use them!</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -192,8 +196,11 @@ whilst providing additional file parsing and sorting operations.</p>
 <li><p><strong>proj</strong> (<em>string</em>) – a UTM zone eg “30 +north”</p></li>
 <li><p><strong>calib</strong> (<em>string</em>) – a calibration subset (optional - otherwise the martini initialisation will be used)</p></li>
 <li><p><strong>ext</strong> (<em>string</em>) – image extention e.g JPG, tif</p></li>
-<li><p><strong>SH</strong> (<em>string</em>) – a reduced set of tie points (output of schnaps command)</p></li>
 <li><p><strong>gpsAcc</strong> (<em>string</em>) – an estimate in metres of the onboard GPS accuracy</p></li>
+<li><p><strong>gcp</strong> (<em>string</em>) – whether to process gcps - you MUST have a GCP file in the MM format of
+#F=N X Y Z and MUST be in the working dir</p></li>
+<li><p><strong>gcpAcc</strong> (<em>list (of strings)</em>) – an estimate of the GCP measurment accuarcy
+[on the ground in metres, in pixels]</p></li>
 <li><p><strong>exif</strong> (<em>bool</em>) – if the GPS info is embedded in the image exif check this as True to
 convert back to geographic coordinates,
 If previous steps always used a csv for img coords ignore this</p></li>
@@ -216,9 +223,51 @@ simply transform from rel to ref coordinate sys without GPS aided bundle adjust.
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>folder</strong> (<em>string</em>) – working directory</p></li>
 <li><p><strong>proj</strong> (<em>string</em>) – a UTM zone eg “30 +north”</p></li>
+<li><p><strong>csv</strong> (<em>string</em>) – a path to the csv of GPS coords</p></li>
 <li><p><strong>resize</strong> (<em>string</em>) – The long axis in pixels to optionally resize the imagery</p></li>
 <li><p><strong>ext</strong> (<em>string</em>) – image extention e.g JPG, tif</p></li>
 <li><p><strong>dist</strong> (<em>string</em>) – distance for nearest neighbour search</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="orientation.gps_orient">
+<code class="sig-prename descclassname">orientation.</code><code class="sig-name descname">gps_orient</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">algo='Fraser'</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">gpsAcc='1'</em>, <em class="sig-param">meshlab=False</em><span class="sig-paren">)</span><a class="headerlink" href="#orientation.gps_orient" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function running the gps bundle adjustment with micmac</p>
+<p class="rubric">Notes</p>
+<p>Underlying cmds include</p>
+<p>(Campari, AperiCloud)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>string</em>) – working directory</p></li>
+<li><p><strong>proj</strong> (<em>string</em>) – a UTM zone eg “30 +north”</p></li>
+<li><p><strong>ext</strong> (<em>string</em>) – image extention e.g JPG, tif</p></li>
+<li><p><strong>gpsAcc</strong> (<em>string</em>) – an estimate in metres of the onboard GPS accuracy</p></li>
+<li><p><strong>useGps</strong> (<em>bool</em>) – if the GPS info is untrustyworthy with a lot of the data (eg Dji Phantom - z)
+simply transform from rel to ref coordinate sys without GPS aided bundle adjust.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="orientation.rel_orient">
+<code class="sig-prename descclassname">orientation.</code><code class="sig-name descname">rel_orient</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">algo='Fraser'</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">calib=None</em>, <em class="sig-param">sep='</em>, <em class="sig-param">'</em>, <em class="sig-param">meshlab=False</em>, <em class="sig-param">useGps=True</em><span class="sig-paren">)</span><a class="headerlink" href="#orientation.rel_orient" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function running the relative orientation with micmac</p>
+<p>A calibration subset is optional</p>
+<p class="rubric">Notes</p>
+<p>Underlying cmds include</p>
+<p>(Tapas, centrebascule)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>string</em>) – working directory</p></li>
+<li><p><strong>proj</strong> (<em>string</em>) – a UTM zone eg “30 +north”</p></li>
+<li><p><strong>calib</strong> (<em>string</em>) – a calibration subset (optional - otherwise the martini initialisation will be used)</p></li>
+<li><p><strong>ext</strong> (<em>string</em>) – image extention e.g JPG, tif</p></li>
 </ul>
 </dd>
 </dl>
@@ -818,7 +867,7 @@ Affine for MOTION_AFFINE</p>
 <p>Complete Sfm piplines using the micmac lib.</p>
 <dl class="function">
 <dt id="sfm.mspec_sfm">
-<code class="sig-prename descclassname">sfm.</code><code class="sig-name descname">mspec_sfm</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">csv=None</em>, <em class="sig-param">sub=None</em>, <em class="sig-param">gpsAcc='1'</em>, <em class="sig-param">sep='</em>, <em class="sig-param">'</em>, <em class="sig-param">mode='PIMs'</em>, <em class="sig-param">submode='Forest'</em>, <em class="sig-param">doFeat=True</em>, <em class="sig-param">doBundle=True</em>, <em class="sig-param">doDense=True</em>, <em class="sig-param">pointmask=True</em>, <em class="sig-param">cleanpoints=True</em>, <em class="sig-param">fmethod=None</em>, <em class="sig-param">shpmask=None</em>, <em class="sig-param">subset=None</em>, <em class="sig-param">rep_dsm='0'</em>, <em class="sig-param">egal=1</em>, <em class="sig-param">DegRap='0'</em>, <em class="sig-param">slantr=False</em><span class="sig-paren">)</span><a class="headerlink" href="#sfm.mspec_sfm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">sfm.</code><code class="sig-name descname">mspec_sfm</code><span class="sig-paren">(</span><em class="sig-param">folder, proj='30 +north', csv=None, sub=None, gpsAcc='1', gcp=None, gcpAcc=['0.03', '1'], sep=',', mode='PIMs', submode='Forest', doFeat=True, doBundle=True, doDense=True, pointmask=True, cleanpoints=True, fmethod=None, shpmask=None, subset=None, rep_dsm='0', egal=1, DegRap='0', slantr=False</em><span class="sig-paren">)</span><a class="headerlink" href="#sfm.mspec_sfm" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function for the complete structure from motion process using the micasense
 red edge camera or Slant view camera.</p>
 <p>The RGB imagery is used to generate DSMs, which are in turn used to orthorectify the remaining
@@ -844,23 +893,23 @@ in it using the pycmac.mspec_proc function</p>
 </dd>
 </dl>
 <dl>
-<dt>sep<span class="classifier">string</span></dt><dd><p>the csv delimiter if used (default “,”)</p>
+<dt>sep: string</dt><dd><p>the csv delimiter if used (default “,”)</p>
 </dd>
-<dt>doFeat<span class="classifier">bool</span></dt><dd><p>if repeating after debug/changes mis out early stages</p>
+<dt>doFeat: bool</dt><dd><p>if repeating after debug/changes mis out early stages</p>
 </dd>
-<dt>doBundle<span class="classifier">bool</span></dt><dd><p>if repeating after debug/changes mis out early stages</p>
+<dt>doBundle: bool</dt><dd><p>if repeating after debug/changes mis out early stages</p>
 </dd>
-<dt>fmethod<span class="classifier">bool</span></dt><dd><p>feature search for image pairs strategy eg Line All</p>
+<dt>fmethod: bool</dt><dd><p>feature search for image pairs strategy eg Line All</p>
 </dd>
-<dt>shpmask<span class="classifier">string</span></dt><dd><p>a shapefile mask to constrain malt-based processing</p>
+<dt>shpmask: string</dt><dd><p>a shapefile mask to constrain malt-based processing</p>
 </dd>
-<dt>pointmask<span class="classifier">bool</span></dt><dd><p>use the micmac SaisieMasq3D (need QT compiled) to define a mask
+<dt>pointmask: bool</dt><dd><p>use the micmac SaisieMasq3D (need QT compiled) to define a mask
 on the sparse cloud to constrain processing - this is VERY useful
 and will save a lot of time</p>
 </dd>
-<dt>subset<span class="classifier">string</span></dt><dd><p>a csv defining a subset of images to be processed during dense matching</p>
+<dt>subset: string</dt><dd><p>a csv defining a subset of images to be processed during dense matching</p>
 </dd>
-<dt>rep_dsm<span class="classifier">string</span></dt><dd><p>sometimes it is necessary to redo the DSM (MEC folder) on the second
+<dt>rep_dsm: string</dt><dd><p>sometimes it is necessary to redo the DSM (MEC folder) on the second
 3-band composite run due to some sort of bug within MicMac,
 though most of the time this is not necessary
 def is ‘0’ change to ‘1’ if redoing dsm</p>
@@ -896,21 +945,21 @@ on certain datasets.</p>
 </dd>
 </dl>
 <dl class="simple">
-<dt>sep<span class="classifier">string</span></dt><dd><p>the csv delimiter if used (default “,”)</p>
+<dt>sep: string</dt><dd><p>the csv delimiter if used (default “,”)</p>
 </dd>
-<dt>doFeat<span class="classifier">bool</span></dt><dd><p>if repeating after debug/changes mis out early stages</p>
+<dt>doFeat: bool</dt><dd><p>if repeating after debug/changes mis out early stages</p>
 </dd>
-<dt>doBundle<span class="classifier">bool</span></dt><dd><p>if repeating after debug/changes mis out early stages</p>
+<dt>doBundle: bool</dt><dd><p>if repeating after debug/changes mis out early stages</p>
 </dd>
-<dt>fmethod<span class="classifier">bool</span></dt><dd><p>select a feature detection strategy eg Line All etc</p>
+<dt>fmethod: bool</dt><dd><p>select a feature detection strategy eg Line All etc</p>
 </dd>
-<dt>shpmask<span class="classifier">string</span></dt><dd><p>a shapefile mask to constrain malt-based processing</p>
+<dt>shpmask: string</dt><dd><p>a shapefile mask to constrain malt-based processing</p>
 </dd>
-<dt>pointmask<span class="classifier">bool</span></dt><dd><p>use the micmac SaisieMasq3D (need QT compiled) to define a mask
+<dt>pointmask: bool</dt><dd><p>use the micmac SaisieMasq3D (need QT compiled) to define a mask
 on the sparse cloud to constrain processing - this is VERY useful
 and will save a lot of time and is recommended over shpmask</p>
 </dd>
-<dt>subset<span class="classifier">string</span></dt><dd><p>a csv defining a subset of images to be processed during dense matching</p>
+<dt>subset: string</dt><dd><p>a csv defining a subset of images to be processed during dense matching</p>
 </dd>
 <dt>cleanpoints: bool</dt><dd><p>if true use the schnaps tie point cleaning tool for a evenly distributed
 and reduced tie point set</p>

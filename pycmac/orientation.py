@@ -148,6 +148,7 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     A function running the relative orientation/bundle adjustment with micmac 
     
     A calibration subset is optional
+
             
     Notes
     -----------
@@ -156,6 +157,10 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     
     (Tapas, centrebascule, Campari, ChgSysCo, OriExport)
     
+    Pleae note, that if GCPs are used, then the on-board GPS will not be 
+    included in the final bundle adjustment as the on-board will not have 
+    positive effect on the overall result. This assumes your GCPs come from a 
+    DGPS, otherwise don't use them!
         
     Parameters
     -----------
@@ -233,7 +238,6 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
             _callit(gcpbsc)
             
             campari =["mm3d", "Campari", extFin, "Ground_GCP", "Ground_UTM",
-                      "EmGPS=[RAWGNSS_N,"+gpsAcc+"]",
               "GCP=[GCP.xml,"+gcpAcc[0]+",MeasureFinal-S2D.xml,"+gcpAcc[0]+"]"
               ,"AllFree=1"]
             _callit(campari, glog)

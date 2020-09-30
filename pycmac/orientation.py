@@ -68,7 +68,7 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
     csv: string
            a path to the csv of GPS coords
         
-    resize: string
+    resize: int
              The long axis in pixels to optionally resize the imagery
         
     ext: string
@@ -111,18 +111,18 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
 
     if resize != None:
         Parallel(n_jobs=-1, verbose=5)(delayed(_imresize)(i, resize) for i in imList)
-        wprm = "-1"
-    else:
+#        wprm = "-1"
+    #else:
         # Always at least half even for Tapioca if user does not provide resize 
         # as little/no gain from full res        
-        img = Image.open(imList[0])
-        w, h = img.size
-        wprm = str(w / 2)
-        del img
+    img = Image.open(imList[0])
+    w, h = img.size
+    wprm = str(w / 2)
+    del img
     if method == 'All':
         tapi = ["mm3d", "Tapioca", "All", extFin, wprm.replace(".0", ""), "@SFS"]
     if method == "Line":
-        tapi = ["mm3d", "Tapioca", "Line",  extFin, wprm.replace(".0", ""), '5', "@SFS"]
+        tapi = ["mm3d", "Tapioca", "Line",  extFin, wprm.replace(".0", ""), '10', "@SFS"]
     if method == 'File':        
         tapi = ["mm3d", "Tapioca", "File", "FileImagesNeighbour.xml", wprm.replace(".0", ""), "@SFS"]
 
@@ -237,7 +237,7 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
             _callit(gcpbsc)
             
             campari =["mm3d", "Campari", extFin, "Ground_GCP", "Ground_UTM",
-              "GCP=[GCP.xml,"+gcpAcc[0]+",MeasureFinal-S2D.xml,"+gcpAcc[0]+"]"
+              "GCP=[GCP.xml,"+gcpAcc[0]+",MeasureFinal-S2D.xml,"+gcpAcc[1]+"]"
               ,"AllFree=1"]
             _callit(campari, glog)
         else:

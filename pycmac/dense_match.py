@@ -31,7 +31,8 @@ from tqdm import tqdm
 from PIL import Image
 
 def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_UTM",
-         DoOrtho='1', DoMEC='1', DefCor='0', sub=None, delim=",",
+         DoOrtho='1', DoMEC='1', DefCor='0', sub=None, delim=",", 
+         ResolTerrain=None,
          BoxTerrain=None, mask=None, **kwargs):
     
     """
@@ -95,6 +96,9 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
             oot = re.findall(r'\w+',str(k))
             anArg = oot[0]+'='+oot[1]
             cmd.append(anArg)
+            
+    if ResolTerrain != None:
+        cmd.append("ResolTerrain="+ResolTerrain)               
     
     if mask != None:
         inShp = ogr.Open(mask)

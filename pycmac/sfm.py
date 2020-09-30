@@ -25,7 +25,7 @@ from glob2 import glob
 
 def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None, 
               gcpAcc=["0.03", "1"], sep=",",
-              mode='PIMs', submode='Forest',  doFeat=True, doBundle=True, doDense=True, 
+              mode='PIMs', submode='Forest', ResolTerrain=None, doFeat=True, doBundle=True, doDense=True, 
               pointmask=True, cleanpoints=True,
               fmethod=None, shpmask=None, subset=None, rep_dsm='0', egal=1, 
               DegRap="0", slantr=False):
@@ -71,6 +71,11 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
 
     sub: string
             path to csv containing an image subset in the micmac format
+            
+    ResolTerrain: string
+            size of a the side of a pixel in the output dsm in metres
+            (only with Malt!)
+            
     gpsAcc: string
         an estimate in metres of the onboard GPS accuracy
         
@@ -153,9 +158,25 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
     
     # For the RGB dataset
     if doDense==True:
-    
-        if mode == 'Malt':    
-            malt(folder, proj=proj, ext='tif', mask=shpmask, sub=subset)
+        
+        # first check if the main dir has no tif files in it
+        # this would be the case potentially if the other processing options
+        # are false or a dense match needs to be redone
+        
+        if not glob(path.join(folder, "*.tif")):
+        
+            folder1 = path.join(folder,'RGB')
+            
+            inList = glob(path.join(folder1, "*.tif"))
+            
+            [move(rgb, folder) for rgb in inList]
+        
+        if mode == 'Malt':
+            if ResolTerrain != None:
+                malt(folder, proj=proj, ext='tif', mask=shpmask, sub=subset,
+                     ResolTerrain=ResolTerrain)
+            else:               
+                malt(folder, proj=proj, ext='tif', mask=shpmask, sub=subset)
         elif mode == 'PIMs':
             pims(folder, mode=submode, ext='tif')
             pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
@@ -185,8 +206,12 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
         
         [move(i, folder) for i in inList]
         
-        if mode == 'Malt':    
-            malt(folder, proj=proj, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset)
+        if mode == 'Malt':
+            if ResolTerrain != None:
+                malt(folder, proj=proj, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset,
+                     ResolTerrain=ResolTerrain)
+            else:                
+                malt(folder, proj=proj, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset)
         elif mode == 'PIMs':
            # PIMs bloody deletes the previous folders so would have to rename them
            # But generation of merged DSM is rapid so doesn't make much difference
@@ -213,7 +238,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
 
 def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
             gcp=None, gcpAcc=["0.03", "1"], sep=",",
-              mode='PIMs', submode='Forest', doFeat=True, doBundle=True,
+              mode='PIMs', submode='Forest', ResolTerrain=None, doFeat=True, doBundle=True,
               doDense=True, fmethod=None, useGps=True, pointmask=True, shpmask=None, 
               subset=None, egal=1, resize=None, cleanpoints=True):
     
@@ -251,8 +276,12 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
             path to csv containing image xyz info in the micmac format
 
     sub: string
-            path to csv containing an image subset in the micmac format
+            path to csv containing an image subset in the micmac format 
             
+    ResolTerrain: string
+        size of a the side of a pixel in the output dsm in metres
+        (only with Malt!)          
+        
     gpsAcc: string
         an estimate in metres of the onboard GPS accuracy
         
@@ -323,7 +352,11 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     if doDense==True:
         
         if mode == 'Malt':    
-            malt(folder, proj=proj, ext=ext, mask=shpmask, sub=subset)
+            if ResolTerrain != None:
+                malt(folder, proj=proj, ext='tif', mask=shpmask, sub=subset,
+                     ResolTerrain=ResolTerrain)
+            else:               
+                malt(folder, proj=proj, ext='tif', mask=shpmask, sub=subset)
         if mode == 'PIMs':
             pims(folder, mode=submode, ext=ext, mask=pointmask)
             pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',

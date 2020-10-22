@@ -241,7 +241,7 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
               ,"AllFree=1"]
             _callit(campari, glog)
         else:
-            campari =["mm3d", "Campari", extFin, "Ground_GCP", "Ground_UTM",
+            campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
               "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
             _callit(campari, glog)
             

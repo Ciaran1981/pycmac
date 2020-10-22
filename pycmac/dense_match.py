@@ -518,7 +518,7 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, rmtile=False,
 
     
 
-def feather(folder, proj="ESPG:32360", mode='PIMs',
+def feather(folder, proj="30 +north", mode='PIMs',
             ms=['r', 'g', 'b'], Dist="100", ApplyRE="1", ComputeRE="1", 
             subset=None,  outMosaic=None, rmtile=False, 
             mp=False, Label=False, redo=False, delim=",", **kwargs):
@@ -607,6 +607,7 @@ def feather(folder, proj="ESPG:32360", mode='PIMs',
     if rmtile==True:
         _remove_ortho_tiles(folder)
 #        
+    projstr = ("+proj=utm +zone="+proj+"+ellps=WGS84 +datum=WGS84 +units=m +no_defs")
     
     if ms !=None:
                 
@@ -712,7 +713,7 @@ def feather(folder, proj="ESPG:32360", mode='PIMs',
     _merge(names = outList, out_file = ootFeath)
     
     # TODO!
-    #_set_dataset_config(inRas, projection, FMT = 'Gtiff')
+    _set_dataset_config(ootFeath, projstr, FMT = 'Gtiff')
 
     #chdir(folder)
 

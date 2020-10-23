@@ -24,7 +24,7 @@ dependencies:
   - joblib
   - lxml
   - pandas
-  - cgal
+  - jupyter
 
   
   - pip:

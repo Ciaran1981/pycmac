@@ -223,7 +223,7 @@ simply transform from rel to ref coordinate sys without GPS aided bundle adjust.
 <li><p><strong>folder</strong> (<em>string</em>) – working directory</p></li>
 <li><p><strong>proj</strong> (<em>string</em>) – a UTM zone eg “30 +north”</p></li>
 <li><p><strong>csv</strong> (<em>string</em>) – a path to the csv of GPS coords</p></li>
-<li><p><strong>resize</strong> (<em>string</em>) – The long axis in pixels to optionally resize the imagery</p></li>
+<li><p><strong>resize</strong> (<em>int</em>) – The long axis in pixels to optionally resize the imagery</p></li>
 <li><p><strong>ext</strong> (<em>string</em>) – image extention e.g JPG, tif</p></li>
 <li><p><strong>dist</strong> (<em>string</em>) – distance for nearest neighbour search</p></li>
 </ul>
@@ -303,12 +303,22 @@ default is “Ground_UTM”</p></li>
 
 <dl class="function">
 <dt id="dense_match.dense_pcl">
-<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">dense_pcl</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">mode='PIMs'</em>, <em class="sig-param">Out='psm.ply'</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.dense_pcl" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">dense_pcl</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">mode='PIMs'</em>, <em class="sig-param">out='psm.ply'</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.dense_pcl" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function for passing a subset to Malt or PIMS</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>string</em>) – working directory</p></li>
+<li><p><strong>mode</strong> (<em>string</em>) – The micmac processing mode Malt or PIMs</p></li>
+<li><p><strong>out</strong> (<em>string</em>) – The output point cloud in .ply format</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="function">
 <dt id="dense_match.feather">
-<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">feather</code><span class="sig-paren">(</span><em class="sig-param">folder, proj='ESPG:32360', mode='PIMs', ms=['r', 'g', 'b'], Dist='100', ApplyRE='1', ComputeRE='1', subset=None, outMosaic=None, rmtile=False, mp=False, Label=False, redo=False, delim=',', **kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.feather" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">feather</code><span class="sig-paren">(</span><em class="sig-param">folder, proj='30 +north', mode='PIMs', ms=['r', 'g', 'b'], Dist='100', ApplyRE='1', ComputeRE='1', subset=None, outMosaic=None, rmtile=False, mp=False, Label=False, redo=False, delim=',', **kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.feather" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function calling the TestLib SeamlineFeathering command for use in python</p>
 <p class="rubric">Notes</p>
 <p>The native micmac function only processes single band - this function provides
@@ -349,7 +359,7 @@ Useful as this step is time consuming during processing otherwise</p>
 
 <dl class="function">
 <dt id="dense_match.malt">
-<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">malt</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">mode='Ortho'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">orientation='Ground_UTM'</em>, <em class="sig-param">DoOrtho='1'</em>, <em class="sig-param">DoMEC='1'</em>, <em class="sig-param">DefCor='0'</em>, <em class="sig-param">sub=None</em>, <em class="sig-param">delim='</em>, <em class="sig-param">'</em>, <em class="sig-param">BoxTerrain=None</em>, <em class="sig-param">mask=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.malt" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">malt</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">proj='30 +north'</em>, <em class="sig-param">mode='Ortho'</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">orientation='Ground_UTM'</em>, <em class="sig-param">DoOrtho='1'</em>, <em class="sig-param">DoMEC='1'</em>, <em class="sig-param">DefCor='0'</em>, <em class="sig-param">sub=None</em>, <em class="sig-param">delim='</em>, <em class="sig-param">'</em>, <em class="sig-param">ResolTerrain=None</em>, <em class="sig-param">BoxTerrain=None</em>, <em class="sig-param">mask=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.malt" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function calling the Malt command for use in python.</p>
 <p>Upon successful completion, this will return the directory OUTPUT with DSM, ortho (if desried)
 and correlation image</p>
@@ -379,7 +389,6 @@ e.g. [480644.0,5752033.4,481029.4,5752251.6]</p></li>
 <dt id="dense_match.malt_batch">
 <code class="sig-prename descclassname">dense_match.</code><code class="sig-name descname">malt_batch</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">mode='Ortho'</em>, <em class="sig-param">mp=-1</em>, <em class="sig-param">gp=0</em>, <em class="sig-param">window=2</em>, <em class="sig-param">mx=None</em>, <em class="sig-param">ext='JPG'</em>, <em class="sig-param">tiles='3</em>, <em class="sig-param">3'</em>, <em class="sig-param">overlap=10</em>, <em class="sig-param">bb=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dense_match.malt_batch" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function for passing a subset to Malt or PIMS</p>
-<p class="rubric">Notes</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -719,6 +728,22 @@ line - purely for convenience  - you’d be as well using the command line direc
 </dd></dl>
 
 <dl class="function">
+<dt id="utilities.orbplot">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">orbplot</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">imgs</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.orbplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot matching features across 3 images using ORB
+The images MUST overlap</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>string</em>) – the working directory with images in</p></li>
+<li><p><strong>imgs</strong> (<em>list of strings</em>) – the images to plot feature matches in the format
+[‘img1’, ‘img2’, ‘img3’]</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="utilities.pims_mask">
 <code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">pims_mask</code><span class="sig-paren">(</span><em class="sig-param">inShp</em>, <em class="sig-param">folder</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.pims_mask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make an xmlmask from a shapefile for polyg3d for pims/c3dc
@@ -726,6 +751,49 @@ The shapefile MUST be rectilinear</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>inShp</strong> (<em>string</em>) – shapefile with coords to use</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="utilities.plot_img_csv">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">plot_img_csv</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">csv='log.csv'</em>, <em class="sig-param">delim=' '</em>, <em class="sig-param">dispCol='Z'</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.plot_img_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot image GPS csv on a map with mapbox</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>string</em>) – working directory</p></li>
+<li><p><strong>csv</strong> (<em>string</em>) – csv name - log.csv is default</p></li>
+<li><p><strong>delim</strong> (<em>string</em>) – delimiter of csv ” ” (space) is defaut;</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="utilities.plot_result">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">plot_result</code><span class="sig-paren">(</span><em class="sig-param">folder</em>, <em class="sig-param">inRas</em>, <em class="sig-param">proj=32630</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.plot_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot image GPS csv on a map with mapbox</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>string</em>) – working directory</p></li>
+<li><p><strong>inRas</strong> (<em>string</em>) – name of image in the OUTPUT folder</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="utilities.raster2array">
+<code class="sig-prename descclassname">utilities.</code><code class="sig-name descname">raster2array</code><span class="sig-paren">(</span><em class="sig-param">inRas, bands=[1]</em><span class="sig-paren">)</span><a class="headerlink" href="#utilities.raster2array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a raster and return an array, either single or multiband</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inRas</strong> (<em>string</em>) – input  raster</p></li>
+<li><p><strong>bands</strong> (<em>list</em>) – a list of bands to return in the array</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -864,7 +932,7 @@ Affine for MOTION_AFFINE</p>
 <p>Complete Sfm piplines using the micmac lib.</p>
 <dl class="function">
 <dt id="sfm.mspec_sfm">
-<code class="sig-prename descclassname">sfm.</code><code class="sig-name descname">mspec_sfm</code><span class="sig-paren">(</span><em class="sig-param">folder, proj='30 +north', csv=None, sub=None, gpsAcc='1', gcp=None, gcpAcc=['0.03', '1'], sep=',', mode='PIMs', submode='Forest', doFeat=True, doBundle=True, doDense=True, pointmask=True, cleanpoints=True, fmethod=None, shpmask=None, subset=None, rep_dsm='0', egal=1, DegRap='0', slantr=False</em><span class="sig-paren">)</span><a class="headerlink" href="#sfm.mspec_sfm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">sfm.</code><code class="sig-name descname">mspec_sfm</code><span class="sig-paren">(</span><em class="sig-param">folder, proj='30 +north', csv=None, sub=None, gpsAcc='1', gcp=None, gcpAcc=['0.03', '1'], sep=',', mode='PIMs', submode='Forest', ResolTerrain=None, doFeat=True, doBundle=True, doDense=True, pointmask=True, cleanpoints=True, fmethod=None, shpmask=None, subset=None, rep_dsm='0', egal=1, DegRap='0', slantr=False</em><span class="sig-paren">)</span><a class="headerlink" href="#sfm.mspec_sfm" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function for the complete structure from motion process using the micasense
 red edge camera or Slant view camera.</p>
 <p>The RGB imagery is used to generate DSMs, which are in turn used to orthorectify the remaining
@@ -885,6 +953,8 @@ in it using the pycmac.mspec_proc function</p>
 <li><p><strong>submode</strong> (<em>string</em>) – PIMs submode e.g. Forest, BigMac etc.</p></li>
 <li><p><strong>csv</strong> (<em>string</em>) – path to csv containing image xyz info in the micmac format</p></li>
 <li><p><strong>sub</strong> (<em>string</em>) – path to csv containing an image subset in the micmac format</p></li>
+<li><p><strong>ResolTerrain</strong> (<em>string</em>) – size of a the side of a pixel in the output dsm in metres
+(only with Malt!)</p></li>
 <li><p><strong>gpsAcc</strong> (<em>string</em>) – an estimate in metres of the onboard GPS accuracy</p></li>
 <li><p><strong>gcp</strong> (<em>string</em>) – whether to process gcps - you MUST have a GCP file in the MM format of
 #F=N X Y Z and MUST be in the working dir</p></li>
@@ -914,7 +984,7 @@ def is ‘0’ change to ‘1’ if redoing dsm</p></li>
 
 <dl class="function">
 <dt id="sfm.rgb_sfm">
-<code class="sig-prename descclassname">sfm.</code><code class="sig-name descname">rgb_sfm</code><span class="sig-paren">(</span><em class="sig-param">folder, proj='30 +north', ext='JPG', csv=None, sub=None, gpsAcc='1', gcp=None, gcpAcc=['0.03', '1'], sep=',', mode='PIMs', submode='Forest', doFeat=True, doBundle=True, doDense=True, fmethod=None, useGps=True, pointmask=True, shpmask=None, subset=None, egal=1, resize=None, cleanpoints=True</em><span class="sig-paren">)</span><a class="headerlink" href="#sfm.rgb_sfm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">sfm.</code><code class="sig-name descname">rgb_sfm</code><span class="sig-paren">(</span><em class="sig-param">folder, proj='30 +north', ext='JPG', csv=None, sub=None, gpsAcc='1', gcp=None, gcpAcc=['0.03', '1'], sep=',', mode='PIMs', submode='Forest', ResolTerrain=None, doFeat=True, doBundle=True, doDense=True, fmethod=None, useGps=True, pointmask=True, shpmask=None, subset=None, egal=1, resize=None, cleanpoints=True</em><span class="sig-paren">)</span><a class="headerlink" href="#sfm.rgb_sfm" title="Permalink to this definition">¶</a></dt>
 <dd><p>A function for the complete structure from motion process using a RGB camera.</p>
 <p>Obviously the Malt and PIMs algorithms will perform better/worse than each other
 on certain datasets.</p>
@@ -930,6 +1000,8 @@ on certain datasets.</p>
 <li><p><strong>submode</strong> (<em>string</em>) – PIMs submode e.g. Forest, BigMac etc.</p></li>
 <li><p><strong>csv</strong> (<em>string</em>) – path to csv containing image xyz info in the micmac format</p></li>
 <li><p><strong>sub</strong> (<em>string</em>) – path to csv containing an image subset in the micmac format</p></li>
+<li><p><strong>ResolTerrain</strong> (<em>string</em>) – size of a the side of a pixel in the output dsm in metres
+(only with Malt!)</p></li>
 <li><p><strong>gpsAcc</strong> (<em>string</em>) – an estimate in metres of the onboard GPS accuracy</p></li>
 <li><p><strong>gcp</strong> (<em>string</em>) – whether to process gcps - you MUST have a GCP file in the MM format of
 #F=N X Y Z and MUST be in the working dir</p></li>

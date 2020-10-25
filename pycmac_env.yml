@@ -25,6 +25,7 @@ dependencies:
   - lxml
   - pandas
   - jupyter
+  - mapbox
 
   
   - pip:
@@ -36,5 +37,6 @@ dependencies:
     - open3d
     - git+https://github.com/Ciaran1981/pycmac#egg=pycmacpy
     - centerline
+    
 
 

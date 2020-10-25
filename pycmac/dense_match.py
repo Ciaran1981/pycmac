@@ -961,10 +961,6 @@ def malt_batch(folder,  mode='Ortho',  mp=-1, gp=0, window=2, mx=None, ext="JPG"
     """
     
     A function for passing a subset to Malt or PIMS
-            
-    Notes
-    -----------
-        
         
     Parameters
     -----------
@@ -1076,8 +1072,21 @@ def malt_batch(folder,  mode='Ortho',  mp=-1, gp=0, window=2, mx=None, ext="JPG"
         [print(t) for t in rejList]
         print("\nRectifying this now...")
 
-def dense_pcl(folder, mode="PIMs", Out="psm.ply"):
+def dense_pcl(folder, mode="PIMs", out="psm.ply"):
     
+    """
+    A function for passing a subset to Malt or PIMS
+
+    Parameters
+    -----------
+    
+    folder: string
+           working directory
+    mode: string
+            The micmac processing mode Malt or PIMs
+    out: string
+          The output point cloud in .ply format
+    """
     
     if mode == 'PIMs':
         ootply = path.join(folder,'PIMs-TmpBasc', 'PIMs-Merged.xml')
@@ -1089,10 +1098,10 @@ def dense_pcl(folder, mode="PIMs", Out="psm.ply"):
         ootorth = path.join(folder,'Ortho-MEC-Malt', 'Orthophotomosaic.tif')
         
     chdir(folder)
-#    
+    
 
     
-    nuage = ["mm3d", "Nuage2Ply",  ootply, "Attr="+ootorth, "Out="+Out, "64B=1"]
+    nuage = ["mm3d", "Nuage2Ply",  ootply, "Attr="+ootorth, "Out="+out, "64B=1"]
     
     ret = call(nuage)
 
@@ -1100,9 +1109,9 @@ def dense_pcl(folder, mode="PIMs", Out="psm.ply"):
         print('A micmac error has occured - check the log file')
         sys.exit()
     
-    outcloud = path.join("OUTPUT", Out)
+    outcloud = path.join("OUTPUT", out)
     
-    move(path.join(folder,Out), outcloud)
+    move(path.join(folder,out), outcloud)
     
     
     

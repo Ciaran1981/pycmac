@@ -7,7 +7,7 @@ A module which provides various ancillary functions for processing SfM with Micm
 
 
 """
-from shapely.wkt import loads
+#from shapely.wkt import loads
 #from shapely.geometry import Polygon, box, LineString, Point, LinearRing
 import numpy as np
 import pandas as pd
@@ -20,15 +20,23 @@ import lxml.etree
 import lxml.builder    
 from os import path
 from shutil import copy, move
-from subprocess import call
 import gdal
 from tqdm import tqdm
-import ogr
+import ogr, osr
 from glob2 import glob
 from sklearn import metrics
 from PIL import Image
 import sys
 import re
+from skimage.feature import (match_descriptors, ORB, plot_matches)
+from skimage.color import rgb2gray
+from skimage import exposure
+import matplotlib.pyplot as plt
+import math
+from mapboxgl.viz import *
+from mapboxgl.utils import df_to_geojson, create_radius_stops, scale_between
+from mapboxgl.utils import create_color_stops
+
 
 def mm3d(folder, cmd, *args, **kwargs):
     
@@ -183,6 +191,144 @@ def calib_subset(folder, csv, ext="JPG",  algo="Fraser", delim=","):
     call(mm3d)
     
     call(mm3dFinal)
+    
+def plot_img_csv(folder, csv='log.csv', delim=" ", dispCol="Z"):
+    
+    """
+    Plot image GPS csv on a map with mapbox
+    
+    Parameters
+    ----------
+    folder: string
+           working directory
+        
+    csv: string
+         csv name - log.csv is default
+    
+    delim: string
+          delimiter of csv " " (space) is defaut;
+
+    """
+    
+    df = pd.read_table(csv, sep=" ", index_col=False)
+    
+    token = 'pk.eyJ1IjoibWljYXNlbnNlIiwiYSI6ImNqYWx5dWNteTJ3cWYzMnBicmZid3g2YzcifQ.Zrq9t7GYocBtBzYyT3P4sw'
+    color_stops = create_color_stops(np.linspace( df[dispCol].min(), 
+                                                 df[dispCol].max(),
+                                                 num=8), colors='YlOrRd')
+    data = df_to_geojson(df, ["#F=N", "Z"],lat='Y',lon='X')
+    viz = CircleViz(data, access_token=token, color_property=dispCol,
+                    color_stops=color_stops,
+                    center=[df['X'].median(),df['Y'].median()], 
+                    zoom=16, height='600px',
+                    style='mapbox://styles/mapbox/satellite-streets-v9')
+    viz.show()
+    
+def _getExtent(gt,cols,rows):
+    ''' Return list of corner coordinates from a geotransform
+
+        @type gt:   C{tuple/list}
+        @param gt: geotransform
+        @type cols:   C{int}
+        @param cols: number of columns in the dataset
+        @type rows:   C{int}
+        @param rows: number of rows in the dataset
+        @rtype:    C{[float,...,float]}
+        @return:   coordinates of each corner
+    '''
+    ext=[]
+    xarr=[0,cols]
+    yarr=[0,rows]
+
+    for px in xarr:
+        for py in yarr:
+            x=gt[0]+(px*gt[1])+(py*gt[2])
+            y=gt[3]+(px*gt[4])+(py*gt[5])
+            ext.append([x,y])
+        yarr.reverse()
+    return ext
+
+def _reprojectCoords(coords,src_srs,tgt_srs):
+    ''' Reproject a list of x,y coordinates.
+
+        @type geom:     C{tuple/list}
+        @param geom:    List of [[x,y],...[x,y]] coordinates
+        @type src_srs:  C{osr.SpatialReference}
+        @param src_srs: OSR SpatialReference object
+        @type tgt_srs:  C{osr.SpatialReference}
+        @param tgt_srs: OSR SpatialReference object
+        @rtype:         C{tuple/list}
+        @return:        List of transformed [[x,y],...[x,y]] coordinates
+    '''
+    trans_coords=[]
+    transform = osr.CoordinateTransformation( src_srs, tgt_srs)
+    for x,y in coords:
+        x,y,z = transform.TransformPoint(x,y)
+        trans_coords.append([x,y])
+    return trans_coords
+
+def plot_result(folder, inRas, proj=32630):
+    
+    """
+    Plot image GPS csv on a map with mapbox
+    
+    Parameters
+    ----------
+    folder: string
+           working directory
+    
+    inRas: string
+          name of image in the OUTPUT folder
+
+    """
+        
+    os.chdir(folder)
+    
+    pth = os.path.join(folder, "OUTPUT", inRas)
+    
+    inRas = gdal.Open(pth)
+    
+    rgt = inRas.GetGeoTransform()
+    
+    cols = inRas.RasterXSize
+    rows = inRas.RasterYSize
+    
+    ext = _getExtent(rgt,cols,rows)
+
+        
+    rf = inRas.GetProjectionRef()
+    
+    
+    sr = osr.SpatialReference()
+    
+    sr.ImportFromEPSG(proj)
+    
+    # or 3857 pseudo mercator....
+    srs = osr.SpatialReference()
+    srs.ImportFromEPSG(4326)
+    
+    trans_coords = _reprojectCoords(ext, sr, srs)
+
+
+    token = ('pk.eyJ1IjoibWljYXNlbnNlIiwiYSI6ImNqYWx5dWNteTJ3cWYzMnBicmZid3g2YzcifQ.Zrq9t7GYocBtBzYyT3P4sw')
+    
+    bands = np.arange(inRas.RasterCount)
+    bands+=1
+    
+    bandList = bands.tolist()
+    
+    img = raster2array(pth, bands=bandList)
+    
+    finalIm = np.uint8(exposure.rescale_intensity(img, out_range='uint8'))
+    
+    del img
+    
+    viz = ImageViz(finalIm,
+               trans_coords, 
+               access_token=token,
+               height='600px',
+               zoom=5)
+    viz.show()
     
 def convert_c3p(folder, lognm, ext="JPG", mspec=False, delim=','):
     
@@ -1038,6 +1184,110 @@ def array2raster(array, bands, inRaster, outRas, dtype, FMT=None):
         dataset.FlushCache()  # Write to disk.
         dataset=None
         #print('Raster w
+        
+def raster2array(inRas, bands=[1]):
+    
+    """
+    Read a raster and return an array, either single or multiband
 
+    
+    Parameters
+    ----------
+    
+    inRas: string
+                  input  raster 
+                  
+    bands: list
+                  a list of bands to return in the array
+    
+    """
+    rds = gdal.Open(inRas)
+   
+   
+    if len(bands) ==1:
+        # then we needn't bother with all the crap below
+        inArray = rds.GetRasterBand(bands[0]).ReadAsArray()
+        
+    else:
+        #   The nump and gdal dtype (ints)
+        #   {"uint8": 1,"int8": 1,"uint16": 2,"int16": 3,"uint32": 4,"int32": 5,
+        #    "float32": 6, "float64": 7, "complex64": 10, "complex128": 11}
+        
+        # a numpy gdal conversion dict - this seems a bit long-winded
+        dtypes = {"1": np.uint8, "2": np.uint16,
+              "3": np.int16, "4": np.uint32,"5": np.int32,
+              "6": np.float32,"7": np.float64,"10": np.complex64,
+              "11": np.complex128}
+        rdsDtype = rds.GetRasterBand(1).DataType
+        inDt = dtypes[str(rdsDtype)]
+        
+        inArray = np.zeros((rds.RasterYSize, rds.RasterXSize, len(bands)), dtype=inDt) 
+        for idx, band in enumerate(bands):  
+            rA = rds.GetRasterBand(band).ReadAsArray()
+            inArray[:, :, idx]=rA
+   
+   
+    return inArray
 
+def orbplot(folder, imgs):
+    
+    """
+    Plot matching features across 3 images using ORB
+    The images MUST overlap
+    
+    Parameters
+    ----------      
+    folder: string
+            the working directory with images in
+    imgs: list of strings
+           the images to plot feature matches in the format
+           ['img1', 'img2', 'img3']
+    
+    """
+    os.chdir(folder)
+
+    img1 = raster2array(imgs[0], bands=[1,2,3])
+    
+    img2 = raster2array(imgs[1], bands=[1,2,3])
+    
+    img3 = raster2array(imgs[2], bands=[1,2,3])
+    
+    img1 = rgb2gray(img1)
+    img2 = rgb2gray(img2)
+    img3 = rgb2gray(img3)
+    #tform = transform.AffineTransform(scale=(1.3, 1.1), rotation=0.5,
+    #                                  translation=(0, -200))
+    #img3 = transform.warp(img1, tform)
+    
+    descriptor_extractor = ORB(n_keypoints=200)
+    
+    descriptor_extractor.detect_and_extract(img1)
+    keypoints1 = descriptor_extractor.keypoints
+    descriptors1 = descriptor_extractor.descriptors
+    
+    descriptor_extractor.detect_and_extract(img2)
+    keypoints2 = descriptor_extractor.keypoints
+    descriptors2 = descriptor_extractor.descriptors
+    
+    descriptor_extractor.detect_and_extract(img3)
+    keypoints3 = descriptor_extractor.keypoints
+    descriptors3 = descriptor_extractor.descriptors
+    
+    matches12 = match_descriptors(descriptors1, descriptors2, cross_check=True)
+    matches13 = match_descriptors(descriptors1, descriptors3, cross_check=True)
+    
+    fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(30,30))
+    
+    plt.gray()
+    
+    plot_matches(ax[0], img1, img2, keypoints1, keypoints2, matches12)
+    ax[0].axis('off')
+    ax[0].set_title(imgs[0]+"&"+imgs[1]+"feature matches", fontsize=20)
+    
+    plot_matches(ax[1], img1, img3, keypoints1, keypoints3, matches13)
+    ax[1].axis('off')
+    ax[1].set_title(imgs[1]+"&"+imgs[2]+"feature matches", fontsize=20)
+    
+    
+    plt.show()
        

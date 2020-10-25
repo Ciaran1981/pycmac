@@ -1075,7 +1075,7 @@ def malt_batch(folder,  mode='Ortho',  mp=-1, gp=0, window=2, mx=None, ext="JPG"
 def dense_pcl(folder, mode="PIMs", out="psm.ply"):
     
     """
-    A function for passing a subset to Malt or PIMS
+    A function for generating a dense cloud
 
     Parameters
     -----------
@@ -1113,7 +1113,45 @@ def dense_pcl(folder, mode="PIMs", out="psm.ply"):
     
     move(path.join(folder,out), outcloud)
     
+
+def mesh(folder, inply, mode="PIMs", ext='tif', ori="Ground_UTM"):
     
+    """
+    A function for passing a subset to Malt or PIMS
+
+    Parameters
+    -----------
     
+    folder: string
+           working directory
+    inply: string
+          the input dense cloud ply
+    mode: string
+            The micmac processing mode Malt or PIMs
+    ext: string
+         imagery extension
+    ori: string
+          orientation used
+    """
+    
+    chdir(folder)
+    
+    extFin='.*'+ext
+    
+    cmd1 = ["mm3d", "TiPunch", inply, "Mode="+mode, "Pattern="+extFin]
+    
+    ret = call(cmd1)
+
+    if ret !=0:
+        print('A micmac error has occured - check the log file')
+        sys.exit()
+    
+    cmd2 = ["mm3d", "Tequila", extFin, ori, "Dense_poisson_depth8.ply", "Filter=1"]
+    
+    ret = call(cmd2)
+
+    if ret !=0:
+        print('A micmac error has occured - check the log file')
+        sys.exit()
     
     

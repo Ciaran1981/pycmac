@@ -1229,6 +1229,7 @@ def raster2array(inRas, bands=[1]):
    
     return inArray
 
+
 def orbplot(folder, imgs):
     
     """
@@ -1282,11 +1283,11 @@ def orbplot(folder, imgs):
     
     plot_matches(ax[0], img1, img2, keypoints1, keypoints2, matches12)
     ax[0].axis('off')
-    ax[0].set_title(imgs[0]+"&"+imgs[1]+"feature matches", fontsize=20)
+    ax[0].set_title(imgs[0]+" & "+imgs[1]+" feature matches", fontsize=30)
     
     plot_matches(ax[1], img1, img3, keypoints1, keypoints3, matches13)
     ax[1].axis('off')
-    ax[1].set_title(imgs[1]+"&"+imgs[2]+"feature matches", fontsize=20)
+    ax[1].set_title(imgs[1]+" & "+imgs[2]+" feature matches", fontsize=30)
     
     
     plt.show()

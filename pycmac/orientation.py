@@ -141,7 +141,7 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
 def bundle_adjust(folder, algo="Fraser", proj="30 +north",
                   ext="JPG", calib=None,  gpsAcc='1', sep=",", gcp=None,
                   gcpAcc=["0.03", "1"], 
-                  meshlab=False, useGps=True):
+                  meshlab=False, useGps=True, relOnly=False):
     """
     
     A function running the relative orientation/bundle adjustment with micmac 
@@ -187,7 +187,8 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     useGps : bool
         if the GPS info is untrustyworthy with a lot of the data (eg Dji Phantom - z)
         simply transform from rel to ref coordinate sys without GPS aided bundle adjust.
-    
+    relOnly : Bool
+        use only the realtive orientation - no geo coordinate system at all
   
     """
 
@@ -217,47 +218,53 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     glog = open(path.join(folder, algo+'GPSlog.txt'), "w")
 
 
+    if relOnly == True:
+        aperi = ["mm3d", "AperiCloud", extFin,  "Arbitrary", "ProfCam=1"]
         
-    if useGps is False:
-        sysco = ["mm3d", "ChgSysCo",  extFin, "Arbitrary",
-                 "SysCoRTL.xml@SysUTM.xml", "Ground_UTM"]
-        _callit(sysco)
+        aplog = open(path.join(folder, 'aperilog.txt'), "w")
+        _callit(aperi, aplog)
     else:
-        if gcp != None:
-            # My goodness this is bad.....
-            gcpcnv = ["mm3d", "GCPConvert", "AppInFile", gcp]
-            _callit(gcpcnv)
-            
-            gcpent = ["mm3d", "SaisieAppuisPredicQT", extFin, "Ground_Init_RTL",
-              gcp[:-3]+'xml', "MeasureFinal.xml"]
-            _callit(gcpent)
-            
-            gcpbsc = ["mm3d", "GCPBascule", extFin, "Ground_Init_RTL", "Ground_GCP",
-             "GCP.xml",  "MeasureFinal-S2D.xml"]
-            _callit(gcpbsc)
-            
-            campari =["mm3d", "Campari", extFin, "Ground_GCP", "Ground_UTM",
-              "GCP=[GCP.xml,"+gcpAcc[0]+",MeasureFinal-S2D.xml,"+gcpAcc[1]+"]"
-              ,"AllFree=1"]
-            _callit(campari, glog)
+        
+        if useGps is False:
+            sysco = ["mm3d", "ChgSysCo",  extFin, "Arbitrary",
+                     "SysCoRTL.xml@SysUTM.xml", "Ground_UTM"]
+            _callit(sysco)
         else:
-            campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
-              "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
-            _callit(campari, glog)
+            if gcp != None:
+                # My goodness this is bad.....
+                gcpcnv = ["mm3d", "GCPConvert", "AppInFile", gcp]
+                _callit(gcpcnv)
+                
+                gcpent = ["mm3d", "SaisieAppuisPredicQT", extFin, "Ground_Init_RTL",
+                  gcp[:-3]+'xml', "MeasureFinal.xml"]
+                _callit(gcpent)
+                
+                gcpbsc = ["mm3d", "GCPBascule", extFin, "Ground_Init_RTL", "Ground_GCP",
+                 "GCP.xml",  "MeasureFinal-S2D.xml"]
+                _callit(gcpbsc)
+                
+                campari =["mm3d", "Campari", extFin, "Ground_GCP", "Ground_UTM",
+                  "GCP=[GCP.xml,"+gcpAcc[0]+",MeasureFinal-S2D.xml,"+gcpAcc[1]+"]"
+                  ,"AllFree=1"]
+                _callit(campari, glog)
+            else:
+                campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
+                  "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
+                _callit(campari, glog)
+                
             
         
-    
-    aperi = ["mm3d", "AperiCloud", extFin,  "Ground_UTM"]
-    
-    aplog = open(path.join(folder, 'aperilog.txt'), "w")
-    _callit(aperi, aplog)
-    
-    pntPth = path.join(folder, "AperiCloud_Ground_UTM.ply")
-#    pcd = o3d.io.read_point_cloud(pntPth)
-#    
-#    o3d.visualization.draw_geometries([pcd])
-    if meshlab == True:
-        call(["meshlab", pntPth])
+        aperi = ["mm3d", "AperiCloud", extFin,  "Ground_UTM", "ProfCam=1"]
+        
+        aplog = open(path.join(folder, 'aperilog.txt'), "w")
+        _callit(aperi, aplog)
+        
+        pntPth = path.join(folder, "AperiCloud_Ground_UTM.ply")
+    #    pcd = o3d.io.read_point_cloud(pntPth)
+    #    
+    #    o3d.visualization.draw_geometries([pcd])
+        if meshlab == True:
+            call(["meshlab", pntPth])
 
 
 

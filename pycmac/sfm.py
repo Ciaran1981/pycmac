@@ -10,9 +10,9 @@ Complete Sfm piplines using the micmac lib.
 
 """
 
-from os import path
+from os import path, chdir, rename
 
-from pycmac.orientation import feature_match, bundle_adjust, rel_orient
+from pycmac.orientation import feature_match, bundle_adjust, rel_orient, _imresize, _callit
 
 from pycmac.dense_match import malt, tawny, pims, pims2mnt, c3dc, mesh
 
@@ -21,7 +21,8 @@ from pycmac.mspec import stack_rasters
 from shutil import move
 
 from glob2 import glob
-
+from PIL import Image
+from joblib import Parallel, delayed
 
 def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None, 
               gcpAcc=["0.03", "1"], sep=",",
@@ -370,7 +371,8 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     else:
         pass
     
-def rel_model(folder, ext='JPG', method='All', submode='Statue', schnaps=False):
+def rel_model(folder, ext='JPG', method='All', submode='Statue', schnaps=False,
+              resize=None, lineMax='10'):
     
     """
     A function for producing a point cloud using C3DC without geo-reffing,
@@ -391,12 +393,40 @@ def rel_model(folder, ext='JPG', method='All', submode='Statue', schnaps=False):
     ext: string
            image ext
     method: string
-           feature detection & matching stratedgy
+           feature detection & matching method
     submode: string
              the processing mode of C3DC
            
     """
-    feature_match(folder, method=method, schnaps=schnaps, ext=ext)
+    
+    
+    
+    extFin = '.*'+ext
+    
+    chdir(folder)
+    
+    featlog = open(path.join(folder, 'Featlog.txt'), "w")
+    
+    imList = glob(path.join(folder, "*"+ext))
+    img = Image.open(imList[0])
+    w, h = img.size
+    wprm = str(w / 2)
+    
+    if resize != None:
+        Parallel(n_jobs=-1, verbose=5)(delayed(_imresize)(i, resize) for i in imList)
+    
+    if method == 'All':
+        tapi = ["mm3d", "Tapioca", "All", extFin, wprm.replace(".0", ""), "@SFS"]
+    if method == "Line":
+        tapi = ["mm3d", "Tapioca", "Line",  extFin, wprm.replace(".0", ""), lineMax, "@SFS"]
+    
+    _callit(tapi, featlog)
+    
+    if schnaps == True:
+        schnapi = ["mm3d", "Schnaps", extFin, "MoveBadImgs=1"]
+        _callit(schnapi, featlog)
+        rename(path.join(folder, "Homol"), path.join(folder, "Homol_init"))
+        rename(path.join(folder, "Homol_mini"), path.join(folder, "Homol"))
     
     rel_orient(folder, ext=ext)
     

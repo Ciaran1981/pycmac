@@ -370,7 +370,7 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     else:
         pass
     
-def rel_model(folder, ext='JPG', submode='Statue', schnaps=False):
+def rel_model(folder, ext='JPG', method='All', submode='Statue', schnaps=False):
     
     """
     A function for producing a point cloud using C3DC without geo-reffing,
@@ -390,17 +390,20 @@ def rel_model(folder, ext='JPG', submode='Statue', schnaps=False):
            working directory
     ext: string
            image ext
+    method: string
+           feature detection & matching stratedgy
     submode: string
              the processing mode of C3DC
            
     """
-    feature_match(folder, method='All', schnaps=schnaps, ext=ext)
+    feature_match(folder, method=method, schnaps=schnaps, ext=ext)
     
     rel_orient(folder, ext=ext)
     
     c3dc(folder, mode=submode, ext=ext, orientation="Arbitrary")
+
     
-    mesh(folder, "Dense.ply", mode="C3DC", ext='tif', ori="Arbitrary")
+    mesh(folder, "Dense.ply", mode=submode, ext='tif', ori="Arbitrary")
     
     mvList = glob(path.join(folder, "Dense*.ply"))
     ootDir = path.join(folder, 'OUTPUT')
@@ -408,5 +411,5 @@ def rel_model(folder, ext='JPG', submode='Statue', schnaps=False):
     
 
 
-
+#mm3d Tequila .*$EXTENSION Arbitrary Dense_poisson_depth8.ply Filter=1
 

@@ -287,9 +287,13 @@ def c3dc(folder, mode='Statue', ext="JPG", orientation="Ground_UTM",
     else:
         extFin = '.*'+ext
     
+    
     mlog = open(path.join(folder, 'PIMslog.txt'), "w")
     
     oot = path.join("OUTPUT", "pointcloud.ply")
+    
+    if path.isdir(path.join(folder, 'OUTPUT')) == False:
+        mkdir(path.join(folder, 'OUTPUT'))
     
 
     maskCloud = "AperiCloud_"+orientation+".ply"
@@ -297,7 +301,7 @@ def c3dc(folder, mode='Statue', ext="JPG", orientation="Ground_UTM",
 
     cmd = ['mm3d', 'C3DC', mode, extFin, orientation, 
            "Masq3D="+maskXml,'DefCor='+DefCor,
-           "Out="+oot]  
+           "Out=Dense.ply"]  
     
     # A mask is mandatory here
 
@@ -316,6 +320,9 @@ def c3dc(folder, mode='Statue', ext="JPG", orientation="Ground_UTM",
     if ret !=0:
         print('A micmac error has occured - check the log file')
         sys.exit() 
+        
+    copy2(path.join(folder, "Dense.ply"),
+          path.join(folder, 'OUTPUT'))
     
 
 def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',
@@ -1119,7 +1126,7 @@ def dense_pcl(folder, mode="PIMs", out="psm.ply"):
     move(path.join(folder,out), outcloud)
     
 
-def mesh(folder, inply, mode="PIMs", ext='tif', ori="Ground_UTM"):
+def mesh(folder, inply, mode="Statue", ext='tif', ori="Ground_UTM"):
     
     """
     A function for passing a subset to Malt or PIMS
@@ -1152,7 +1159,7 @@ def mesh(folder, inply, mode="PIMs", ext='tif', ori="Ground_UTM"):
         sys.exit()
     
     cmd2 = ["mm3d", "Tequila", extFin, ori, "Dense_poisson_depth8.ply", "Filter=1"]
-    
+
     ret = call(cmd2)
 
     if ret !=0:

@@ -246,7 +246,7 @@ def pims(folder, mode='BigMac', ext="JPG", orientation="Ground_UTM",
         print('A micmac error has occured - check the log file')
         sys.exit() 
         
-def c3dc(folder, mode='Statue', ext="JPG", orientation="Ground_UTM",  
+def c3dc(folder, mode='Statue', ext="JPG", orientation="Ground_UTM", 
          sub=None, DefCor='0', delim=",", **kwargs):
     """
     
@@ -290,13 +290,18 @@ def c3dc(folder, mode='Statue', ext="JPG", orientation="Ground_UTM",
     mlog = open(path.join(folder, 'PIMslog.txt'), "w")
     
     oot = path.join("OUTPUT", "pointcloud.ply")
+    
+
+    maskCloud = "AperiCloud_"+orientation+".ply"
+    maskXml = "AperiCloud_"+orientation+"_polyg3d.xml"
 
     cmd = ['mm3d', 'C3DC', mode, extFin, orientation, 
-           "Masq3D=AperiCloud_Ground_UTM_polyg3d.xml",'DefCor='+DefCor,
+           "Masq3D="+maskXml,'DefCor='+DefCor,
            "Out="+oot]  
     
     # A mask is mandatory here
-    sais = ["mm3d", "SaisieMasqQT", "AperiCloud_Ground_UTM.ply"]
+
+    sais = ["mm3d", "SaisieMasqQT", maskCloud]
     call(sais)
     
     if kwargs != None:
@@ -1153,5 +1158,7 @@ def mesh(folder, inply, mode="PIMs", ext='tif', ori="Ground_UTM"):
     if ret !=0:
         print('A micmac error has occured - check the log file')
         sys.exit()
+
+    
     
     

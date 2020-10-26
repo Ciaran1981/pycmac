@@ -43,7 +43,7 @@ def _callit(cmd, log=None):
             sys.exit()
 
 def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None, ext="JPG",
-                  delim=" ", schnaps=True, dist=None):
+                  delim=" ", schnaps=True, dist=None, lineMax='10'):
     
     """
     
@@ -75,6 +75,8 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
                  image extention e.g JPG, tif
     dist: string
         distance for nearest neighbour search
+    lineMax:
+        if method='Line', the max adjacent images in the line to search
        
     """
     
@@ -99,7 +101,8 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
     hd, tl = path.split(csv)
     
     make_xml(csv, folder, sep=delim)
-    oriCon= ["mm3d", "OriConvert", "OriTxtInFile", tl, "RAWGNSS_N", "ChSys=DegreeWGS84@SysUTM.xml", "MTD1=1",
+    oriCon= ["mm3d", "OriConvert", "OriTxtInFile", tl, "RAWGNSS_N", 
+             "ChSys=DegreeWGS84@SysUTM.xml", "MTD1=1",
              "NameCple=FileImagesNeighbour.xml", "CalcV=1"]
     if dist != None:
         oriCon.append("DN="+dist)
@@ -122,7 +125,7 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
     if method == 'All':
         tapi = ["mm3d", "Tapioca", "All", extFin, wprm.replace(".0", ""), "@SFS"]
     if method == "Line":
-        tapi = ["mm3d", "Tapioca", "Line",  extFin, wprm.replace(".0", ""), '10', "@SFS"]
+        tapi = ["mm3d", "Tapioca", "Line",  extFin, wprm.replace(".0", ""), lineMax, "@SFS"]
     if method == 'File':        
         tapi = ["mm3d", "Tapioca", "File", "FileImagesNeighbour.xml", wprm.replace(".0", ""), "@SFS"]
 
@@ -312,13 +315,20 @@ def rel_orient(folder, algo="Fraser", proj="30 +north", martini=False,
             tapas = ["mm3d",  "Tapas", "Fraser", extFin, "Out=Arbitrary"]
         _callit(tapas, tlog)
     
+    aperi = ["mm3d", "AperiCloud", extFin,  "Arbitrary", "ProfCam=1"]
+    
+    aplog = open(path.join(folder, 'aperilog.txt'), "w")
+    _callit(aperi, aplog)
+    
+    
     if useGps !=False:     
         basc = ["mm3d", "CenterBascule", extFin, "Arbitrary",  "RAWGNSS_N",
-                "Ground_Init_RTL"]
+                "Ground_UTM"]
         
         _callit(basc)
-    
-
+        
+        aperi2 = ["mm3d", "AperiCloud", extFin,  "Ground_UTM", "ProfCam=1"]
+        _callit(aperi2, aplog)
 
 def gps_orient(folder, algo="Fraser", proj="30 +north",
                   ext="JPG", gpsAcc='1', 
@@ -349,11 +359,6 @@ def gps_orient(folder, algo="Fraser", proj="30 +north",
     gpsAcc: string
         an estimate in metres of the onboard GPS accuracy
                  
-    useGps : bool
-        if the GPS info is untrustyworthy with a lot of the data (eg Dji Phantom - z)
-        simply transform from rel to ref coordinate sys without GPS aided bundle adjust.
-    
-  
     """
 
     extFin = '.*'+ext  

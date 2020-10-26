@@ -12,9 +12,9 @@ Complete Sfm piplines using the micmac lib.
 
 from os import path
 
-from pycmac.orientation import feature_match, bundle_adjust
+from pycmac.orientation import feature_match, bundle_adjust, rel_orient
 
-from pycmac.dense_match import malt, tawny, pims, pims2mnt, c3dc
+from pycmac.dense_match import malt, tawny, pims, pims2mnt, c3dc, mesh
 
 from pycmac.mspec import stack_rasters
 
@@ -370,9 +370,42 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     else:
         pass
     
+def rel_model(folder, ext='JPG', submode='Statue', schnaps=False):
     
+    """
+    A function for producing a point cloud using C3DC without geo-reffing,
+    will do exhaustive matching by default. 
+            
+    Notes
+    -----------
 
+    This assumes certain parameters, if want fine-grained control, 
+    use the individual commands.
 
+         
+    Parameters
+    -----------
+    
+    folder: string
+           working directory
+    ext: string
+           image ext
+    submode: string
+             the processing mode of C3DC
+           
+    """
+    feature_match(folder, method='All', schnaps=schnaps, ext=ext)
+    
+    rel_orient(folder, ext=ext)
+    
+    c3dc(folder, mode=submode, ext=ext, orientation="Arbitrary")
+    
+    mesh(folder, "Dense.ply", mode="C3DC", ext='tif', ori="Arbitrary")
+    
+    mvList = glob(path.join(folder, "Dense*.ply"))
+    ootDir = path.join(folder, 'OUTPUT')
+    [move(i, ootDir) for i in mvList]
+    
 
 
 

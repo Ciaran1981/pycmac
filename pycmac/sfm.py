@@ -441,5 +441,3 @@ def rel_model(folder, ext='JPG', method='All', submode='Statue', schnaps=False,
     
 
 
-#mm3d Tequila .*$EXTENSION Arbitrary Dense_poisson_depth8.ply Filter=1
-

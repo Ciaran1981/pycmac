@@ -141,7 +141,7 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
 def bundle_adjust(folder, algo="Fraser", proj="30 +north",
                   ext="JPG", calib=None,  gpsAcc='1', sep=",", gcp=None,
                   gcpAcc=["0.03", "1"], 
-                  meshlab=False, useGps=True, relOnly=False):
+                  meshlab=False, useGps=True):
     """
     
     A function running the relative orientation/bundle adjustment with micmac 
@@ -216,61 +216,53 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     _callit(basc)
     
     glog = open(path.join(folder, algo+'GPSlog.txt'), "w")
-
-
-    if relOnly == True:
-        aperi = ["mm3d", "AperiCloud", extFin,  "Arbitrary", "ProfCam=1"]
-        
-        aplog = open(path.join(folder, 'aperilog.txt'), "w")
-        _callit(aperi, aplog)
+  
+    if useGps is False:
+        sysco = ["mm3d", "ChgSysCo",  extFin, "Arbitrary",
+                 "SysCoRTL.xml@SysUTM.xml", "Ground_UTM"]
+        _callit(sysco)
     else:
-        
-        if useGps is False:
-            sysco = ["mm3d", "ChgSysCo",  extFin, "Arbitrary",
-                     "SysCoRTL.xml@SysUTM.xml", "Ground_UTM"]
-            _callit(sysco)
+        if gcp != None:
+            # My goodness this is bad.....
+            gcpcnv = ["mm3d", "GCPConvert", "AppInFile", gcp]
+            _callit(gcpcnv)
+            
+            gcpent = ["mm3d", "SaisieAppuisPredicQT", extFin, "Ground_Init_RTL",
+              gcp[:-3]+'xml', "MeasureFinal.xml"]
+            _callit(gcpent)
+            
+            gcpbsc = ["mm3d", "GCPBascule", extFin, "Ground_Init_RTL", "Ground_GCP",
+             "GCP.xml",  "MeasureFinal-S2D.xml"]
+            _callit(gcpbsc)
+            
+            campari =["mm3d", "Campari", extFin, "Ground_GCP", "Ground_UTM",
+              "GCP=[GCP.xml,"+gcpAcc[0]+",MeasureFinal-S2D.xml,"+gcpAcc[1]+"]"
+              ,"AllFree=1"]
+            _callit(campari, glog)
         else:
-            if gcp != None:
-                # My goodness this is bad.....
-                gcpcnv = ["mm3d", "GCPConvert", "AppInFile", gcp]
-                _callit(gcpcnv)
-                
-                gcpent = ["mm3d", "SaisieAppuisPredicQT", extFin, "Ground_Init_RTL",
-                  gcp[:-3]+'xml', "MeasureFinal.xml"]
-                _callit(gcpent)
-                
-                gcpbsc = ["mm3d", "GCPBascule", extFin, "Ground_Init_RTL", "Ground_GCP",
-                 "GCP.xml",  "MeasureFinal-S2D.xml"]
-                _callit(gcpbsc)
-                
-                campari =["mm3d", "Campari", extFin, "Ground_GCP", "Ground_UTM",
-                  "GCP=[GCP.xml,"+gcpAcc[0]+",MeasureFinal-S2D.xml,"+gcpAcc[1]+"]"
-                  ,"AllFree=1"]
-                _callit(campari, glog)
-            else:
-                campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
-                  "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
-                _callit(campari, glog)
-                
+            campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
+              "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
+            _callit(campari, glog)
             
         
-        aperi = ["mm3d", "AperiCloud", extFin,  "Ground_UTM", "ProfCam=1"]
-        
-        aplog = open(path.join(folder, 'aperilog.txt'), "w")
-        _callit(aperi, aplog)
-        
-        pntPth = path.join(folder, "AperiCloud_Ground_UTM.ply")
-    #    pcd = o3d.io.read_point_cloud(pntPth)
-    #    
-    #    o3d.visualization.draw_geometries([pcd])
-        if meshlab == True:
-            call(["meshlab", pntPth])
+    
+    aperi = ["mm3d", "AperiCloud", extFin,  "Ground_UTM", "ProfCam=1"]
+    
+    aplog = open(path.join(folder, 'aperilog.txt'), "w")
+    _callit(aperi, aplog)
+    
+    pntPth = path.join(folder, "AperiCloud_Ground_UTM.ply")
+#    pcd = o3d.io.read_point_cloud(pntPth)
+#    
+#    o3d.visualization.draw_geometries([pcd])
+    if meshlab == True:
+        call(["meshlab", pntPth])
 
 
 
-def rel_orient(folder, algo="Fraser", proj="30 +north",
+def rel_orient(folder, algo="Fraser", proj="30 +north", martini=False,
                   ext="JPG", calib=None, sep=",", 
-                  meshlab=False, useGps=True):
+                  meshlab=False, useGps=False):
     """
     
     A function running the relative orientation with micmac 
@@ -304,22 +296,27 @@ def rel_orient(folder, algo="Fraser", proj="30 +north",
     
     chdir(folder)
     
+    tlog = open(path.join(folder, algo+'log.txt'), "w")
+    
     if calib != None:
         calib_subset(folder, calib, ext=extFin,  algo="Fraser", delim=sep)
     else:
-        marti = ["mm3d", "Martini", extFin]
-        _callit(marti)
+        if martini == True:
+            marti = ["mm3d", "Martini", extFin]
+            _callit(marti)
         
-        tlog = open(path.join(folder, algo+'log.txt'), "w")
-        tapas = ["mm3d",  "Tapas", "Fraser", extFin, "Out=Arbitrary", 
-                 "InOri=Martini"]
+            
+            tapas = ["mm3d",  "Tapas", "Fraser", extFin, "Out=Arbitrary", 
+                     "InOri=Martini"]
+        else:
+            tapas = ["mm3d",  "Tapas", "Fraser", extFin, "Out=Arbitrary"]
         _callit(tapas, tlog)
     
+    if useGps !=False:     
+        basc = ["mm3d", "CenterBascule", extFin, "Arbitrary",  "RAWGNSS_N",
+                "Ground_Init_RTL"]
         
-    basc = ["mm3d", "CenterBascule", extFin, "Arbitrary",  "RAWGNSS_N",
-            "Ground_Init_RTL"]
-    
-    _callit(basc)
+        _callit(basc)
     
 
 

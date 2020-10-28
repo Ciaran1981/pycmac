@@ -153,28 +153,9 @@ def calib_subset(folder, csv, ext="JPG",  algo="Fraser", delim=","):
     
     os.chdir(folder)
     
-    with open(csv, 'r') as f:
-        header = f.readline().strip('\n').split(delim)
-        nm = header.index("#F=N")
-        x_col = header.index('X') 
-        y_col = header.index('Y')
-        z_col = header.index('Z')
-        imList = []
-        x = []
-        y = []
-        z = []
-        
-        for line in f:
-                l = line.strip('\n').split(delim)
-                imList.append(l[nm])
-                x.append(l[x_col])
-                y.append(l[y_col])
-                z.append(l[z_col])
-
-    imList.sort()
+    df = pd.read_csv(csv, sep=delim, index_col=False)
     
-    
-    #subList = [path.split(item)[1] for item in imList]
+    imList = list(df['#F=N'])
     
     subStr = str(imList)
     
@@ -190,7 +171,17 @@ def calib_subset(folder, csv, ext="JPG",  algo="Fraser", delim=","):
     
     call(mm3d)
     
-    call(mm3dFinal)
+    ret = call(mm3d)
+
+    if ret !=0:
+        print('A micmac error has occured - check the log file')
+        sys.exit()
+    
+    ret = call(mm3dFinal)
+    
+    if ret !=0:
+        print('A micmac error has occured - check the log file')
+        sys.exit()
     
 def plot_img_csv(folder, csv='log.csv', delim=" ", dispCol="Z"):
     
@@ -210,7 +201,7 @@ def plot_img_csv(folder, csv='log.csv', delim=" ", dispCol="Z"):
 
     """
     
-    df = pd.read_table(csv, sep=" ", index_col=False)
+    df = pd.read_csv(csv, sep=" ", index_col=False)
     
     token = 'pk.eyJ1IjoibWljYXNlbnNlIiwiYSI6ImNqYWx5dWNteTJ3cWYzMnBicmZid3g2YzcifQ.Zrq9t7GYocBtBzYyT3P4sw'
     color_stops = create_color_stops(np.linspace( df[dispCol].min(), 
@@ -363,7 +354,7 @@ def convert_c3p(folder, lognm, ext="JPG", mspec=False, delim=','):
     #filesFin = [f[:-6]+'.tif' for f in files if "_1" in f]
    
     
-    pdcsv=pd.read_csv(lognm, sep=delim)
+    pdcsv=pd.read_csv(lognm, sep=delim, index_col=False)
 
 
 
@@ -514,7 +505,7 @@ def mv_subset(csv, inFolder, outfolder, sep=" "):
     
     os.chdir(inFolder)
     
-    dF = pd.read_csv(csv, sep=sep)
+    dF = pd.read_csv(csv, sep=sep, index_col=False)
     
     dfList = list(dF['#F=N'])
     
@@ -542,7 +533,7 @@ def make_xml(csvFile, folder, sep=" "):
     f2 = E.AuxR
     f3 = E.AuxRUnite
     
-    csv = pd.read_csv(csvFile, sep=sep)
+    csv = pd.read_csv(csvFile, sep=sep, index_col=False)
                 
     x = str(csv.X[0])
     y = str(csv.Y[0])
@@ -656,6 +647,53 @@ def make_sys_utm(folder, proj):
     
     ootXml = path.join(folder,'SysUTM.xml')
     et.write(ootXml, pretty_print=True)
+    
+
+def ori_to_meshlab(folder, imfolder, ext="JPG", ori="Ground_UTM"):
+    
+    """
+    Export to meshlab format to use for texturing
+    First copy the images you want to use to a different folder 
+    
+    Parameters
+    ----------  
+    
+    folder: string
+             working directory
+    imfolder: string
+        a folder containing the selected pics
+    ext: string
+         the image extension
+    ori: string
+        the orientation folder
+    
+    
+    """
+    
+    
+    
+    os.chdir(folder)
+    
+    
+    
+    initList = glob(path.join(imfolder, "*"+ext))
+    
+    imList = [path.split(i)[1] for i in initList]
+    
+    subStr = str(imList)
+    
+    sub2 = subStr.replace("[", "")
+    sub2 = sub2.replace("]", "")
+    sub2 = sub2.replace("'", "") 
+    sub2 = sub2.replace(", ", "|")
+
+    mm3d = ["mm3d", "Apero2Meshlab", sub2, ori, "UnDist=1"]
+
+    ret = call(mm3d)
+    
+    if ret !=0:
+        print('A micmac error has occured - check the log file')
+        sys.exit()     
     
     
 def _copy_dataset_config(inDataset, FMT = 'Gtiff', outMap = 'copy',

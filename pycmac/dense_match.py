@@ -182,7 +182,7 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
         _set_dataset_config(outCor, projF, FMT = 'Gtiff')
 #    
 def pims(folder, mode='BigMac', ext="JPG", orientation="Ground_UTM",  
-         DefCor='0', sub=None, delim=",", mask=False, **kwargs):
+         DefCor='0', sub=None, delim=",", mask=True, **kwargs):
     """
     
     A function calling the PIMs command for use in python 
@@ -1126,7 +1126,7 @@ def dense_pcl(folder, mode="PIMs", out="psm.ply"):
     move(path.join(folder,out), outcloud)
     
 
-def mesh(folder, inply, mode="Statue", ext='tif', ori="Ground_UTM"):
+def mesh(folder, inply, imFolder=None, mode="Statue", ext='tif', ori="Ground_UTM"):
     
     """
     A function for passing a subset to Malt or PIMS
@@ -1138,6 +1138,10 @@ def mesh(folder, inply, mode="Statue", ext='tif', ori="Ground_UTM"):
            working directory
     inply: string
           the input dense cloud ply
+    imFolder: string
+          a directory containing images selected for mesh texture
+          (if there a lots, this may ease the burden on tequila 
+          which does not handlt lots of images well)
     mode: string
             The micmac processing mode Malt or PIMs
     ext: string
@@ -1157,6 +1161,26 @@ def mesh(folder, inply, mode="Statue", ext='tif', ori="Ground_UTM"):
     if ret !=0:
         print('A micmac error has occured - check the log file')
         sys.exit()
+        
+    # at this point we may wish to select a subset of pics as tequila is not
+    # very reliable
+    
+    if imFolder != None:
+    
+        imfolder = path.join(folder, imFolder)
+        
+        initList = glob(path.join(imfolder, "*"+ext))
+        
+        imList = [path.split(i)[1] for i in initList]
+        
+        subStr = str(imList)
+        
+        sub2 = subStr.replace("[", "")
+        sub2 = sub2.replace("]", "")
+        sub2 = sub2.replace("'", "") 
+        sub2 = sub2.replace(", ", "|")
+        extFin = sub2 
+      
     
     cmd2 = ["mm3d", "Tequila", extFin, ori, "Dense_poisson_depth8.ply", "Filter=1"]
 
@@ -1165,6 +1189,10 @@ def mesh(folder, inply, mode="Statue", ext='tif', ori="Ground_UTM"):
     if ret !=0:
         print('A micmac error has occured - check the log file')
         sys.exit()
+    # this then meshlab is evidentally better!
+    #http://forum-micmac.forumprod.com/tequila-strange-error-dist-nulle-un-vunit-t1639.html
+    #mm3d Apero2Meshlab .*JPG Ground_UTM UnDist=1
+    # https://www.youtube.com/watch?v=OJZRuIzHcVw
 
     
     

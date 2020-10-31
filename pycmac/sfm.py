@@ -28,7 +28,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
               gcpAcc=["0.03", "1"], sep=",",
               mode='PIMs', submode='Forest', ResolTerrain=None, doFeat=True, doBundle=True, doDense=True, 
               pointmask=True, cleanpoints=True,
-              fmethod=None, shpmask=None, subset=None, rep_dsm='0', egal=1, 
+              fmethod=None, shpmask=None, subset=None, rep_dsm='0', egal="1", 
               DegRap="0", slantr=False):
     
     """
@@ -178,14 +178,14 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
                      ResolTerrain=ResolTerrain)
             else:               
                 malt(folder, proj=proj, ext='tif', mask=shpmask, sub=subset)
-        elif mode == 'PIMs':
+        if mode == 'PIMs':
             pims(folder, mode=submode, ext='tif')
             pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
                  DoMnt='1')
         
         tawny(folder, proj=proj, mode=mode, DegRap=DegRap, Out="RGB.tif")
         
-        outList = glob(path.join(folder, "*.tif"))
+        outList = glob(path.join(folder, "IMG*.tif"))
         
         # now we move it all out again - micmac doesn't like it being anywhere 
         # other than the working dir (yes this is an ugly solution)
@@ -213,7 +213,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
                      ResolTerrain=ResolTerrain)
             else:                
                 malt(folder, proj=proj, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset)
-        elif mode == 'PIMs':
+        if mode == 'PIMs':
            # PIMs bloody deletes the previous folders so would have to rename them
            # But generation of merged DSM is rapid so doesn't make much difference
     

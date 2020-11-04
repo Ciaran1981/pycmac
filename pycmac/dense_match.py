@@ -32,7 +32,7 @@ from PIL import Image
 
 def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_UTM",
          DoOrtho='1', DoMEC='1', DefCor='0', sub=None, delim=",", 
-         ResolTerrain=None,
+         ResolTerrain=None, immask=True,
          BoxTerrain=None, mask=None, **kwargs):
     
     """
@@ -79,14 +79,29 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
        
     """
     
+    mlog = open(path.join(folder, 'Maltlog.txt'), "w")    
+    
     if sub != None:
         extFin = _subset(folder, sub, ext=ext)
     else:
         extFin = '.*'+ext
+    
+    if immask == True:
+        
+        taram = ["mm3d",  "Tarama", extFin, orientation]
+    
+        ret = call(taram, stdout=mlog)
+        if ret !=0:
+            print('A micmac error has occured - check the log file')
+            sys.exit()
+        
+        sais = ["mm3d", "SaisieMasqQT", "TA/TA_LeChantier.tif"]
+        
+        ret = call(sais, stdout=mlog)
+        if ret !=0:
+            print('A micmac error has occured - check the log file')
+            sys.exit()
 
-    
-    mlog = open(path.join(folder, 'Maltlog.txt'), "w")    
-    
     cmd = ['mm3d', 'Malt', mode, extFin, orientation, "DoMEC="+DoMEC,
            'DoOrtho='+DoOrtho,
            'DefCor='+DefCor, 'EZA=1']  

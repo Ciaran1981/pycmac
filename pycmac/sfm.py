@@ -14,7 +14,7 @@ from os import path, chdir, rename
 
 from pycmac.orientation import feature_match, bundle_adjust, rel_orient, _imresize, _callit
 
-from pycmac.dense_match import malt, tawny, pims, pims2mnt, c3dc, mesh
+from pycmac.dense_match import malt, tawny, pims, pims2mnt, c3dc, mesh, dense_pcl
 
 from pycmac.mspec import stack_rasters
 
@@ -184,6 +184,11 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
                  DoMnt='1')
         
         tawny(folder, proj=proj, mode=mode, DegRap=DegRap, Out="RGB.tif")
+        if mode == 'Malt':
+            dense_pcl(folder, mode="Malt", out="rgb.ply")
+        if mode == 'PIMs':
+            dense_pcl(folder, mode="PIMs", out="rgb.ply")
+        
         
         outList = glob(path.join(folder, "IMG*.tif"))
         
@@ -223,13 +228,18 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
         tawny(folder, proj=proj,  mode=mode, Out="RRENir.tif", DegRap=DegRap, 
               RadiomEgal=egal)
         
+        if mode == 'Malt':
+            dense_pcl(folder, mode="Malt", out="rrenir.ply")
+        if mode == 'PIMs':
+            dense_pcl(folder, mode="PIMs", out="rrenir.ply")
+        
         rgbIm = path.join(folder, "OUTPUT", "RGB.tif")
         nirIm = path.join(folder, "OUTPUT", "RRENir.tif") 
         stk = path.join(folder, "OUTPUT", "mstack.tif")
         
         stack_rasters(rgbIm, nirIm, stk, slantr=slantr)
         
-        outList = glob(path.join(folder, "*.tif"))
+        outList = glob(path.join(folder, "IMG*.tif"))
         
         # move it all back to keep things tidy
         [move(t, path.join(folder, "RRENir")) for t in outList]

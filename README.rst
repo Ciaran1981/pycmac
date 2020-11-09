@@ -27,8 +27,13 @@ This will install pycmac and dependencies into a conda environment. Remember to 
     
     conda activate pycmac
 
+I have also now created a docker container, if you do not wish to use the above options or compile micmac seperately.
 
-Dependency installation
+.. code-block:: bash
+
+    docker build -t cir10/micmac git://github.com/Ciaran1981/micmac-docker
+
+Micamac & dependency installation
 ~~~~~~~~~~~~~~~~~
 
 **MicMac**

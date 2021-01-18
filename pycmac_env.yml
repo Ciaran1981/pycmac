@@ -25,13 +25,14 @@ dependencies:
   - lxml
   - pandas
   - jupyter
+  - mapbox
 
 
   
   - pip:
     - pyzbar
     - pysolar
-#    - mapboxgl
+    - mapboxgl
     - git+https://github.com/smarnach/pyexiftool.git#egg=pyexiftoolpy
     - imageio-ffmpeg
     - open3d

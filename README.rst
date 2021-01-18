@@ -31,7 +31,7 @@ I have also now created a docker container, if you do not wish to use the above 
 
 .. code-block:: bash
 
-    docker build -t cir10/micmac git://github.com/Ciaran1981/micmac-docker
+    docker build git://github.com/Ciaran1981/micmac-docker
 
 Micamac & dependency installation
 ~~~~~~~~~~~~~~~~~

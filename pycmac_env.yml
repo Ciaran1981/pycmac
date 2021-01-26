@@ -33,10 +33,10 @@ dependencies:
     - pyzbar
     - pysolar
     - mapboxgl
-    - git+https://github.com/smarnach/pyexiftool.git#egg=pyexiftoolpy
+    - git+https://github.com/smarnach/pyexiftool.git#egg=pyexiftool
     - imageio-ffmpeg
     - open3d
-    - git+https://github.com/Ciaran1981/pycmac#egg=pycmacpy
+    - git+https://github.com/Ciaran1981/pycmac#egg=pycmac
     - centerline
     
 

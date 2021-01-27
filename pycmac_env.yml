@@ -25,7 +25,6 @@ dependencies:
   - lxml
   - pandas
   - jupyter
-  - mapbox
 
 
   

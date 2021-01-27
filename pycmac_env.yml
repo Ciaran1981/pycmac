@@ -31,7 +31,6 @@ dependencies:
   - pip:
     - pyzbar
     - pysolar
-    - mapboxgl
     - git+https://github.com/smarnach/pyexiftool.git#egg=pyexiftool
     - imageio-ffmpeg
     - open3d

@@ -92,10 +92,11 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
             the csv delimiter if used (default ",")    
 
     doFeat: bool
-            if repeating after debug/changes mis out early stages
-            
+            if repeating after debug/changes mis out early stages       
     doBundle: bool
             if repeating after debug/changes mis out early stages  
+    doDense: bool
+            if repeating after debug/changes mis out early stages      
             
     fmethod: bool
             feature search for image pairs strategy eg Line All
@@ -310,12 +311,12 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     doFeat: bool
             if repeating after debug/changes mis out early stages
             
+    doFeat: bool
+            if repeating after debug/changes mis out early stages       
     doBundle: bool
             if repeating after debug/changes mis out early stages  
-            
-    fmethod: bool
-            select a feature detection strategy eg Line All etc
-            
+    doDense: bool
+            if repeating after debug/changes mis out early stages      
     shpmask: string
             a shapefile mask to constrain malt-based processing
             
@@ -354,7 +355,7 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
     
         # bundle adjust
         # if required here for calib
-        bundle_adjust(folder,  ext='tif', proj=proj, calib=sub, gpsAcc=gpsAcc, 
+        bundle_adjust(folder,  ext=ext, proj=proj, calib=sub, gpsAcc=gpsAcc, 
                       gcp=gcp, gcpAcc=gcpAcc, sep=sep)
     
     
@@ -364,10 +365,10 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
         
         if mode == 'Malt':    
             if ResolTerrain != None:
-                malt(folder, proj=proj, ext='tif', mask=shpmask, sub=subset,
+                malt(folder, proj=proj, ext=ext, mask=shpmask, sub=subset,
                      ResolTerrain=ResolTerrain)
             else:               
-                malt(folder, proj=proj, ext='tif', mask=shpmask, sub=subset)
+                malt(folder, proj=proj, ext=ext, mask=shpmask, sub=subset)
         if mode == 'PIMs':
             pims(folder, mode=submode, ext=ext, mask=pointmask)
             pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
@@ -382,7 +383,8 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
         pass
     
 def rel_model(folder, ext='JPG', method='All', submode='Statue', schnaps=False,
-              resize=None, lineMax='10'):
+              resize=None, doFeat=True, doBundle=True,
+              doDense=True, doMesh=True, lineMax='10'):
     
     """
     A function for producing a point cloud using C3DC without geo-reffing,
@@ -406,7 +408,14 @@ def rel_model(folder, ext='JPG', method='All', submode='Statue', schnaps=False,
            feature detection & matching method
     submode: string
              the processing mode of C3DC
-           
+    doFeat: bool
+            if repeating after debug/changes mis out early stages       
+    doBundle: bool
+            if repeating after debug/changes mis out early stages  
+    doDense: bool
+            if repeating after debug/changes mis out early stages              
+    doMesh: bool
+            if repeating after debug/changes mis out early stages                 
     """
     
     
@@ -415,39 +424,42 @@ def rel_model(folder, ext='JPG', method='All', submode='Statue', schnaps=False,
     
     chdir(folder)
     
-    featlog = open(path.join(folder, 'Featlog.txt'), "w")
+    if doFeat==True:
+        featlog = open(path.join(folder, 'Featlog.txt'), "w")
+        
+        imList = glob(path.join(folder, "*"+ext))
+        img = Image.open(imList[0])
+        w, h = img.size
+        wprm = str(w / 2)
+        
+        if resize != None:
+            Parallel(n_jobs=-1, verbose=5)(delayed(_imresize)(i, resize) for i in imList)
+        
+        if method == 'All':
+            tapi = ["mm3d", "Tapioca", "All", extFin, wprm.replace(".0", ""), "@SFS"]
+        if method == "Line":
+            tapi = ["mm3d", "Tapioca", "Line",  extFin, wprm.replace(".0", ""), lineMax, "@SFS"]
+        
+        _callit(tapi, featlog)
     
-    imList = glob(path.join(folder, "*"+ext))
-    img = Image.open(imList[0])
-    w, h = img.size
-    wprm = str(w / 2)
+        if schnaps == True:
+            schnapi = ["mm3d", "Schnaps", extFin, "MoveBadImgs=1"]
+            _callit(schnapi, featlog)
+            rename(path.join(folder, "Homol"), path.join(folder, "Homol_init"))
+            rename(path.join(folder, "Homol_mini"), path.join(folder, "Homol"))
     
-    if resize != None:
-        Parallel(n_jobs=-1, verbose=5)(delayed(_imresize)(i, resize) for i in imList)
+    if doBundle==True:
+        rel_orient(folder, ext=ext)
     
-    if method == 'All':
-        tapi = ["mm3d", "Tapioca", "All", extFin, wprm.replace(".0", ""), "@SFS"]
-    if method == "Line":
-        tapi = ["mm3d", "Tapioca", "Line",  extFin, wprm.replace(".0", ""), lineMax, "@SFS"]
-    
-    _callit(tapi, featlog)
-    
-    if schnaps == True:
-        schnapi = ["mm3d", "Schnaps", extFin, "MoveBadImgs=1"]
-        _callit(schnapi, featlog)
-        rename(path.join(folder, "Homol"), path.join(folder, "Homol_init"))
-        rename(path.join(folder, "Homol_mini"), path.join(folder, "Homol"))
-    
-    rel_orient(folder, ext=ext)
-    
-    c3dc(folder, mode=submode, ext=ext, orientation="Arbitrary")
+    if doDense==True:
+        c3dc(folder, mode=submode, ext=ext, orientation="Arbitrary")
 
-    
-    mesh(folder, "Dense.ply", mode=submode, ext='tif', ori="Arbitrary")
-    
-    mvList = glob(path.join(folder, "Dense*.ply"))
-    ootDir = path.join(folder, 'OUTPUT')
-    [move(i, ootDir) for i in mvList]
+    if doMesh==True:
+        mesh(folder, "Dense.ply", mode=submode, ext=ext, ori="Arbitrary")
+        
+        mvList = glob(path.join(folder, "Dense*.ply"))
+        ootDir = path.join(folder, 'OUTPUT')
+        [move(i, ootDir) for i in mvList]
     
 
 

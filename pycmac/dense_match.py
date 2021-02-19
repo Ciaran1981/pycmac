@@ -525,10 +525,11 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, rmtile=False,
     if ret !=0:
         print('A micmac error has occured - check the log file')
         sys.exit()
-        
+    
+    #set for georef     
     projF = "+proj=utm +zone="+proj+"+ellps=WGS84 +datum=WGS84 +units=m +no_defs"
     #gdal_edit(datasetname=orthF, srs=projF)
-    _set_dataset_config(orthF, projF, FMT = 'Gtiff')
+    
     
     finDir = path.join(folder, 'OUTPUT')
     
@@ -538,9 +539,13 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, rmtile=False,
     if Out == None:
         copy(orthF, path.join(finDir, "MosaicOut.tif"))
         copy(orthMeta, path.join(finDir, "MosaicOut.tfw"))
+        _set_dataset_config(path.join(finDir, "MosaicOut.tif"),
+                            projF, FMT = 'Gtiff')
     else:
         copy(orthF, path.join(finDir, Out))
         copy(orthMeta, path.join(finDir, Out[:-2]+"fw"))
+        _set_dataset_config(path.join(finDir, Out),
+                            projF, FMT = 'Gtiff')
          
 
     

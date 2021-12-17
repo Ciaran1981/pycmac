@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=geospatiallearn
+set SPHINXPROJ=pycmac
 
 if "%1" == "" goto help
 

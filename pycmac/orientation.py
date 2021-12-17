@@ -42,14 +42,13 @@ def _callit(cmd, log=None):
             print('A micmac error has occured - check the log file')
             sys.exit()
 
-def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None, ext="JPG",
+def feature_match(folder, csv=None, proj="30 +north", utmproj=True,
+                  method='File', resize=None, ext="JPG",
                   delim=" ", schnaps=True, dist=None, lineMax='10'):
     
     """
     
     A function running the feature detection and matching with micmac 
-    
-    
             
     Notes
     -----------
@@ -63,8 +62,10 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
     
     folder: string
            working directory
+           
     proj: string
            a UTM zone eg "30 +north" 
+           
     csv: string
            a path to the csv of GPS coords
         
@@ -73,8 +74,10 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
         
     ext: string
                  image extention e.g JPG, tif
+                 
     dist: string
         distance for nearest neighbour search
+        
     lineMax:
         if method='Line', the max adjacent images in the line to search
        
@@ -84,7 +87,10 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
     
     chdir(folder)
     
-    projF = "+proj=utm +zone="+proj+" +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+    if utmproj == True:
+        projF = "+proj=utm +zone="+proj+" +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+    else:
+        projF = proj
     make_sys_utm(folder, projF)
     
     
@@ -141,7 +147,7 @@ def feature_match(folder, csv=None, proj="30 +north", method='File', resize=None
      
        
 
-def bundle_adjust(folder, algo="Fraser", proj="30 +north",
+def bundle_adjust(folder, algo="Fraser", proj="30 +north", utmproj=True,
                   ext="JPG", calib=None,  gpsAcc='1', sep=",", gcp=None,
                   gcpAcc=["0.03", "1"], 
                   meshlab=False, useGps=True):
@@ -169,27 +175,36 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north",
     
     folder: string
            working directory
+           
     proj: string
            a UTM zone eg "30 +north" 
+           
     calib: string
             a calibration subset (optional - otherwise the martini initialisation will be used)
+            
     ext: string
                  image extention e.g JPG, tif
+                 
     gpsAcc: string
         an estimate in metres of the onboard GPS accuracy
+        
     gcp: string
         whether to process gcps - you MUST have a GCP file in the MM format of
         #F=N X Y Z and MUST be in the working dir   
+        
     gcpAcc: list (of strings)
         an estimate of the GCP measurment accuarcy
-        [on the ground in metres, in pixels]        
+        [on the ground in metres, in pixels]   
+        
     exif: bool
         if the GPS info is embedded in the image exif check this as True to 
         convert back to geographic coordinates, 
         If previous steps always used a csv for img coords ignore this   
+        
     useGps : bool
         if the GPS info is untrustyworthy with a lot of the data (eg Dji Phantom - z)
         simply transform from rel to ref coordinate sys without GPS aided bundle adjust.
+        
     relOnly : Bool
         use only the realtive orientation - no geo coordinate system at all
   
@@ -285,10 +300,13 @@ def rel_orient(folder, algo="Fraser", proj="30 +north", martini=False,
     
     folder: string
            working directory
+           
     proj: string
            a UTM zone eg "30 +north" 
+           
     calib: string
             a calibration subset (optional - otherwise the martini initialisation will be used)
+            
     ext: string
                  image extention e.g JPG, tif
   
@@ -330,7 +348,7 @@ def rel_orient(folder, algo="Fraser", proj="30 +north", martini=False,
         aperi2 = ["mm3d", "AperiCloud", extFin,  "Ground_UTM", "ProfCam=1"]
         _callit(aperi2, aplog)
 
-def gps_orient(folder, algo="Fraser", proj="30 +north",
+def gps_orient(folder, algo="Fraser", proj="30 +north", utmproj=True,
                   ext="JPG", gpsAcc='1', 
                   meshlab=False):
     """
@@ -351,8 +369,10 @@ def gps_orient(folder, algo="Fraser", proj="30 +north",
     
     folder: string
            working directory
+           
     proj: string
            a UTM zone eg "30 +north" 
+           
     ext: string
                  image extention e.g JPG, tif
                  

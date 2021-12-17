@@ -24,7 +24,7 @@ from glob2 import glob
 from PIL import Image
 from joblib import Parallel, delayed
 
-def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None, 
+def mspec_sfm(folder, proj="30 +north", utmproj=True, csv=None, sub=None, gpsAcc='1',gcp=None, 
               gcpAcc=["0.03", "1"], sep=",",
               mode='PIMs', submode='Forest', ResolTerrain=None, doFeat=True, doBundle=True, doDense=True, 
               pointmask=True, cleanpoints=True,
@@ -142,7 +142,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
         
 
         if fmethod != None:
-            feature_match(folder, proj=proj, csv=csv, ext='tif', 
+            feature_match(folder, proj=proj, utmproj=utmproj, csv=csv, ext='tif', 
                           method=fmethod, schnaps=cleanpoints)
         else:    
             feature_match(folder, proj=proj, csv=csv, ext='tif', 
@@ -153,7 +153,7 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
     
         # bundle adjust
         # if required here for calib
-        bundle_adjust(folder,  ext='tif', proj=proj, calib=sub, gpsAcc=gpsAcc, 
+        bundle_adjust(folder,  ext='tif', proj=proj, utmproj=utmproj, calib=sub, gpsAcc=gpsAcc, 
                       gcp=gcp, gcpAcc=gcpAcc, sep=sep)
     
     
@@ -175,16 +175,16 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
         
         if mode == 'Malt':
             if ResolTerrain != None:
-                malt(folder, proj=proj, ext='tif', mask=shpmask, sub=subset,
+                malt(folder, proj=proj, utmproj=utmproj, ext='tif', mask=shpmask, sub=subset,
                      ResolTerrain=ResolTerrain)
             else:               
-                malt(folder, proj=proj, ext='tif', mask=shpmask, sub=subset)
+                malt(folder, proj=proj, utmproj=utmproj, ext='tif', mask=shpmask, sub=subset)
         if mode == 'PIMs':
             pims(folder, mode=submode, ext='tif')
-            pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
+            pims2mnt(folder, proj=proj, utmproj=utmproj, mode=submode,  DoOrtho='1',
                  DoMnt='1')
         
-        tawny(folder, proj=proj, mode=mode, DegRap=DegRap, Out="RGB.tif")
+        tawny(folder, proj=proj, utmproj=utmproj, mode=mode, DegRap=DegRap, Out="RGB.tif")
         if mode == 'Malt':
             dense_pcl(folder, mode="Malt", out="rgb.ply")
         if mode == 'PIMs':
@@ -215,18 +215,18 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
         
         if mode == 'Malt':
             if ResolTerrain != None:
-                malt(folder, proj=proj, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset,
+                malt(folder, proj=proj, utmproj=utmproj, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset,
                      ResolTerrain=ResolTerrain)
             else:                
-                malt(folder, proj=proj, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset)
+                malt(folder, proj=proj, utmproj=utmproj, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset)
         if mode == 'PIMs':
            # PIMs bloody deletes the previous folders so would have to rename them
            # But generation of merged DSM is rapid so doesn't make much difference
     
-            pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
+            pims2mnt(folder, proj=proj, utmproj=utmproj, mode=submode,  DoOrtho='1',
                  DoMnt='1')
           
-        tawny(folder, proj=proj,  mode=mode, Out="RRENir.tif", DegRap=DegRap, 
+        tawny(folder, proj=proj, utmproj=utmproj,  mode=mode, Out="RRENir.tif", DegRap=DegRap, 
               RadiomEgal=egal)
         
         if mode == 'Malt':
@@ -248,8 +248,8 @@ def mspec_sfm(folder, proj="30 +north", csv=None, sub=None, gpsAcc='1',gcp=None,
     else:
         pass
 
-def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
-            gcp=None, gcpAcc=["0.03", "1"], sep=",",
+def rgb_sfm(folder, proj="30 +north", utmproj=True, ext='JPG', csv=None, sub=None, gpsAcc='1',
+            gcp=None, gcpAcc=["0.03", "1"], sep=",", 
               mode='PIMs', submode='Forest', ResolTerrain=None, doFeat=True, doBundle=True,
               doDense=True, fmethod=None, useGps=True, pointmask=True, shpmask=None, 
               subset=None, egal=1, resize=None, cleanpoints=True):
@@ -312,11 +312,14 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
             if repeating after debug/changes mis out early stages
             
     doFeat: bool
-            if repeating after debug/changes mis out early stages       
+            if repeating after debug/changes mis out early stages    
+            
     doBundle: bool
             if repeating after debug/changes mis out early stages  
+            
     doDense: bool
-            if repeating after debug/changes mis out early stages      
+            if repeating after debug/changes mis out early stages    
+            
     shpmask: string
             a shapefile mask to constrain malt-based processing
             
@@ -345,17 +348,17 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
         # features
         # if required here for csv
         if fmethod != None:
-            feature_match(folder, csv=csv, ext=ext, method=fmethod, resize=resize,
+            feature_match(folder, proj=proj, utmproj=utmproj, csv=csv, ext=ext, method=fmethod, resize=resize,
                           schnaps=cleanpoints)
         else:    
-            feature_match(folder, csv=csv, ext=ext, resize=resize, schnaps=cleanpoints) 
+            feature_match(folder, proj=proj, utmproj=utmproj, csv=csv, ext=ext, resize=resize, schnaps=cleanpoints) 
         
         
     if doBundle == True:
     
         # bundle adjust
         # if required here for calib
-        bundle_adjust(folder,  ext=ext, proj=proj, calib=sub, gpsAcc=gpsAcc, 
+        bundle_adjust(folder,  ext=ext, proj=proj, utmproj=utmproj, calib=sub, gpsAcc=gpsAcc, 
                       gcp=gcp, gcpAcc=gcpAcc, sep=sep)
     
     
@@ -365,20 +368,20 @@ def rgb_sfm(folder, proj="30 +north", ext='JPG', csv=None, sub=None, gpsAcc='1',
         
         if mode == 'Malt':    
             if ResolTerrain != None:
-                malt(folder, proj=proj, ext=ext, mask=shpmask, sub=subset,
+                malt(folder, proj=proj, utmproj=utmproj, ext=ext, mask=shpmask, sub=subset,
                      ResolTerrain=ResolTerrain)
             else:               
-                malt(folder, proj=proj, ext=ext, mask=shpmask, sub=subset)
+                malt(folder, proj=proj, utmproj=utmproj, ext=ext, mask=shpmask, sub=subset)
         if mode == 'PIMs':
             pims(folder, mode=submode, ext=ext, mask=pointmask)
-            pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
+            pims2mnt(folder, proj=proj, utmproj=utmproj, mode=submode,  DoOrtho='1',
                  DoMnt='1')
         if mode == 'C3DC':
             c3dc(folder, mode=submode, ext=ext)                    
-            pims2mnt(folder, proj=proj, mode=submode,  DoOrtho='1',
+            pims2mnt(folder, proj=proj, utmproj=utmproj, mode=submode,  DoOrtho='1',
                  DoMnt='1')
         
-        tawny(folder, proj=proj, mode=mode, Out="RGB.tif", RadiomEgal=egal)
+        tawny(folder, proj=proj, utmproj=utmproj, mode=mode, Out="RGB.tif", RadiomEgal=egal)
     else:
         pass
     
@@ -402,20 +405,28 @@ def rel_model(folder, ext='JPG', method='All', submode='Statue', schnaps=False,
     
     folder: string
            working directory
+           
     ext: string
            image ext
+           
     method: string
            feature detection & matching method
+           
     submode: string
              the processing mode of C3DC
+             
     doFeat: bool
-            if repeating after debug/changes mis out early stages       
+            if repeating after debug/changes mis out early stages 
+            
     doBundle: bool
             if repeating after debug/changes mis out early stages  
+            
     doDense: bool
-            if repeating after debug/changes mis out early stages              
+            if repeating after debug/changes mis out early stages  
+            
     doMesh: bool
-            if repeating after debug/changes mis out early stages                 
+            if repeating after debug/changes mis out early stages  
+               
     """
     
     

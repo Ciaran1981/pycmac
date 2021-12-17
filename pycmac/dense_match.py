@@ -30,7 +30,7 @@ from pycmac.tile import  run
 from tqdm import tqdm
 from PIL import Image
 
-def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_UTM",
+def malt(folder, proj="30 +north", utmproj=True, mode='Ortho', ext="JPG", orientation="Ground_UTM",
          DoOrtho='1', DoMEC='1', DefCor='0', sub=None, delim=",", 
          ResolTerrain=None, immask=True,
          BoxTerrain=None, mask=None, **kwargs):
@@ -55,6 +55,7 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
     
     folder: string
            working directory
+           
     proj: string
            a UTM zone eg "30 +north" 
         
@@ -149,7 +150,10 @@ def malt(folder, proj="30 +north", mode='Ortho', ext="JPG", orientation="Ground_
     
     zedS = glob(dsmF)
     
-    projF = "+proj=utm +zone="+proj+"+ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+    if utmproj == True:
+        projF = "+proj=utm +zone="+proj+" +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+    else:
+        projF = proj
     
     # It could be we are simply producing the ortho's in which case this is all
     # not required
@@ -340,7 +344,7 @@ def c3dc(folder, mode='Statue', ext="JPG", orientation="Ground_UTM",
           path.join(folder, 'OUTPUT'))
     
 
-def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',
+def pims2mnt(folder, proj="30 +north", utmproj=True, mode='BigMac',  DoOrtho='1',
              DoMnt='1',  **kwargs):
     """
     
@@ -400,7 +404,10 @@ def pims2mnt(folder, proj="30 +north", mode='BigMac',  DoOrtho='1',
     
     # georef the DEM
     
-    projF = "+proj=utm +zone="+proj+"+ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+    if utmproj == True:
+        projF = "+proj=utm +zone="+proj+" +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+    else:
+        projF = proj
     
 #    gdal_edit(datasetname=dsmF, srs=projF)
     _set_dataset_config(dsmF, projF, FMT = 'Gtiff')
@@ -448,7 +455,7 @@ def _remove_ortho_tiles(folder):
     [move(tile, rej) for tile in fileList[::2]]
             
 
-def tawny(folder, proj="30 +north", mode='PIMs', Out=None, rmtile=False,
+def tawny(folder, proj="30 +north", utmproj=True, mode='PIMs', Out=None, rmtile=False,
           **kwargs):
 
     """
@@ -477,6 +484,7 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, rmtile=False,
         
     mode: string
              Either Malt or PIMs depending on the previous process
+             
     rmtile: bool
              Remove every second tile - can speed up and sometimes improve 
              even illumination across mosaic
@@ -527,7 +535,10 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, rmtile=False,
         sys.exit()
     
     #set for georef     
-    projF = "+proj=utm +zone="+proj+"+ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+    if utmproj == True:
+        projF = "+proj=utm +zone="+proj+" +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+    else:
+        projF = proj
     #gdal_edit(datasetname=orthF, srs=projF)
     
     
@@ -550,7 +561,7 @@ def tawny(folder, proj="30 +north", mode='PIMs', Out=None, rmtile=False,
 
     
 
-def feather(folder, proj="30 +north", mode='PIMs',
+def feather(folder, proj="30 +north",  utmproj=True, mode='PIMs',
             ms=['r', 'g', 'b'], Dist="100", ApplyRE="1", ComputeRE="1", 
             subset=None,  outMosaic=None, rmtile=False, 
             mp=False, Label=False, redo=False, delim=",", **kwargs):
@@ -638,8 +649,10 @@ def feather(folder, proj="30 +north", mode='PIMs',
     
     if rmtile==True:
         _remove_ortho_tiles(folder)
-#        
-    projstr = ("+proj=utm +zone="+proj+"+ellps=WGS84 +datum=WGS84 +units=m +no_defs")
+    if utmproj == True:
+        projstr = "+proj=utm +zone="+proj+" +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+    else:
+        projstr = proj
     
     if ms !=None:
                 
@@ -751,7 +764,7 @@ def feather(folder, proj="30 +north", mode='PIMs',
 
 # TODO - consider canning this as ossim is pain to get working on machines
 # and for some weird reason will not subprocess so uses os.system
-def ossimmosaic(folder, proj="30 +north", mode="ossimFeatherMosaic", nt=-1,
+def ossimmosaic(folder, proj="30 +north", utmproj=True, mode="ossimFeatherMosaic", nt=-1,
                 rmtile=False):
     
     """
@@ -783,7 +796,10 @@ def ossimmosaic(folder, proj="30 +north", mode="ossimFeatherMosaic", nt=-1,
     """    
     
 
-    projstr = ("+proj=utm +zone="+proj+"+ellps=WGS84 +datum=WGS84 +units=m +no_defs")
+    if utmproj == True:
+        projstr = "+proj=utm +zone="+proj+" +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+    else:
+        projstr = proj
     
     if rmtile==True:
         _remove_ortho_tiles(folder)

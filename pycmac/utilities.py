@@ -33,9 +33,9 @@ from skimage.color import rgb2gray
 from skimage import exposure
 import matplotlib.pyplot as plt
 import math
-#from mapboxgl.viz import *
-#from mapboxgl.utils import df_to_geojson, create_radius_stops, scale_between
-#from mapboxgl.utils import create_color_stops
+from mapboxgl.viz import *
+from mapboxgl.utils import df_to_geojson, create_radius_stops, scale_between
+from mapboxgl.utils import create_color_stops
 
 
 def mm3d(folder, cmd, *args, **kwargs):
@@ -111,6 +111,7 @@ def make_csv(folder,  ext="tif"):
         f.write(line.rstrip('\r\n') + '\n' + content)
     #Finally
     os.rename(txtFile, path.join(folder, "log.csv"))
+
 
 def calib_subset(folder, csv, ext="JPG",  algo="Fraser", delim=","):
     

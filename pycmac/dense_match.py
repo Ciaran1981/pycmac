@@ -32,7 +32,7 @@ from PIL import Image
 
 def malt(folder, proj="30 +north", utmproj=True, mode='Ortho', ext="JPG", orientation="Ground_UTM",
          DoOrtho='1', DoMEC='1', DefCor='0', sub=None, delim=",", 
-         ResolTerrain=None, immask=True,
+         ResolTerrain=None, immask=False,
          BoxTerrain=None, mask=None, **kwargs):
     
     """
@@ -80,6 +80,8 @@ def malt(folder, proj="30 +north", utmproj=True, mode='Ortho', ext="JPG", orient
        
     """
     
+    chdir(folder)
+    
     mlog = open(path.join(folder, 'Maltlog.txt'), "w")    
     
     if sub != None:
@@ -88,7 +90,6 @@ def malt(folder, proj="30 +north", utmproj=True, mode='Ortho', ext="JPG", orient
         extFin = '.*'+ext
     
     if immask == True:
-        
         taram = ["mm3d",  "Tarama", extFin, orientation]
     
         ret = call(taram, stdout=mlog)
@@ -102,6 +103,8 @@ def malt(folder, proj="30 +north", utmproj=True, mode='Ortho', ext="JPG", orient
         if ret !=0:
             print('A micmac error has occured - check the log file')
             sys.exit()
+    else:
+        print('not using mask')
 
     cmd = ['mm3d', 'Malt', mode, extFin, orientation, "DoMEC="+DoMEC,
            'DoOrtho='+DoOrtho,
@@ -133,8 +136,6 @@ def malt(folder, proj="30 +north", utmproj=True, mode='Ortho', ext="JPG", orient
         bt2 = bt.replace(" ", "")
         cmd.append(bt2)
         
-        
-    chdir(folder)
     
       
     ret = call(cmd, stdout=mlog)

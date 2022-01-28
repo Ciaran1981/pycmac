@@ -11,15 +11,10 @@ Complete Sfm piplines using the micmac lib.
 """
 
 from os import path, chdir, rename
-
 from pycmac.orientation import feature_match, bundle_adjust, rel_orient, _imresize, _callit
-
 from pycmac.dense_match import malt, tawny, pims, pims2mnt, c3dc, mesh, dense_pcl
-
 from pycmac.mspec import stack_rasters
-
 from shutil import move
-
 from glob2 import glob
 from PIL import Image
 from joblib import Parallel, delayed
@@ -82,10 +77,10 @@ def mspec_sfm(folder, proj="30 +north", utmproj=True, csv=None, sub=None, gpsAcc
         
     gcp: string
         whether to process gcps - you MUST have a GCP file in the MM format of
-        #F=N X Y Z and MUST be in the working dir   
+        #F=N X Y Z Ix Iy Iz and MUST be in the working dir (where Ix is uncertainty)   
         
     gcpAcc: list (of strings)
-        an estimate of the GCP measurment accuarcy
+        an estimate of the GCP measurment uncertainty
         [on the ground in metres, in pixels]        
             
     sep: string
@@ -126,12 +121,7 @@ def mspec_sfm(folder, proj="30 +north", utmproj=True, csv=None, sub=None, gpsAcc
             if processing slantrange imagery change to true otherwise leave false for micasense           
     """
 
-    # folders
-    """
-    #RGB
-    Here process the RGB which forms the template for the other bands
-    """
-    # first we move all the RGB into the working directory
+
     
     if doFeat == True:
         folder1 = path.join(folder,'RGB')
@@ -265,7 +255,7 @@ def rgb_sfm(folder, proj="30 +north", utmproj=True, ext='JPG', csv=None, sub=Non
     -----------
     
 
-    This assumes certain parameters, if want fine-grained control, use the individual commands.
+    This assumes certain parameters, if you want fine-grained control, use the individual commands.
     
     The absolute path needs to be provided for csv's representing image data or calibration subsets
     
@@ -299,10 +289,10 @@ def rgb_sfm(folder, proj="30 +north", utmproj=True, ext='JPG', csv=None, sub=Non
         
     gcp: string
         whether to process gcps - you MUST have a GCP file in the MM format of
-        #F=N X Y Z and MUST be in the working dir   
+        #F=N X Y Z Ix Iy Iz and MUST be in the working dir (where Ix is uncertainty)   
         
     gcpAcc: list (of strings)
-        an estimate of the GCP measurment accuarcy
+        an estimate of the GCP measurment uncertainty
         [on the ground in metres, in pixels]        
             
     sep: string
@@ -322,6 +312,9 @@ def rgb_sfm(folder, proj="30 +north", utmproj=True, ext='JPG', csv=None, sub=Non
             
     shpmask: string
             a shapefile mask to constrain malt-based processing
+    
+    resize: int
+         The long axis in pixels to optionally resize the imagery
             
     pointmask: bool
             use the micmac SaisieMasq3D (need QT compiled) to define a mask
@@ -337,11 +330,6 @@ def rgb_sfm(folder, proj="30 +north", utmproj=True, ext='JPG', csv=None, sub=Non
     
     """
 
-    # folders
-    """
-    #RGB
-    Here process the RGB which forms the template for the other bands
-    """
 
     
     if doFeat == True:               

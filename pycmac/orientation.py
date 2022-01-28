@@ -190,10 +190,10 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north", utmproj=True,
         
     gcp: string
         whether to process gcps - you MUST have a GCP file in the MM format of
-        #F=N X Y Z and MUST be in the working dir   
+        #F=N X Y Z Ix Iy Iz and MUST be in the working dir (where Ix is uncertainty)   
         
     gcpAcc: list (of strings)
-        an estimate of the GCP measurment accuarcy
+        an estimate of the GCP measurment uncertainty
         [on the ground in metres, in pixels]   
         
     exif: bool
@@ -250,12 +250,14 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north", utmproj=True,
             _callit(gcpent)
             
             gcpbsc = ["mm3d", "GCPBascule", extFin, "Ground_Init_RTL", "Ground_GCP",
-             "GCP.xml",  "MeasureFinal-S2D.xml"]
+             gcp[:-3]+'xml',  "MeasureFinal-S2D.xml"]
             _callit(gcpbsc)
             
+            #yuck
+            gcpDiag = "GCP=["+gcp[:-3]+'xml,'+gcpAcc[0]+",MeasureFinal-S2D.xml,"+gcpAcc[1]+"]"
+            
             campari =["mm3d", "Campari", extFin, "Ground_GCP", "Ground_UTM",
-              "GCP=[GCP.xml,"+gcpAcc[0]+",MeasureFinal-S2D.xml,"+gcpAcc[1]+"]"
-              ,"AllFree=1"]
+              gcpDiag ,"AllFree=1"]
             _callit(campari, glog)
         else:
             campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
@@ -349,11 +351,13 @@ def rel_orient(folder, algo="Fraser", proj="30 +north", martini=False,
         _callit(aperi2, aplog)
 
 def gps_orient(folder, algo="Fraser", proj="30 +north", utmproj=True,
-                  ext="JPG", gpsAcc='1', 
+                  ext="JPG", gpsAcc='1',  gcp=None,
+                  gcpAcc=["0.03", "1"],
                   meshlab=False):
     """
     
-    A function running the gps bundle adjustment with micmac 
+    A function running the gps bundle adjustment with micmac with or without 
+    GCPs 
     
             
     Notes
@@ -377,7 +381,15 @@ def gps_orient(folder, algo="Fraser", proj="30 +north", utmproj=True,
                  image extention e.g JPG, tif
                  
     gpsAcc: string
-        an estimate in metres of the onboard GPS accuracy
+        an estimate in metres of the onboard GPS uncertainty
+
+    gcp: string
+        whether to process gcps - you MUST have a GCP file in the MM format of
+        #F=N X Y Z Ix Iy Iz and MUST be in the working dir (where Ix is uncertainty)   
+        
+    gcpAcc: list (of strings)
+        an estimate of the GCP measurment accuarcy
+        [on the ground in metres, in pixels]  
                  
     """
 
@@ -386,13 +398,32 @@ def gps_orient(folder, algo="Fraser", proj="30 +north", utmproj=True,
     glog = open(path.join(folder, algo+'GPSlog.txt'), "w")
     
     chdir(folder)
-        
-    campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
-          "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
-    _callit(campari, glog)
-
-        
     
+    if gcp != None:
+            # My goodness this is bad.....
+            gcpcnv = ["mm3d", "GCPConvert", "AppInFile", gcp]
+            _callit(gcpcnv)
+            
+            gcpent = ["mm3d", "SaisieAppuisPredicQT", extFin, "Ground_Init_RTL",
+              gcp[:-3]+'xml', "MeasureFinal.xml"]
+            _callit(gcpent)
+            
+            gcpbsc = ["mm3d", "GCPBascule", extFin, "Ground_Init_RTL", "Ground_GCP",
+             gcp[:-3]+'xml',  "MeasureFinal-S2D.xml"]
+            _callit(gcpbsc)
+            
+            #yuck
+            gcpDiag = "GCP=["+gcp[:-3]+'xml,'+gcpAcc[0]+",MeasureFinal-S2D.xml,"+gcpAcc[1]+"]"
+            
+            campari =["mm3d", "Campari", extFin, "Ground_GCP", "Ground_UTM",
+              gcpDiag ,"AllFree=1"]
+            _callit(campari, glog)
+    else:
+        
+        campari =["mm3d", "Campari", extFin, "Ground_Init_RTL", "Ground_UTM",
+              "EmGPS=[RAWGNSS_N,"+gpsAcc+"]", "AllFree=1"]
+        _callit(campari, glog)
+
     aperi = ["mm3d", "AperiCloud", extFin,  "Ground_UTM"]
     
     aplog = open(path.join(folder, 'aperilog.txt'), "w")

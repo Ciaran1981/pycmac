@@ -149,8 +149,7 @@ def feature_match(folder, csv=None, proj="30 +north", utmproj=True,
 
 def bundle_adjust(folder, algo="Fraser", proj="30 +north", utmproj=True,
                   ext="JPG", calib=None,  gpsAcc='1', sep=",", gcp=None,
-                  gcpAcc=["0.03", "1"], 
-                  meshlab=False, useGps=True):
+                  gcpAcc=["0.03", "1"], useGps=True):
     """
     
     A function running the relative orientation/bundle adjustment with micmac 
@@ -275,12 +274,12 @@ def bundle_adjust(folder, algo="Fraser", proj="30 +north", utmproj=True,
 #    pcd = o3d.io.read_point_cloud(pntPth)
 #    
 #    o3d.visualization.draw_geometries([pcd])
-    if meshlab == True:
-        call(["meshlab", pntPth])
+#    if meshlab == True:
+#        call(["meshlab", pntPth])
 
 
 
-def rel_orient(folder, algo="Fraser", proj="30 +north", martini=False,
+def rel_orient(folder, algo="Fraser", proj="30 +north", martini=False, 
                   ext="JPG", calib=None, sep=",", 
                   meshlab=False, useGps=False):
     """
@@ -352,8 +351,7 @@ def rel_orient(folder, algo="Fraser", proj="30 +north", martini=False,
 
 def gps_orient(folder, algo="Fraser", proj="30 +north", utmproj=True,
                   ext="JPG", gpsAcc='1',  gcp=None,
-                  gcpAcc=["0.03", "1"],
-                  meshlab=False):
+                  gcpAcc=["0.03", "1"]):
     """
     
     A function running the gps bundle adjustment with micmac with or without 
@@ -365,7 +363,7 @@ def gps_orient(folder, algo="Fraser", proj="30 +north", utmproj=True,
     
     Underlying cmds include
     
-    (Campari, AperiCloud)
+    (CenterBascule, Campari, AperiCloud)
     
         
     Parameters
@@ -385,7 +383,8 @@ def gps_orient(folder, algo="Fraser", proj="30 +north", utmproj=True,
 
     gcp: string
         whether to process gcps - you MUST have a GCP file in the MM format of
-        #F=N X Y Z Ix Iy Iz and MUST be in the working dir (where Ix is uncertainty)   
+        #F=N X Y Z Ix Iy Iz (minimum #F=N X Y Z)
+        and MUST be in the working dir (where Ix is uncertainty)   
         
     gcpAcc: list (of strings)
         an estimate of the GCP measurment accuarcy
@@ -398,6 +397,11 @@ def gps_orient(folder, algo="Fraser", proj="30 +north", utmproj=True,
     glog = open(path.join(folder, algo+'GPSlog.txt'), "w")
     
     chdir(folder)
+    
+#    basc = ["mm3d", "CenterBascule", extFin, "Arbitrary",  "RAWGNSS_N",
+#            "Ground_Init_RTL"]
+#    
+#    _callit(basc)
     
     if gcp != None:
             # My goodness this is bad.....
@@ -429,10 +433,6 @@ def gps_orient(folder, algo="Fraser", proj="30 +north", utmproj=True,
     aplog = open(path.join(folder, 'aperilog.txt'), "w")
     _callit(aperi, aplog)
     
-    pntPth = path.join(folder, "AperiCloud_Ground_UTM.ply")
-
-    if meshlab == True:
-        call(["meshlab", pntPth])
 
 #### Here in case ever reinstated##############################################
 #        xif = ['mm3d', 'XifGps2Txt', extFin]

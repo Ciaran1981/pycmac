@@ -32,7 +32,7 @@ from PIL import Image
 
 def malt(folder, proj="30 +north", utmproj=True, mode='Ortho', ext="JPG", orientation="Ground_UTM",
          DoOrtho='1', DoMEC='1', DefCor='0', sub=None, delim=",", 
-         ResolTerrain=None, immask=False,
+         ResolTerrain=None, 
          BoxTerrain=None, mask=None, **kwargs):
     
     """
@@ -70,7 +70,13 @@ def malt(folder, proj="30 +north", utmproj=True, mode='Ortho', ext="JPG", orient
                  default is "Ground_UTM"
     sub: string
             path to csv containing an image subset
-    
+
+    inmask: bool
+            use the micmac SaisieMasq3D (need QT compiled) to define a mask
+            on the sparse cloud (PIMs) or prelim ortho (Malt) to 
+            constrain processing - this is VERY useful
+            and will save a lot of time
+
     BoxTerrain: list
             The bottom left and top right coordinates of a bounding box to constrain processing
             e.g. [480644.0,5752033.4,481029.4,5752251.6]
@@ -89,22 +95,22 @@ def malt(folder, proj="30 +north", utmproj=True, mode='Ortho', ext="JPG", orient
     else:
         extFin = '.*'+ext
     
-    if immask == True:
-        taram = ["mm3d",  "Tarama", extFin, orientation]
+#    if immask is True:
+    taram = ["mm3d",  "Tarama", extFin, orientation]
+
+    ret = call(taram, stdout=mlog)
+    if ret !=0:
+        print('A micmac error has occured - check the log file')
+        sys.exit()
     
-        ret = call(taram, stdout=mlog)
-        if ret !=0:
-            print('A micmac error has occured - check the log file')
-            sys.exit()
-        
-        sais = ["mm3d", "SaisieMasqQT", "TA/TA_LeChantier.tif"]
-        
-        ret = call(sais, stdout=mlog)
-        if ret !=0:
-            print('A micmac error has occured - check the log file')
-            sys.exit()
-    else:
-        print('not using mask')
+    sais = ["mm3d", "SaisieMasqQT", "TA/TA_LeChantier.tif"]
+    
+    ret = call(sais, stdout=mlog)
+    if ret !=0:
+        print('A micmac error has occured - check the log file')
+        sys.exit()
+#    else:
+#        print('not using mask')
 
     cmd = ['mm3d', 'Malt', mode, extFin, orientation, "DoMEC="+DoMEC,
            'DoOrtho='+DoOrtho,

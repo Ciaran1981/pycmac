@@ -101,7 +101,8 @@ def mspec_sfm(folder, proj="30 +north", utmproj=True, csv=None, sub=None, gpsAcc
     
     pointmask: bool
             use the micmac SaisieMasq3D (need QT compiled) to define a mask
-            on the sparse cloud to constrain processing - this is VERY useful
+            on the sparse cloud (PIMs) or prelim ortho (Malt) to 
+            constrain processing - this is VERY useful
             and will save a lot of time
 
     subset: string
@@ -205,10 +206,13 @@ def mspec_sfm(folder, proj="30 +north", utmproj=True, csv=None, sub=None, gpsAcc
         
         if mode == 'Malt':
             if ResolTerrain != None:
-                malt(folder, proj=proj, utmproj=utmproj, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset,
+                malt(folder, proj=proj, utmproj=utmproj, DoMEC=rep_dsm, ext='tif',
+                     mask=shpmask, sub=subset, inmask=pointmask,
                      ResolTerrain=ResolTerrain)
             else:                
-                malt(folder, proj=proj, utmproj=utmproj, DoMEC=rep_dsm, ext='tif', mask=shpmask, sub=subset)
+                malt(folder, proj=proj, utmproj=utmproj, DoMEC=rep_dsm, ext='tif', 
+                     inmask=pointmask,
+                     mask=shpmask, sub=subset)
         if mode == 'PIMs':
            # PIMs bloody deletes the previous folders so would have to rename them
            # But generation of merged DSM is rapid so doesn't make much difference
@@ -318,8 +322,9 @@ def rgb_sfm(folder, proj="30 +north", utmproj=True, ext='JPG', csv=None, sub=Non
             
     pointmask: bool
             use the micmac SaisieMasq3D (need QT compiled) to define a mask
-            on the sparse cloud to constrain processing - this is VERY useful
-            and will save a lot of time and is recommended over shpmask
+            on the sparse cloud (PIMs) or prelim ortho (Malt) to 
+            constrain processing - this is VERY useful
+            and will save a lot of time
 
     subset: string
             a csv defining a subset of images to be processed during dense matching
@@ -356,10 +361,12 @@ def rgb_sfm(folder, proj="30 +north", utmproj=True, ext='JPG', csv=None, sub=Non
         
         if mode == 'Malt':    
             if ResolTerrain != None:
-                malt(folder, proj=proj, utmproj=utmproj, ext=ext, mask=shpmask, sub=subset,
+                malt(folder, proj=proj, utmproj=utmproj, ext=ext, 
+                     mask=shpmask, sub=subset,
                      ResolTerrain=ResolTerrain)
             else:               
-                malt(folder, proj=proj, utmproj=utmproj, ext=ext, mask=shpmask, sub=subset)
+                malt(folder, proj=proj, utmproj=utmproj, ext=ext, 
+                     mask=shpmask, sub=subset)
         if mode == 'PIMs':
             pims(folder, mode=submode, ext=ext, mask=pointmask)
             pims2mnt(folder, proj=proj, utmproj=utmproj, mode=submode,  DoOrtho='1',

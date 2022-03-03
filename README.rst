@@ -33,6 +33,14 @@ I have also now created a docker container, if you do not wish to use the above 
 
     docker build git://github.com/Ciaran1981/micmac-docker
 
+If you are using a GNU/Linux OS, this shell script will do the whole install including micmac for you.
+
+.. code-block:: bash
+
+   chmod +x pycmac_setup.sh
+   
+   pycmac_setup.sh
+
 Micamac & dependency installation
 ~~~~~~~~~~~~~~~~~
 

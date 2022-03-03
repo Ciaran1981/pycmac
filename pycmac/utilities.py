@@ -695,6 +695,58 @@ def ori_to_meshlab(folder, imfolder, ext="JPG", ori="Ground_UTM"):
     if ret !=0:
         print('A micmac error has occured - check the log file')
         sys.exit()     
+
+def fill_nodata(inRas, maxSearchDist=5, smoothingIterations=1, 
+                bands=[1]):
+    
+    """
+    fill no data using gdal
+    
+    Parameters
+    ----------
+    
+    inRas: string
+              the input image 
+            
+    maxSearchDist: int
+              the input polygon file path 
+        
+    smoothingIterations: int (optional)
+             the clipped raster
+             
+    maskBand: bool (optional)
+             the mask band for where to fill      
+    
+    """
+    
+    rds = gdal.Open(inRas, gdal.GA_Update)
+    
+    #   The nump and gdal dtype (ints)
+        #   {"uint8": 1,"int8": 1,"uint16": 2,"int16": 3,"uint32": 4,"int32": 5,
+        #    "float32": 6, "float64": 7, "complex64": 10, "complex128": 11}
+        
+        # a numpy gdal conversion dict - this seems a bit long-winded
+#        dtypes = {"1": np.uint8, "2": np.uint16,
+#              "3": np.int16, "4": np.uint32,"5": np.int32,
+#              "6": np.float32,"7": np.float64,"10": np.complex64,
+#              "11": np.complex128}
+    
+#    if outRas != None:
+#        bd = bnd = rds.GetRasterBand(bands[0])
+#        _copy_dataset_config(rds, FMT = 'Gtiff', outMap=outRas,
+#                         dtype = bd.DataType, bands=rds.RasterCount)
+    
+    for band in tqdm(bands):
+        bnd = rds.GetRasterBand(band)
+#        # clumsy change this
+#        if outRas !=None: 
+        gdal.FillNodata(targetBand=bnd, maskBand=None, 
+                         maxSearchDist=maxSearchDist, 
+                         smoothingIterations=smoothingIterations)
+    
+    rds.FlushCache()
+    
+    rds=None
     
     
 def _copy_dataset_config(inDataset, FMT = 'Gtiff', outMap = 'copy',

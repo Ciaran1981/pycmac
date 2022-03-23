@@ -327,7 +327,7 @@ def c3dc(folder, mode='Statue', ext="JPG", orientation="Ground_UTM",
 
     cmd = ['mm3d', 'C3DC', mode, extFin, orientation, 
            "Masq3D="+maskXml,'DefCor='+DefCor,
-           "Out=Dense.ply"]  
+           "Out=Dense.ply", '64B=1']  
     
     # A mask is mandatory here
 

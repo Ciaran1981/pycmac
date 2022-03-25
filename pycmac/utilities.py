@@ -585,19 +585,8 @@ def pims_mask(inShp, folder):
             inStr.replace('"', "")
             points.append(inStr)
 
-# gave up on this
-#    el = etree.Element('Polyg3D')
-#    it = etree.SubElement(el, 'Item')
-#    for i in points:      
-#        pt = etree.SubElement(it, 'Pt', text=i)
-        
-#    md = etree.SubElement(it, 'Mode', text="1")
-#
-#    
-#    subel.text = 'World'
-#    # I detest xml writing!!!!!!!!!!!!!!!
+
     E = lxml.builder.ElementMaker()
-#    
     root = E.Polyg3D
     doc = E.Item
     coord = E.Pt
@@ -611,7 +600,7 @@ def pims_mask(inShp, folder):
                    mode('1'))))
     
     et = lxml.etree.ElementTree(xmlDoc)
-    ootXml = path.join(folder, 'polyg3d.xml')
+    ootXml = path.join(folder, 'AperiCloud_Ground_UTM_polyg3d.xml')
     et.write(ootXml, pretty_print=True)
 
 
